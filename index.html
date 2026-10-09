@@ -3258,7 +3258,8 @@ function drawCityMap(a){const cv=$('#cityMap');if(cv.hidden||(a.mapT=(a.mapT||0)
   const dot=(x,z,c,s=4)=>{g.fillStyle=c;g.beginPath();g.arc(toM(x),toM(z),s,0,7);g.fill();};
   dot(60,0,'#ffd23d');dot(-60,0,'#ff3fd1');dot(0,60,'#39ff6a');dot(0,-60,'#ff8a1f');dot(-60,-60,'#ffffff');dot(60,60,'#5bb35a',5);dot(-60,60,'#c9ccd2',5);dot(0,-17,'#ff3fd1',3);dot(0,130,'#9fdcff');
   if(a.race){const gt=CITY_RACE[Math.min(a.race.me.cp,CITY_RACE.length-1)];dot(gt[0],gt[1],'#ffc23d',5);}
-  for(const pp of POOR)if(citySec().holy.q[POOR.indexOf(pp)]<2)dot(pp.x,pp.z,'#ff9ac0',2.5);
+  const hs=citySec().holy;const pl=(a.bt*4)%(Math.PI*2);for(const pp of POOR)if(hs.q[POOR.indexOf(pp)]<2){g.strokeStyle='rgba(255,111,181,'+(.5+Math.sin(pl)*.4)+')';g.lineWidth=2;g.beginPath();g.arc(toM(pp.x),toM(pp.z),7+Math.sin(pl)*2,0,7);g.stroke();dot(pp.x,pp.z,'#ff6fb5',4.5);}
+  for(const k in PICKUPS){const idx=POOR.findIndex(p=>p.need===k);if(hs.q[idx]===1&&!hs.items[k])dot(PICKUPS[k].x,PICKUPS[k].z,'#ffd23d',4);}
   const x=toM(player.pos.x),y=toM(player.pos.z),fx=-Math.sin(camYaw),fz=-Math.cos(camYaw);g.fillStyle='#ffc23d';g.strokeStyle='#14213d';g.lineWidth=2;g.beginPath();g.moveTo(x+fx*8,y+fz*8);g.lineTo(x-fx*4+fz*4,y-fz*4-fx*4);g.lineTo(x-fx*4-fz*4,y-fz*4+fx*4);g.closePath();g.fill();g.stroke();}
 
 /* ---- playgrounds ---- */
@@ -3306,8 +3307,14 @@ const PICKUPS={scarf:{icon:'🧣',x:47,z:76,y:1.2},cat:{icon:'🐈',x:-56,z:62,y
 function buildPoorPeople(a){const sec=citySec();a.poor=[];
   POOR.forEach((pp,i)=>{const b=new Ball({color:pick(['#8a7a6a','#7a7f88','#9a8a7a','#6b6f78','#8a8070']),secondary:'sec_brown',pattern:'pat_solid',hat:i%2?'hat_beanie':'hat_none'},.85);b.pos.set(pp.x,1,pp.z);
     const lab=makeLabel(sec.holy.q[i]>=2?'😊 '+pp.name:'🪧 '+pp.name,{scale:.55,bg:sec.holy.q[i]>=2?'rgba(214,255,224,.95)':'rgba(255,240,214,.95)'});a.group.add(lab);const n={b,name:pp.name,lab,fixed:true};a.npcs.push(n);lab.position.set(pp.x,3,pp.z);
-    a.inter.push({pos:new V3(pp.x,1,pp.z),r:3.4,label:'Talk to '+pp.name,act:()=>poorTalk(a,i)});a.poor.push(n);});
-  a.pick={};for(const k in PICKUPS){const p=PICKUPS[k];const s=makeLabel(p.icon,{bg:'rgba(255,255,255,.0)',scale:1.6});s.position.set(p.x,p.y,p.z);a.group.add(s);a.pick[k]=s;}}
+    a.inter.push({pos:new V3(pp.x,1,pp.z),r:3.4,label:'Talk to '+pp.name,act:()=>poorTalk(a,i)});a.poor.push(n);
+    n.beam=poorBeam(a,pp.x,pp.z,0xff6fb5);});
+  a.pick={};a.pickBeam={};for(const k in PICKUPS){const p=PICKUPS[k];const s=makeLabel(p.icon,{bg:'rgba(255,255,255,.0)',scale:1.6});s.position.set(p.x,p.y,p.z);a.group.add(s);a.pick[k]=s;a.pickBeam[k]=poorBeam(a,p.x,p.z,0xffd23d,p.y-1);}}
+function poorBeam(a,x,z,col,y0=0){const g=new THREE.Group();g.position.set(x,y0,z);a.group.add(g);
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.5,90,16,1,true),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.6,depthWrite:false,side:THREE.DoubleSide}));beam.position.y=45;g.add(beam);
+  const core=new THREE.Mesh(new THREE.CylinderGeometry(.35,.35,90,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.85,depthWrite:false}));core.position.y=45;g.add(core);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(1.6,2.1,40),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.08;g.add(ring);
+  const star=makeLabel('❗',{bg:'rgba(255,255,255,0)',scale:1.5});star.position.y=4.6;g.add(star);g.userData={beam,ring,star};return g;}
 function poorTalk(a,i){const sec=citySec(),pp=POOR[i],st=sec.holy.q[i];const done=()=>{sec.holy.q[i]=2;save();closeSheets();sfx('badge');const n=a.poor[i];a.group.remove(n.lab);n.lab=makeLabel('😊 '+pp.name,{scale:.55,bg:'rgba(214,255,224,.95)'});n.lab.position.set(pp.x,3,pp.z);a.group.add(n.lab);
     burst(new V3(pp.x,2,pp.z),['#ffd23d','#ffffff','#ff9ac0'],24);toast(pp.name+': "'+pp.thanks+'"','badge','❤️');
     if(sec.holy.q.every(x=>x===2))setTimeout(()=>toast('You feel lighter… like someone way up above just noticed you. Maybe somewhere really high up?','badge','😇'),2500);};
@@ -3318,7 +3325,9 @@ function poorTalk(a,i){const sec=citySec(),pp=POOR[i],st=sec.holy.q[i];const don
   if(pp.need==='coins'){if(S.coins>=100)btns.push({label:'Give 100 coins',cls:'gold',fn:()=>{S.coins-=100;updateCoinsUI();done();}});else line+='\n\n(You need 100 coins.)';}
   if(pp.need==='scarf'||pp.need==='cat'){if(sec.holy.items[pp.need])btns.push({label:'Give '+PICKUPS[pp.need].icon,cls:'gold',fn:()=>{done();}});else{sec.holy.q[i]=1;save();line+='\n\n(I will look for it!)';}}
   cityTalk(pp.name,line,btns);}
-function updatePoorPeople(a,dt){const sec=citySec();for(const k in a.pick){const s=a.pick[k],idx=POOR.findIndex(p=>p.need===k);const show=sec.holy.q[idx]===1&&!sec.holy.items[k];s.visible=show;
+function updatePoorPeople(a,dt){const sec=citySec();const pulse=1+Math.sin(a.bt*4)*.25;
+  a.poor.forEach((n,i)=>{const b=n.beam;b.visible=sec.holy.q[i]<2;if(b.visible){b.userData.ring.scale.setScalar(pulse);b.userData.beam.material.opacity=.5+Math.sin(a.bt*3+i)*.15;b.userData.star.position.y=4.6+Math.sin(a.bt*3+i)*.3;}});
+  for(const k in a.pick){const s=a.pick[k],idx=POOR.findIndex(p=>p.need===k);const show=sec.holy.q[idx]===1&&!sec.holy.items[k];s.visible=show;a.pickBeam[k].visible=show;if(show)a.pickBeam[k].userData.ring.scale.setScalar(pulse);
   if(show){s.position.y=PICKUPS[k].y+Math.sin(a.bt*3)*.25;if(player.pos.distanceTo(s.position)<2.2){sec.holy.items[k]=1;save();sfx('coin');toast('Found '+PICKUPS[k].icon+'! Bring it back to '+POOR[idx].name+'.','', PICKUPS[k].icon);}}}}
 
 /* ---- street race ---- */
