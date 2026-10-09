@@ -1307,8 +1307,8 @@ class Ball{
 const G=34,ACC=40,AIR_ACC=15,DRAG=1.45,JUMP=15.5,MAXV=55;
 let gravScale=1,speedMul=1,jumpMul=1;
 function stepBall(b,dt,gfn,ax,az){
-  const a=(b.grounded?ACC:AIR_ACC)*(b===player?speedMul*(1+(perk().speed||0)):1);if(b===player&&b.grounded)b.airUsed=false;
-  b.vel.x+=ax*a*dt;b.vel.z+=az*a*dt;b.vel.y-=G*gravScale*dt;
+  const a=(b.grounded?ACC:AIR_ACC)*(b===player?speedMul*(1+(perk().speed||0)):1);if(b===player&&b.grounded)b.airUsed=0;
+  b.vel.x+=ax*a*dt;b.vel.z+=az*a*dt;b.vel.y-=G*gravScale*(b===player&&perk().grav?perk().grav:1)*dt;
   b.prevY=b.pos.y;b.pos.addScaledVector(b.vel,dt);
   const fy=b.pos.y-b.r,gh=gfn(b.pos.x,b.pos.z,Math.max(fy,b.prevY-b.r));b.grounded=false;
   if(gh!==null&&fy<=gh+.05&&fy>gh-4){
@@ -1427,11 +1427,11 @@ function makePet(id){
 }
 let pet=null;const petPos=new V3();let petYaw=0,petT=0;
 function petBonus(){return pet?RAR[pet.def.rar].bonus:0;}
-const PERKS={pet_moon:{jump:.45,txt:'🌙 Moon Jump: jump 45% higher'},pet_trueghost:{speed:.3,coins:.25,txt:'👻 Ghost Rush: roll 30% faster, +25% extra coins'},
-  pet_angel:{dj:1,jump:.15,txt:'😇 Angel Wings: DOUBLE JUMP, and jump higher'},pet_tesseract:{speed:.25,jump:.3,dj:1,coins:.5,txt:'🧊 4D Power: faster, higher, double jump, +50% extra coins'},
+const PERKS={pet_moon:{jump:.6,dj:1,grav:.6,txt:'🌙 Moon Jump: DOUBLE JUMP, jump 60% higher, low gravity'},pet_trueghost:{speed:.3,coins:1,txt:'👻 Ghost Rush: roll 30% faster, +100% extra coins'},
+  pet_angel:{dj:2,jump:.15,txt:'😇 Angel Wings: TRIPLE JUMP, and jump higher'},pet_tesseract:{speed:.25,jump:.3,coins:.75,txt:'🧊 4D Power: faster, higher, +75% extra coins'},
   pet_pigeon:{jump:.15,txt:'🐦 Flap: jump 15% higher'},pet_rat:{speed:.15,txt:'🐀 Scurry: roll 15% faster'}};
 function perk(){return(pet&&pet.def&&PERKS[pet.def.id])||{};}
-function canJump(){if(player.grounded||player.coyote>0){player.airUsed=false;return true;}if(perk().dj&&!player.airUsed){player.airUsed=true;player.vel.y=Math.max(0,player.vel.y);burst(player.pos,['#ffffff','#fff1a8','#bfe9ff'],12);return true;}return false;}
+function canJump(){if(player.grounded||player.coyote>0){player.airUsed=0;return true;}if((player.airUsed|0)<(perk().dj||0)){player.airUsed=(player.airUsed|0)+1;player.vel.y=Math.max(0,player.vel.y);burst(player.pos,['#ffffff','#fff1a8','#bfe9ff'],12);return true;}return false;}
 function setPet(id){if(pet)scene.remove(pet.g);pet=null;if(!id)return;const def=PETS.find(p=>p.id===id);if(!def)return;const g=makePet(id);g.scale.setScalar(1.25);scene.add(g);pet={g,def};petPos.copy(player.pos).add(new V3(2,0,2));}
 function animPet(g,t,moving){const u=g.userData;if(u.wings){const a=Math.sin(t*(u.fast?40:10))*.6;u.wings[0].rotation.z=a;u.wings[1].rotation.z=-a;}
   if(u.wobble){u.wobble.scale.set(.5+Math.sin(t*6)*.04,.38-Math.sin(t*6)*.04,.5+Math.sin(t*6)*.04);}
