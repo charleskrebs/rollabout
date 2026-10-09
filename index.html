@@ -237,6 +237,7 @@ button{font-family:inherit}
 .st-row.sel{outline:3px solid var(--gold)}
 .st-row b{font-size:14px}
 .st-row select,.st-text,.st-num{font:inherit;font-size:14px;font-weight:700;border:2px solid var(--ink);border-radius:9px;padding:4px 6px;background:#fff;color:var(--ink);max-width:100%}
+.idea{background:linear-gradient(135deg,#fff4d6,#ffe1f0);border:2px solid #ffc23d;border-radius:16px;padding:12px;margin-bottom:12px}.idea b{display:block;margin-bottom:8px}.idea-row{display:flex;gap:8px}.idea-row input{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px 12px;border-radius:12px;border:2px solid #e3c98a}#ideaStatus{margin:8px 0 0;min-height:1em}
 .st-text{flex:1;min-width:120px}.st-num{width:58px}.st-range{width:80px}
 .st-unit{font-size:12px;font-weight:800;color:var(--muted)}
 #studioCtl .btn.small{margin-bottom:4px}
@@ -422,7 +423,8 @@ button{font-family:inherit}
       <div class="st-prev"><canvas id="studioCanvas" width="360" height="640"></canvas>
         <div class="st-bar"><button id="studioPlay">⏸ Pause</button><button id="studioRestart" aria-label="Restart">⟲ Restart</button><span id="studioTime"></span></div>
         <p class="sub" style="margin:0;text-align:center">Drag characters on the preview to move them.</p></div>
-      <div><div id="studioCtl"></div>
+      <div><div class="idea"><b>✨ Describe your short and it gets made for you</b><div class="idea-row"><input id="ideaIn" maxlength="140" placeholder="e.g. a frog races my ball on the moon" autocomplete="off"><button class="btn small" id="ideaDice" title="Random idea" aria-label="Random idea">🎲</button><button class="btn gold small" id="ideaGo">Make it!</button></div><div class="sub" id="ideaStatus"></div></div>
+        <div id="studioCtl"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn gold" id="studioPublish">Publish</button><button class="btn" id="studioNew">New short</button></div>
         <div class="sec-h">Your shorts</div><div id="studioMine"></div></div>
     </div>
@@ -3550,6 +3552,83 @@ function publishShort(){
   sp.created=Date.now();sp.id='my'+sp.created;const copy=JSON.parse(JSON.stringify(sp));S.myShorts.push(copy);S.studioDay.n++;SHORTS.push(customShort(copy));shortLikes.push(0);save();
   award('creator');sfx('badge');toast('Published "'+copy.title+'"! It is on RollTube now.','badge','🎬');studio.sp=newSpec();studio.t=0;renderStudio();
 }
+/* ---- RollTube: make a short from an idea ---- */
+const IDEA_WORDS=[[/\b(me|my ball|i |i'm|myself|player)\b/,'ball:you'],[/\bcats?|kitt(y|en)/,'🐱'],[/\bdogs?|pupp(y|ies)/,'🐶'],[/\bfrogs?/,'🐸'],[/\b(bunn(y|ies)|rabbits?)/,'🐇'],[/\bpenguins?/,'🐧'],[/\bducks?/,'🦆'],[/\bmonkeys?/,'🐒'],
+  [/\bdragons?/,'🐉'],[/\b(dino(saur)?s?|t-?rex)/,'🦖'],[/\bghosts?|spooky|haunted/,'👻'],[/\brobots?/,'🤖'],[/\baliens?/,'👽'],[/\bbees?/,'🐝'],[/\bcrabs?/,'🦀'],[/\boctopus/,'🐙'],[/\bsharks?/,'🦈'],[/\belephants?/,'🐘'],
+  [/\blions?/,'🦁'],[/\bcows?/,'🐮'],[/\bpigs?/,'🐷'],[/\bchickens?/,'🐔'],[/\bturtles?/,'🐢'],[/\bsnails?/,'🐌'],[/\bunicorns?/,'🦄'],[/\bcact(us|i)/,'🌵'],[/\btrees?/,'🌳'],[/\bpizza/,'🍕'],[/\bburgers?/,'🍔'],
+  [/\bdonuts?|doughnuts?/,'🍩'],[/\bbananas?/,'🍌'],[/\bballoons?/,'🎈'],[/\bsoccer|football/,'⚽'],[/\bbasketball/,'🏀'],[/\brockets?/,'🚀'],[/\bufos?|spaceship/,'🛸'],[/\bcars?|race car/,'🚗'],[/\bstars?/,'⭐'],
+  [/\bfire|burn/,'🔥'],[/\bexplo|boom|bomb/,'💥'],[/\bwater|rain|sweat/,'💦'],[/\blove|heart|crush/,'❤️'],[/\bgifts?|presents?|birthday/,'🎁'],[/\bmagic|wizard|hat/,'🎩'],[/\bking|queen|crown|royal/,'👑'],[/\bbricks?|wall/,'🧱'],[/\bbox|package/,'📦'],[/\bhouse|home/,'🏠'],
+  [/\bred ball/,'ball:#e8413c'],[/\bblue ball/,'ball:#47b5ff'],[/\bgreen ball/,'ball:#39c45f'],[/\byellow ball/,'ball:#ffd23d'],[/\bpurple ball/,'ball:#9a5cff'],[/\bpink ball/,'ball:#ff9ac0'],[/\bfriend|buddy|bestie/,'ball:#47b5ff'],[/\b(enemy|rival|villain|bully)/,'ball:#e8413c']];
+const IDEA_BG=[[/space|moon|planet|alien|ufo|galaxy/,'space'],[/night|dark|ghost|spooky|haunted|dream/,'night'],[/lava|volcano|dragon/,'lava'],[/beach|ocean|sea|sand|surf|shark/,'beach'],[/snow|winter|ice|cold|freez|penguin/,'snow'],[/jungle|forest|monkey|safari/,'jungle'],
+  [/party|dance|disco|birthday|concert/,'disco'],[/sunset|evening/,'sunset'],[/house|room|home|couch|kitchen|bed|sleep/,'room']];
+const IDEA_VERB=[[/\beat|hungry|snack|nom/,'eat'],[/sleep|nap|tired/,'sleep'],[/fight|battle|\bvs\b|versus|punch/,'fight'],[/launch|blast|rocket/,'rocket'],[/race|run|chase|zoom|fast/,'race'],[/fl(y|ies|ying)|soar|steal/,'fly'],[/jump|hop|leap/,'jump'],[/fall|drop|trip|slip/,'fall'],[/spin|dance|twirl|party/,'spin'],[/grow|giant|huge|big/,'grow'],[/scar|afraid|shak|nervous/,'shake'],[/bounce|boing/,'bounce']];
+function ideaLocal(text){const t=' '+text.toLowerCase()+' ';const seen=new Set(),cast=[];
+  for(const [re,k] of IDEA_WORDS)if(re.test(t)&&!seen.has(k)){seen.add(k);cast.push(k);}
+  if(!cast.includes('ball:you')&&cast.length<3)cast.unshift('ball:you');if(cast.length<2)cast.push(pickR(['🐸','🐱','🦆','🤖','👽','🐶']));
+  const bg=(IDEA_BG.find(([re])=>re.test(t))||[0,'sky'])[1];const verb=(IDEA_VERB.find(([re])=>re.test(t))||[0,pickR(['race','jump','bounce','spin'])])[1];
+  const A=cast[0],B=cast[1],C=cast[2],d=7;const mood=a=>a.startsWith('ball');const sp={id:'my'+Date.now(),bg,d,created:0,actors:[],texts:[],sfx:[]};
+  const act=(k,o)=>sp.actors.push(Object.assign({k,mood:'happy',path:'stay',x:180,y:430,s:1,t0:0,t1:d},o));
+  const sky=k=>/🚀|🛸|🎈|⭐|🐝|🐉|👻|🦆/.test(k);
+  act(A,{path:'enter',x:110,t0:0,t1:d});act(B,{path:sky(B)?'fly':'enter',x:250,y:sky(B)?220:430,t0:1,t1:d});
+  let punch='PLOT TWIST!';
+  switch(verb){case 'race':sp.actors[0].path='right';sp.actors[0].t1=4;sp.actors[1].path='right';sp.actors[1].t0=.6;sp.actors[1].t1=3.2;punch=pickR(['TOO FAST 💨','Photo finish!','Wait, who won?']);sp.sfx.push({k:'go',t:.3},{k:'boost',t:2});
+      act(A,{path:'stay',x:180,mood:'dead',t0:4.5,t1:d});break;
+    case 'jump':sp.actors[0].path='jump';sp.actors[0].t0=1.5;sp.actors[0].t1=3;act(A,{path:'stay',x:110,t0:3,t1:d,mood:'o'});punch=pickR(['SO HIGH!','He can fly?!','Gravity said no']);sp.sfx.push({k:'jump',t:1.6},{k:'boing',t:2.9});break;
+    case 'fly':sp.actors[1].path='fly';sp.actors[1].y=200;act(A,{path:'jump',x:110,t0:3,t1:4.5,mood:'o'});punch=pickR(['Take me with you!','Up up and away!','Bye bye!']);sp.sfx.push({k:'boost',t:1.2});break;
+    case 'fall':act(B,{path:'fall',x:180,y:430,t0:3,t1:d});sp.actors[1].t1=3;punch=pickR(['WATCH OUT!','Oops 😬','That hurt...']);sp.sfx.push({k:'bad',t:3.6});act(A,{path:'shake',x:110,mood:'o',t0:3.6,t1:d});break;
+    case 'spin':sp.actors[0].path='spin';sp.actors[0].t0=1.5;sp.actors[1].path='spin';sp.actors[1].t0=2;punch=pickR(['DANCE BATTLE!','So dizzy 😵','Best moves ever']);sp.sfx.push({k:'hoop',t:2});break;
+    case 'grow':sp.actors[1].path='grow';sp.actors[1].t0=2;act(A,{path:'shake',x:110,mood:'o',t0:4,t1:d});punch=pickR(['UH OH','It keeps growing!','Too big!!']);sp.sfx.push({k:'boost',t:2.2},{k:'bad',t:4.5});break;
+    case 'shake':sp.actors[0].path='shake';sp.actors[0].mood='o';punch=pickR(['AAAH!','Run away!','Nope nope nope']);sp.sfx.push({k:'bad',t:2.5});break;
+    case 'rocket':sp.actors[1].path='rocket';sp.actors[1].t0=2.5;sp.actors[1].x=200;act(A,{path:'stay',x:110,mood:'o',t0:2.5,t1:d});punch=pickR(['3... 2... 1... LIFTOFF!','To the moon!','Forgot the snacks']);sp.sfx.push({k:'boost',t:2.6});break;
+    case 'fight':sp.actors[0].path='enter';sp.actors[0].mood='angry';act('💥',{path:'grow',x:180,y:400,t0:3,t1:3.8});act(A,{path:'stay',x:110,mood:'dead',t0:3.8,t1:d});punch=pickR(['K.O.!','FIGHT!','Rematch?']);sp.sfx.push({k:'bad',t:3});break;
+    case 'eat':act(pickR(['🍕','🍩','🍔','🍌']),{path:'fall',x:180,y:400,t0:1.5,t1:3.5});sp.actors[0].path='bounce';sp.actors[0].t0=3.5;punch=pickR(['NOM NOM NOM','Mine!','Snack time 😋']);sp.sfx.push({k:'coin',t:3.5});break;
+    case 'sleep':sp.actors[0].mood='sleep';act('💤',{path:'fly',x:180,y:260,t0:1,t1:4});punch=pickR(['Zzz...','5 more minutes','WAKE UP!']);sp.sfx.push({k:'beep',t:4.5});break;
+    default:sp.actors[0].path='bounce';sp.actors[1].path='bounce';punch=pickR(['BOING BOING','Can\'t stop!','Bouncy day!']);sp.sfx.push({k:'boing',t:1},{k:'boing',t:2.5});}
+  if(C&&sp.actors.length<6)act(C,{path:'fall',x:pickR([80,280]),y:430,t0:5,t1:d});
+  if(mood(A)&&!sp.actors.some(a=>a.k===A&&a.mood!=='happy'))act(A,{path:'stay',x:110,mood:'o',t0:5.2,t1:d});
+  sp.actors=sp.actors.filter((a,i)=>i<6).filter(a=>!(a.k===A&&a.t0===0&&sp.actors.some(b=>b!==a&&b.k===A&&b.t0>0)&&(a.t1=Math.min(a.t1,Math.min(...sp.actors.filter(b=>b!==a&&b.k===A&&b.t0>0).map(b=>b.t0)))),false));
+  const cap=text.trim().replace(/\s+/g,' ');sp.title=cap.length>32?cap.slice(0,30)+'…':cap.charAt(0).toUpperCase()+cap.slice(1);
+  sp.cap=pickR(['wait for the end 😂','#rolltube #funny','this actually happened','10/10 😂','tag a friend 👀']);
+  sp.texts.push({s:(cap.length>26?cap.slice(0,25)+'…':cap),t0:.2,t1:2.6,c:'#ffffff',y:'top'},{s:punch,t0:4,t1:d,c:'#ffd23d',y:'top'});
+  sp.sfx.push({k:'laugh',t:5.5});return sp;}
+const pickR=a=>a[Math.floor(Math.random()*a.length)];
+const EMO_RE=/^\p{Extended_Pictographic}(️|‍\p{Extended_Pictographic}|️)*$/u;
+function cleanSpec(o){const n=(v,a,b,dflt)=>{v=+v;return isFinite(v)?clamp(v,a,b):dflt;};const inL=(v,list,d)=>list.some(x=>x[0]===v)?v:d;
+  const d=n(o.d,3,10,7);const sp={id:'my'+Date.now(),created:0,bg:ST_BG[o.bg]?o.bg:'sky',d,title:String(o.title||'My Short').slice(0,32),cap:String(o.cap||'').slice(0,48),actors:[],texts:[],sfx:[]};
+  for(const a of(Array.isArray(o.actors)?o.actors:[]).slice(0,6)){let k=String(a.k||'').trim();
+    if(!(ST_ACTORS.some(x=>x[0]===k)||/^ball:#[0-9a-f]{6}$/i.test(k)||EMO_RE.test(k)))continue;if(!ST_ACTORS.some(x=>x[0]===k))ST_ACTORS.push([k,k.startsWith('ball')?'Ball '+k.slice(5):k]);
+    const t0=n(a.t0,0,d,0),t1=n(a.t1,0,d,d);sp.actors.push({k,mood:inL(a.mood,ST_MOODS,'happy'),path:inL(a.path,ST_PATHS,'stay'),x:n(a.x,30,330,180),y:n(a.y,60,600,430),s:n(a.s,.4,2.5,1),t0:Math.min(t0,t1),t1:Math.max(t0,t1)});}
+  for(const x of(Array.isArray(o.texts)?o.texts:[]).slice(0,4)){const s=String(x.s||'').slice(0,28);if(!s)continue;sp.texts.push({s,t0:n(x.t0,0,d,0),t1:n(x.t1,0,d,d),c:inL(x.c,ST_TCOLS,'#ffffff'),y:['top','mid','bot'].includes(x.y)?x.y:'top'});}
+  for(const x of(Array.isArray(o.sfx)?o.sfx:[]).slice(0,6)){const k=inL(x.k,ST_SFX,null);if(k)sp.sfx.push({k,t:n(x.t,0,d,1)});}
+  if(!sp.actors.length)throw new Error('empty');return sp;}
+let ideaSampleP=null;
+function ideaPrompt(idea){return `You write tiny, funny "RollTube" shorts (like YouTube Shorts) for a kids' browser game about rolling balls. Turn the player's idea into one short, kid-friendly, with a setup and a funny punchline, events timed in order.
+
+Return ONLY a JSON object, no other text:
+{"title": string <=32 chars, "cap": caption <=48 chars with an emoji or hashtag, "bg": one of ${Object.keys(ST_BG).join('|')},
+ "d": length in seconds 5-10,
+ "actors": 1-6 items {"k": actor, "mood": mood, "path": move, "x": 30-330, "y": 60-600, "s": size 0.4-2.5, "t0": appear sec, "t1": disappear sec},
+ "texts": 1-4 items {"s": text <=28 chars, "t0": sec, "t1": sec, "c": one of ${ST_TCOLS.map(x=>x[0]).join('|')}, "y": "top"|"mid"|"bot"},
+ "sfx": 1-6 items {"k": one of ${ST_SFX.map(x=>x[0]).join('|')}, "t": sec}}
+
+Actors: "ball:you" is the player's own ball (use it when the idea says me/I/my ball). Other balls: ${ST_ACTORS.slice(1,7).map(x=>x[0]).join(', ')}. Or ONE emoji, preferably from: ${ST_ACTORS.slice(7).map(x=>x[0]).join(' ')} (other single emojis are allowed if needed).
+Moods (only change balls' faces): ${ST_MOODS.map(x=>x[0]+'='+x[1]).join(', ')}.
+Moves: stay=stand still, right=walks left to right across between t0 and t1, left=walks right to left, enter=slides in from the side to x, jump=one big jump, bounce=keeps bouncing, fall=drops from the sky and lands at y, fly=flies across the sky, spin, grow=grows bigger, shake=trembles, rocket=blasts off upward.
+The canvas is 360 wide and 640 tall. The ground is at y=470, so things standing on the ground use y≈430; things in the sky use y 100-300. The same character can appear twice with different moves at different times (e.g. one actor t0=0 t1=3 walking, then the same k t0=3 t1=8 with mood "dead").
+Text appears big on screen; use it for the setup line and the punchline.
+
+The player's idea: """${idea.replace(/"""/g,'')}"""`;}
+async function ideaAI(idea){if(!window.claude||!claude.use)return null;if(!ideaSampleP)ideaSampleP=Promise.race([claude.use('sample').catch(()=>null),new Promise(r=>setTimeout(()=>r(null),11000))]);const sample=await ideaSampleP;if(!sample)return null;
+  const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),45000);try{const out=await sample.json(ideaPrompt(idea),{modelTier:'quick',signal:ctl.signal,cache:false});return cleanSpec(out);}finally{clearTimeout(to);}}
+async function makeFromIdea(){const inp=$('#ideaIn'),btn=$('#ideaGo'),st=$('#ideaStatus');const idea=inp.value.trim();if(!idea){st.textContent='Type an idea first! Like "a frog races my ball on the moon"';inp.focus();return;}
+  btn.disabled=true;st.textContent='✨ Making your short…';let sp=null,how='';
+  try{sp=await ideaAI(idea);if(sp)how='Made by Claude';}catch(e){if(e&&e.code==='not_granted')st.textContent='';sp=null;}
+  if(!sp){sp=ideaLocal(idea);how='Made with the idea machine';}
+  sp.created=0;studio.sp=sp;studio.editing=null;studio.t=0;studio.lastT=0;studio.sel=-1;studio.playing=true;$('#studioPlay').textContent='⏸ Pause';renderStudio();
+  st.textContent=how+'! Watch the preview, change anything you want, then press Publish.';btn.disabled=false;sfx('badge');}
+$('#ideaGo').addEventListener('click',makeFromIdea);$('#ideaIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')makeFromIdea();});
+$('#ideaDice').addEventListener('click',()=>{$('#ideaIn').value=pickR(['a frog races my ball on the moon','a ghost tries to scare a penguin at night','my ball eats a giant pizza','a dinosaur dance party','a robot rocket blasts off to space','a shark at the beach wants a donut','a cat falls asleep in the snow','my ball fights a dragon in lava land','a bunny grows HUGE','a UFO steals a cow']);});
+
 $('#studioPublish').addEventListener('click',publishShort);
 $('#studioNew').addEventListener('click',()=>{studio.sp=newSpec();studio.editing=null;studio.t=0;studio.sel=-1;renderStudio();});
 $('#studioPlay').addEventListener('click',()=>{studio.playing=!studio.playing;$('#studioPlay').textContent=studio.playing?'⏸ Pause':'▶ Play';});
