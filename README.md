@@ -11,6 +11,7 @@ A 3D browser game where you're a ball rolling around an island with plains, dese
 - Your own house with decor, a working piano, gumball machine, RollTube TV and a playable arcade machine
 - RollTube Studio for making your own shorts
 - An enterable lighthouse with a balcony on top
+- Circular City (after beating the True Sphere, take the ferry from the pier): a huge city under a hologram dome with drivable cars, playgrounds, billboards, enterable buildings, street races, city-only minigames and cosmetics, and more secrets
 - Lots of badges, including secret ones
 
 ## Controls
