@@ -533,6 +533,7 @@ function saveAccs(){try{localStorage.setItem(ACC_KEY,JSON.stringify(ACCS));}catc
 function freshSave(){return{coins:0,earned:0,owned:{hat_none:1,col_red:1,pat_solid:1,sec_white:1,trail_none:1},equip:{hat:'hat_none',color:'col_red',pattern:'pat_solid',secondary:'sec_white',pet:null,trail:'trail_none'},badges:{},stars:{},stats:{hoops:0,raceWins:0,jumps:0,dist:0,biomes:{},played:{},best:{}},name:'',inv:{},keys:{},quest:null,questsDone:{},talked:{},trades:{},snacks:0,weatherSeen:{},decor:{owned:{},placed:[]},sec:{btn:[0,0,0,0,0],moonOrder:null,dwarf:{},dwarfPlaced:0,gyro:0,boss:0,orbTaken:0,blueShroom:-1}};}
 let S=freshSave();
 try{const raw=localStorage.getItem(SAVE_KEY);if(raw){const o=JSON.parse(raw);const f=freshSave();S=Object.assign(f,o);S.owned=Object.assign(freshSave().owned,o.owned||{});S.equip=Object.assign(freshSave().equip,o.equip||{});S.stats=Object.assign(freshSave().stats,o.stats||{});S.badges=o.badges||{};S.stars=o.stars||{};const F=freshSave();S.decor=Object.assign(F.decor,o.decor||{});S.sec=Object.assign(F.sec,o.sec||{});}}catch(e){}
+if(S.badges&&S.badges.neon_night)S.owned.hat_lightstick=1;if(S.badges&&S.badges.secret_void)S.owned.pat_cube=1;
 let saveTimer=null;
 function save(){if(saveTimer)return;saveTimer=setTimeout(()=>{saveTimer=null;if(noSave)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));}catch(e){}},400);}
 let noSave=false;
@@ -551,7 +552,7 @@ const HATS=[
  {id:'hat_crown',name:'Royal Crown',price:900},{id:'hat_diamond',name:'Diamond Tiara',price:1500},
  {id:'hat_sun',name:'Sun Hat',price:0,special:1},{id:'hat_leaf',name:'Leaf Crown',price:0,special:1},{id:'hat_gyro',name:'Gyroscope Hat',price:0,special:1},{id:'hat_spherecrown',name:'Sphere Crown',price:0,special:1},
  {id:'hat_book',name:'Book Hat',price:0,city:1},{id:'hat_hardhat',name:'Hard Hat',price:120,city:1},{id:'hat_taxi',name:'Taxi Sign',price:150,city:1},{id:'hat_neonvisor',name:'Neon Visor',price:350,city:1},{id:'hat_skyline',name:'Skyline Crown',price:800,city:1},
- {id:'hat_billboards',name:'Billboard Ring',price:0,special:1},{id:'hat_voidcrown',name:'Void Crown',price:0,special:1}];
+ {id:'hat_billboards',name:'Billboard Ring',price:0,special:1},{id:'hat_voidcrown',name:'Void Crown',price:0,special:1},{id:'hat_lightstick',name:'Light Stick Hat',price:0,special:1}];
 const COLORS=[
  {id:'col_red',name:'Cherry',hex:'#e8413c',price:0},{id:'col_orange',name:'Tangerine',hex:'#ff8a1f',price:25},{id:'col_yellow',name:'Lemon',hex:'#ffd23d',price:25},
  {id:'col_lime',name:'Lime',hex:'#8bd43a',price:30},{id:'col_green',name:'Forest',hex:'#2e9b4f',price:30},{id:'col_mint',name:'Mint',hex:'#7ee6c0',price:35},
@@ -579,7 +580,7 @@ const PATTERNS=[
  {id:'pat_stars',name:'Stars',price:180},{id:'pat_flames',name:'Flames',price:200},{id:'pat_basket',name:'Basketball',price:220},
  {id:'pat_bolt',name:'Lightning',price:220},{id:'pat_eight',name:'8-Ball',price:240},{id:'pat_face',name:'Googly Face',price:260},
  {id:'pat_galaxy',name:'Galaxy',price:350},
- {id:'pat_brick',name:'Bricks',price:150,city:1},{id:'pat_skyline',name:'Skyline',price:220,city:1},{id:'pat_neongrid',name:'Neon Grid',price:260,city:1},{id:'pat_glitch',name:'Glitch',price:0,special:1}];
+ {id:'pat_brick',name:'Bricks',price:150,city:1},{id:'pat_skyline',name:'Skyline',price:220,city:1},{id:'pat_neongrid',name:'Neon Grid',price:260,city:1},{id:'pat_glitch',name:'Glitch',price:0,special:1},{id:'pat_cube',name:'Cube Form',price:0,special:1}];
 const RAR={wild:{name:'Wild',bonus:.08,col:'#b7e4a0'},mythic:{name:'Mythic',bonus:.5,col:'#ff9ad5'},common:{name:'Common',bonus:.02,col:'#dfe6ee'},uncommon:{name:'Uncommon',bonus:.05,col:'#9ee6a9'},rare:{name:'Rare',bonus:.1,col:'#8cc8ff'},epic:{name:'Epic',bonus:.2,col:'#d1b0ff'},legendary:{name:'Legendary',bonus:.35,col:'#ffc23d'}};
 const PETS=[
  {id:'pet_puppy',name:'Puppy',rar:'common',price:150},{id:'pet_kitten',name:'Kitten',rar:'common',price:150},{id:'pet_bunny',name:'Bunny',rar:'common',price:180},
@@ -1200,6 +1201,10 @@ function patternCanvas(colorHex,secId,pat){
     case 'pat_skyline':{const r=mulberry32(8);let x=0;while(x<512){const w=20+r()*30,h=40+r()*110;g.fillStyle=fill;g.fillRect(x,256-h-40,w,h+40);g.fillStyle=colorHex;for(let wy=256-h-30;wy<236;wy+=12)for(let wx=x+4;wx<x+w-6;wx+=9)if(r()<.6)g.fillRect(wx,wy,4,6);x+=w+2;}break;}
     case 'pat_neongrid':g.lineWidth=4;g.shadowColor=sec.hex||'#2ee6ff';g.shadowBlur=10;for(let x=0;x<=512;x+=32){g.beginPath();g.moveTo(x,0);g.lineTo(x,256);g.stroke();}for(let y=0;y<=256;y+=32){g.beginPath();g.moveTo(0,y);g.lineTo(512,y);g.stroke();}g.shadowBlur=0;break;
     case 'pat_glitch':{const r=mulberry32(13);for(let i=0;i<40;i++){g.fillStyle=['#ff3fd1','#2ee6ff','#111111',sec.hex||'#ffffff','#9a5cff'][i%5];g.globalAlpha=.85;g.fillRect(r()*512,r()*256,30+r()*160,3+r()*14);}g.globalAlpha=1;for(let i=0;i<60;i++){g.fillStyle=r()<.5?'#ffffff':'#000000';g.fillRect(Math.floor(r()*64)*8,Math.floor(r()*32)*8,8,8);}break;}
+    case 'pat_cube':{const gc=sec.hex||'#2ee6ff';g.fillStyle=colorHex;g.fillRect(0,0,512,256);g.globalAlpha=.55;g.fillStyle='#0b0f1e';g.fillRect(0,0,512,256);g.globalAlpha=1;
+      g.strokeStyle=gc;g.globalAlpha=.55;g.lineWidth=3;for(let x=64;x<512;x+=64){g.beginPath();g.moveTo(x,0);g.lineTo(x,256);g.stroke();}for(let y=32;y<256;y+=32){g.beginPath();g.moveTo(0,y);g.lineTo(512,y);g.stroke();}g.globalAlpha=1;
+      g.lineWidth=18;g.strokeStyle='#ffffff';g.strokeRect(9,9,494,238);g.lineWidth=6;g.strokeStyle=gc;g.strokeRect(26,22,460,212);
+      g.save();g.translate(256,128);g.scale(2,1);g.rotate(Math.PI/4);g.fillStyle=gc;g.fillRect(-26,-26,52,52);g.fillStyle='#ffffff';g.fillRect(-12,-12,24,24);g.restore();break;}
     case 'pat_galaxy':{const r=mulberry32(21);g.fillStyle='#110c2c';g.fillRect(0,0,512,256);
       for(let i=0;i<9;i++){const x=r()*512,y=40+r()*176,rad=50+r()*70,gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,i%2?colorHex:(sec.hex||'#9a5cff'));gr.addColorStop(1,'rgba(17,12,44,0)');g.globalAlpha=.55;g.fillStyle=gr;g.fillRect(x-rad,y-rad,rad*2,rad*2);}
       g.globalAlpha=1;g.fillStyle='#fff';for(let i=0;i<160;i++){const s2=r()<.1?2.5:1.2;g.fillRect(r()*512,r()*256,s2,s2);}break;}
@@ -1266,13 +1271,23 @@ function makeHat(id){
     case 'hat_voidcrown':{const k=new THREE.MeshStandardMaterial({color:0x14081f,emissive:0x8a3dff,emissiveIntensity:.5,metalness:.6,roughness:.2});add(new THREE.TorusGeometry(.58,.08,8,24),k,0,.05,0,Math.PI/2);
       for(let i=0;i<7;i++){const a=i/7*Math.PI*2;add(new THREE.ConeGeometry(.09,.55,4),k,Math.cos(a)*.56,.36,Math.sin(a)*.56);}
       const orb=new THREE.Group();orb.position.y=.9;g.add(orb);for(let i=0;i<4;i++){const c=new THREE.Mesh(new THREE.BoxGeometry(.16,.16,.16),new THREE.MeshStandardMaterial({color:0xffffff,emissive:[0xff3fd1,0x2ee6ff,0x9a5cff,0xffffff][i],emissiveIntensity:1}));const a=i/4*Math.PI*2;c.position.set(Math.cos(a)*.35,0,Math.sin(a)*.35);c.rotation.set(.6,.6,0);orb.add(c);}g.userData.orbit=orb;break;}
+    case 'hat_lightstick':{add(new THREE.TorusGeometry(.62,.07,10,32),S2(0x1a1a24,{roughness:.4}),0,.2,0,Math.PI/2);
+      const cols=[0xff2a2a,0x2f7bff,0xff8a1f,0x39ff6a,0xb04bff,0xffe14d,0x2ee6ff,0xff4fd1];const sticks=[];
+      for(let i=0;i<8;i++){const a=i/8*Math.PI*2;const piv=new THREE.Group();piv.position.set(Math.cos(a)*.58,.24,Math.sin(a)*.58);g.add(piv);
+        const grip=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.14,8),S2(0x333344));grip.position.y=.07;piv.add(grip);
+        const st=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.6,10),new THREE.MeshStandardMaterial({color:cols[i],emissive:cols[i],emissiveIntensity:1.4,roughness:.3}));st.position.y=.44;piv.add(st);
+        const tip=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),new THREE.MeshBasicMaterial({color:0xffffff}));tip.position.y=.75;piv.add(tip);
+        const glow=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.62,10),new THREE.MeshBasicMaterial({color:cols[i],transparent:true,opacity:.28,depthWrite:false}));glow.position.y=.44;piv.add(glow);
+        piv.userData.a=a;sticks.push(piv);}
+      g.userData.sticks=sticks;break;}
     case 'hat_spherecrown':{const cols=[0xff4f6d,0xff9a2e,0xffd23d,0x39c45f,0x2ee6ff,0x2f7bff,0x9a5cff,0xff6fb5];for(let i=0;i<16;i++){const a=i/16*Math.PI*2;add(new THREE.SphereGeometry(.13,12,8),S2(cols[i%8],{metalness:.4,roughness:.25,emissive:cols[i%8],emissiveIntensity:.2}),Math.cos(a)*.6,.08,Math.sin(a)*.6);}
       for(let i=0;i<8;i++){const a=i/8*Math.PI*2;add(new THREE.SphereGeometry(.11,10,8),S2(cols[(i+3)%8],{metalness:.4,roughness:.25,emissive:cols[(i+3)%8],emissiveIntensity:.25}),Math.cos(a)*.6,.3+(i%2)*.12,Math.sin(a)*.6);}
       add(new THREE.SphereGeometry(.2,16,12),new THREE.MeshStandardMaterial({color:0xffd23a,metalness:.8,roughness:.15,emissive:0xffb000,emissiveIntensity:.4}),0,.62,0);break;}
   }
   return g;
 }
-const ballGeo=new THREE.SphereGeometry(1,32,20);
+const ballGeo=new THREE.SphereGeometry(1,32,20);const cubeGeo=new THREE.BoxGeometry(1.9,1.9,1.9);
+function geoFor(l){return l&&l.pattern==='pat_cube'?cubeGeo:ballGeo;}
 const _ax=new V3(),_q=new THREE.Quaternion();
 const lookOf=e=>{const c=COLORS.find(x=>x.id===e.color)||COLORS[0];return{color:c.hex,metal:!!c.metal,glow:!!c.glow,secondary:e.secondary,pattern:e.pattern,hat:e.hat};};
 let envTex=null;
@@ -1280,12 +1295,12 @@ function applyFinish(mat,l){mat.metalness=l.metal?.75:.05;mat.roughness=l.metal?
 class Ball{
   constructor(look,r=1,m=1){this.r=r;this.m=m;this.pos=new V3();this.vel=new V3();this.n=new V3(0,1,0);this.grounded=false;this.coyote=0;this.prevY=0;this.hatYaw=0;this.hat=null;this.hatId=null;
     this.mat=new THREE.MeshStandardMaterial({roughness:.42,metalness:.05});this.mesh=new THREE.Mesh(ballGeo,this.mat);this.mesh.scale.setScalar(r);this.mesh.castShadow=true;scene.add(this.mesh);if(look)this.setLook(look);}
-  setLook(l){this.mat.map=ballTexture(l.color,l.secondary,l.pattern);applyFinish(this.mat,l);this.mat.needsUpdate=true;
+  setLook(l){this.mesh.geometry=geoFor(l);this.mat.map=ballTexture(l.color,l.secondary,l.pattern);applyFinish(this.mat,l);this.mat.needsUpdate=true;
     if(l.hat!==this.hatId){if(this.hat)scene.remove(this.hat);this.hatId=l.hat;this.hat=l.hat&&l.hat!=='hat_none'?makeHat(l.hat):null;if(this.hat){scene.add(this.hat);this.hat.visible=this.mesh.visible;}}}
   sync(dt){this.mesh.position.copy(this.pos);const vx=this.vel.x,vz=this.vel.z,sp=Math.hypot(vx,vz);
     if(sp>.01){_ax.set(vz,0,-vx).divideScalar(sp);_q.setFromAxisAngle(_ax,sp*dt/this.r);this.mesh.quaternion.premultiply(_q);}
     if(this.hat){if(sp>1.5)this.hatYaw+=wrapA(Math.atan2(vx,vz)-this.hatYaw)*Math.min(1,dt*6);this.hat.position.set(this.pos.x,this.pos.y+.78,this.pos.z);this.hat.rotation.y=this.hatYaw;
-      const u=this.hat.userData;if(u.orbit)u.orbit.rotation.y+=dt*1.1;if(u.spin)u.spin.rotation.y+=dt*(8+sp);if(u.bob)u.bob.position.y=.62+Math.sin(performance.now()/300)*.06;if(u.flames)u.flames.forEach((f,i)=>f.scale.y=1+Math.sin(performance.now()/90+i*1.7)*.3);if(u.gyro){const tt=performance.now()/1000;u.gyro[0].rotation.set(tt*2,0,0);u.gyro[1].rotation.set(Math.PI/2,tt*2.6,0);u.gyro[2].rotation.set(0,tt*3.1,tt*1.4);}}}
+      const u=this.hat.userData;if(u.orbit)u.orbit.rotation.y+=dt*1.1;if(u.spin)u.spin.rotation.y+=dt*(8+sp);if(u.bob)u.bob.position.y=.62+Math.sin(performance.now()/300)*.06;if(u.flames)u.flames.forEach((f,i)=>f.scale.y=1+Math.sin(performance.now()/90+i*1.7)*.3);if(u.sticks){const tt=performance.now()/1000;u.sticks.forEach((p,i)=>{const w=Math.sin(tt*4+i*.8)*.45;p.rotation.set(Math.sin(p.userData.a)*w,0,-Math.cos(p.userData.a)*w);});}if(u.gyro){const tt=performance.now()/1000;u.gyro[0].rotation.set(tt*2,0,0);u.gyro[1].rotation.set(Math.PI/2,tt*2.6,0);u.gyro[2].rotation.set(0,tt*3.1,tt*1.4);}}}
   setVisible(v){this.mesh.visible=v;if(this.hat)this.hat.visible=v;}
   dispose(){scene.remove(this.mesh);if(this.hat)scene.remove(this.hat);this.mat.dispose();}
 }
@@ -1519,7 +1534,7 @@ function ensurePreview(){
   holder.clear();ball.visible=true;r.setSize(440,440,false);
 }
 function previewLook(){const e=Object.assign({},S.equip);if(shopSel){const slot=SHOP_TABS[shopTab].slot;e[slot]=shopSel;}return lookOf(e);}
-function updatePreviewModel(){if(!pv)return;const l=previewLook();pv.ball.material.map=ballTexture(l.color,l.secondary,l.pattern);applyFinish(pv.ball.material,l);if(l.metal)pv.ball.material.envMap=pvEnv(pv);pv.ball.material.needsUpdate=true;
+function updatePreviewModel(){if(!pv)return;const l=previewLook();pv.ball.geometry=geoFor(l);pv.ball.material.map=ballTexture(l.color,l.secondary,l.pattern);applyFinish(pv.ball.material,l);if(l.metal)pv.ball.material.envMap=pvEnv(pv);pv.ball.material.needsUpdate=true;
   if(pv.hatId!==l.hat){pv.holder.clear();pv.hatId=l.hat;if(l.hat!=='hat_none')pv.holder.add(makeHat(l.hat));}}
 function renderPreview(t){if(!pv||sheetOpen!=='shopSheet')return;pv.cam.position.set(0,1.6,6.6);pv.cam.lookAt(0,.75,0);const a=t*.0006;pv.ball.rotation.y=a;pv.holder.rotation.y=a;pv.r.render(pv.sc,pv.cam);}
 function openShop(){ensurePreview();shopSel=null;renderShop();}
@@ -3628,8 +3643,8 @@ AREA_BUILD.neonhole=a=>{a.name='Behind the Billboard';a.city=true;a.leaveLabel='
 function pressStick(a,nm,st){const want=['red','blue','orange'];burst(st.position.clone().setY(3),['#ffffff','#'+st.material.color.getHexString()],12);sfx('beep');
   if(nm===want[a.seq.length]){a.seq.push(nm);toast(nm.toUpperCase()+'!','', '✨');if(a.seq.length===3)neonNightWin(a);}else{a.seq=[];sfx('bad');toast('The lights flicker… try again.','', '💡');}}
 function neonNightWin(a){if(S.badges.neon_night){toast('The lightsticks dance for you again.','', '🌃');a.seq=[];return;}
-  S.owned.hat_billboards=1;save();award('neon_night');sfx('badge');burst(player.pos,['#ff2a2a','#2f7bff','#ff8a1f','#ffffff'],60);
-  setTimeout(()=>showResult({title:'Neon Night',big:'🌃',line:'Red, blue, orange! A ring of tiny billboards spins up around you. You unlocked the Billboard Ring hat!',coins:null,buttons:[{label:'Wear it now',cls:'gold',fn:()=>{S.equip.hat='hat_billboards';save();player.setLook(lookOf(S.equip));closeSheets();}},{label:'Nice!',fn:()=>closeSheets()}]}),800);}
+  S.owned.hat_billboards=1;S.owned.hat_lightstick=1;save();award('neon_night');sfx('badge');burst(player.pos,['#ff2a2a','#2f7bff','#ff8a1f','#ffffff'],60);
+  setTimeout(()=>showResult({title:'Neon Night',big:'🌃',line:'Red, blue, orange! A ring of tiny billboards spins up around you. You unlocked the Billboard Ring hat and the Light Stick Hat!',coins:null,buttons:[{label:'Wear Light Sticks',cls:'gold',fn:()=>{S.equip.hat='hat_lightstick';save();player.setLook(lookOf(S.equip));closeSheets();}},{label:'Wear Billboards',fn:()=>{S.equip.hat='hat_billboards';save();player.setLook(lookOf(S.equip));closeSheets();}},{label:'Nice!',fn:()=>closeSheets()}]}),800);}
 
 /* ---- Holy Moly: heaven ---- */
 const ANGEL_LISTS=[['Jacob S','Sarah O','Josh M','Aiden E','Patrick O','Leon N','Richard E'],['Mary B','Arya E','David L','John I','Jake E','Laura V','Ivan E','Tim S'],['Ian I','Noah N'],['Kate Y','Ryan O','Eric U']];
@@ -3716,9 +3731,9 @@ AREA_BUILD.cubeboss=a=>{const sec=citySec();a.name='The Fourth Dimensional Geome
     if(B.state!=='dying'&&B.state!=='intro'){const dx=player.pos.x-B.pos.x,dz=player.pos.z-B.pos.z,d=Math.hypot(dx,dz),m=4.5+player.r;if(d<m&&player.pos.y<B.pos.y+4.5){const nx=dx/d,nz=dz/d;player.pos.x=B.pos.x+nx*m;player.pos.z=B.pos.z+nz*m;const vn=player.vel.x*nx+player.vel.z*nz;if(vn<0){player.vel.x-=nx*vn*1.6;player.vel.z-=nz*vn*1.6;}}}
     for(let i=objs.length-1;i>=0;i--){const o=objs[i];o.life-=dt;o.m.position.addScaledVector(o.v,dt);o.m.rotation.x+=dt*4;o.m.rotation.y+=dt*3;if(o.m.position.distanceTo(player.pos)<1.5)hurt(o.m.position);if(o.life<=0){a.group.remove(o.m);objs.splice(i,1);}}};
   a.cleanup=()=>{$('#boss').hidden=true;$('#bossLine').hidden=true;};};
-function cubeDefeated(a){['pet_tesseract','hat_voidcrown','pat_glitch','trail_geo'].forEach(id=>S.owned[id]=1);S.sec.cube=1;S.coins+=5000;S.earned+=5000;updateCoinsUI(true);save();award('secret_void');sfx('badge');
-  setTimeout(()=>showResult({title:'Victory!',big:'🧊',line:'You defeated the Fourth Dimensional Geometrical Cube! You unlocked the 4D Cube pet, the Void Crown, the Glitch pattern and the Geometrical trail.',coins:5000,
-    buttons:[{label:'Back to the city',cls:'gold',fn:()=>{closeSheets();CITY.ret={pos:new V3(0,0,8),yaw:0};fadeTo(()=>enterArea('city'));}}]}),1500);}
+function cubeDefeated(a){['pet_tesseract','hat_voidcrown','pat_glitch','pat_cube','trail_geo'].forEach(id=>S.owned[id]=1);S.sec.cube=1;S.coins+=5000;S.earned+=5000;updateCoinsUI(true);save();award('secret_void');sfx('badge');
+  setTimeout(()=>showResult({title:'Victory!',big:'🧊',line:'You defeated the Fourth Dimensional Geometrical Cube! You unlocked the 4D Cube pet, the Void Crown, the Glitch pattern, the Geometrical trail, and the Cube Form pattern (it turns YOU into a cube)!',coins:5000,
+    buttons:[{label:'Become a cube',fn:()=>{S.equip.pattern='pat_cube';save();player.setLook(lookOf(S.equip));closeSheets();CITY.ret={pos:new V3(0,0,8),yaw:0};fadeTo(()=>enterArea('city'));}},{label:'Back to the city',cls:'gold',fn:()=>{closeSheets();CITY.ret={pos:new V3(0,0,8),yaw:0};fadeTo(()=>enterArea('city'));}}]}),1500);}
 
 /* ---- the ferry on the pier ---- */
 let ferryBall=null;
