@@ -296,6 +296,12 @@ button{font-family:inherit}
 @keyframes nflk{0%{opacity:.55}50%{opacity:.25}}
 .logo span.flk{color:#d8c26a!important;animation:none;filter:blur(.5px)}
 body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contrast(1.4)}
+.ch-row{display:flex;gap:10px;align-items:center;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:8px 10px}.ch-row.claimed{opacity:.6}
+.ch-ic{font-size:26px}.ch-m{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.ch-m small{font-variant-numeric:tabular-nums;opacity:.7}
+.ch-bar{height:10px;background:#e3e8f0;border-radius:99px;overflow:hidden}.ch-bar i{display:block;height:100%;background:linear-gradient(90deg,#39c45f,#ffc23d);border-radius:99px}
+.crate-box{font-size:72px;line-height:1}.crate-box.shake{animation:cshk .12s infinite}.crate-box.pop{animation:cpop .5s ease-out}
+@keyframes cshk{0%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}100%{transform:rotate(-8deg)}}@keyframes cpop{0%{transform:scale(.3)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.crate-box.shake,.crate-box.pop{animation:none}}
 </style>
 
 <div id="stage"></div>
@@ -335,6 +341,7 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
   </div>
   <div class="hud-right">
     <button class="btn small gold" id="hTravel" hidden>🎁 Gift</button>
+    <button class="btn small" id="hChal">🏆 Challenges</button>
     <button class="btn small" id="hShop">Shop</button>
     <button class="btn small" id="hBag">Bag</button>
     <button class="btn small" id="hPets">Pets</button>
@@ -392,7 +399,7 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
 
   <section class="sheet" id="petSheet" hidden aria-label="Pet Shop">
     <header><h2>Pet Shop</h2><div style="display:flex;gap:10px;align-items:center"><div class="pill"><span class="coin-dot"></span><span class="coinNum">0</span></div><button class="btn x" data-close aria-label="Close">✕</button></div></header>
-    <p class="sub">Pets follow you everywhere and boost every coin you earn. Rarer pets give bigger boosts.</p>
+    <p class="sub">Pets follow you everywhere and boost every coin you earn. Rarer pets give bigger boosts. Feed your pet snacks to evolve it: Baby → Grown → Super!</p>
     <div class="shop">
       <div class="preview-box">
         <canvas id="petPreview" width="440" height="440"></canvas>
@@ -400,6 +407,7 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
         <div class="sel-meta" id="petMeta">Tap a pet to meet it</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
           <button class="btn gold" id="petAction" disabled>Adopt</button>
+          <button class="btn small gold" id="petFeed" hidden>🍖 Feed</button>
           <button class="btn small" id="petPutAway" hidden>Put away</button>
         </div>
       </div>
@@ -550,6 +558,16 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
     <div class="sec-h">Share or load a level code</div>
     <textarea id="levelCode" rows="3" placeholder="Paste a friend's level code here, or press Share on a level to get its code"></textarea>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn small" id="levelLoad">Load this code</button><span class="sub" id="levelMsg"></span></div>
+  </section>
+  <section class="sheet" id="chalSheet" hidden aria-label="Weekly challenges" style="max-width:620px">
+    <header><h2>🏆 Weekly Challenges</h2><button class="btn x" data-close aria-label="Close">✕</button></header>
+    <p class="sub" id="chalSub"></p>
+    <div id="chalList" style="display:flex;flex-direction:column;gap:8px"></div>
+    <button class="btn gold" id="chalGold" hidden>🌟 Claim the GOLDEN crate for finishing them all!</button>
+    <p class="sub" id="chalDone" hidden>You finished every challenge this week. Amazing! Come back next week for new ones.</p>
+    <div class="sec-h">Prize crates</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn gold" id="crateOpen">📦 Open a crate</button><span class="sub" id="crateCount"></span></div>
+    <div id="crateStage" hidden style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px"><div class="crate-box" id="crateBox">📦</div><b id="crateMsg"></b><button class="btn small gold" id="crateEquip" hidden>Wear it now</button></div>
   </section>
   <section class="sheet" id="setSheet" hidden aria-label="Settings" style="max-width:600px">
     <header><h2>⚙️ Settings &amp; Stats</h2><button class="btn x" data-close aria-label="Close">✕</button></header>
@@ -802,6 +820,8 @@ const BADGES=[
  {id:'ch2_tri',icon:'💎',name:'Midnight Gem',desc:'Put the gem of Triangular Town back together',secret:1},{id:'ch2_quad',icon:'🟦',name:'Borders On',desc:'Turned the borders of Quadrilateral Corner back on',secret:1},
  {id:'ch2_rect',icon:'⚔️',name:'Defender of the Route',desc:'Beat all three waves of 2D shapes',secret:1},{id:'ch2_god',icon:'🕳️',name:'Three Dimensions',desc:'Defeated the God of 3 Dimensions',secret:1},
  {id:'ch2_hero',icon:'🏆',name:'Our Hero!',desc:'Got a trophy from the mayor. To be continued…',secret:1},
+ {id:'weekly_all',icon:'📅',name:'Challenge Champ',desc:'Finish all 5 weekly challenges in one week'},
+ {id:'pet_evolve',icon:'✨',name:'Growing Up',desc:'Evolve a pet'},{id:'pet_super',icon:'🌟',name:'Super Pet',desc:'Evolve a pet all the way to Super'},
  {id:'party_host',icon:'🎉',name:'Party Host',desc:'Throw a party at your house'},{id:'builder_finish',icon:'🏗️',name:'Level Maker',desc:'Finish a level in the Level Builder'},
  {id:'secret_backrooms',icon:'🟨',name:'No-Clip',desc:'Escaped the Backrooms',secret:1},
  {id:'pogo',icon:'🦘',name:'Pogo Ball',desc:'Jump 100 times'},
@@ -1590,7 +1610,7 @@ function refreshUI(){
   $('#title').hidden=mode!=='title';$('#titleStats').hidden=mode!=='title';
   $('#hud').hidden=mode==='title';$('#clockChip').hidden=mode==='title';
   const busy=mode==='race'||mode==='mg'||(mode==='area'&&area&&area.busy);
-  ['#hShop','#hPets','#hBadges','#hBag'].forEach(s=>$(s).hidden=busy);$('#hTravel').hidden=busy||!(S.sec&&S.sec.ch2&&S.sec.ch2.gift);['#hGames','#hMenu'].forEach(s=>$(s).hidden=busy||mode==='area');
+  ['#hShop','#hPets','#hBadges','#hBag','#hChal'].forEach(s=>$(s).hidden=busy);$('#hTravel').hidden=busy||!(S.sec&&S.sec.ch2&&S.sec.ch2.gift);['#hGames','#hMenu'].forEach(s=>$(s).hidden=busy||mode==='area');
   const inWorld=mode==='world'||mode==='race';
   $('#mini').hidden=!inWorld;$('#starPill').hidden=!inWorld;$('#weatherChip').hidden=!inWorld;
   $('#status').hidden=!(mode==='race'||mode==='mg'||mode==='area');$('#biomeChip').hidden=!inWorld;
@@ -1691,14 +1711,14 @@ function renderPetShop(){
   const grid=$('#petGrid');grid.innerHTML='';
   PETS.filter(pt=>(!pt.special&&(!pt.city||inCity()))||S.owned[pt.id]).forEach(pt=>{const b=document.createElement('button');b.className='item';b.setAttribute('aria-pressed',String(petSel===pt.id));
     const sw=document.createElement('div');sw.className='sw hat';sw.style.backgroundImage='url('+petThumbs[pt.id]+')';b.appendChild(sw);
-    const nm=document.createElement('div');nm.className='nm';nm.textContent=pt.name;b.appendChild(nm);
+    const nm=document.createElement('div');nm.className='nm';nm.textContent=S.owned[pt.id]?petLabel(pt):pt.name;b.appendChild(nm);
     const rr=document.createElement('span');rr.className='rar';rr.textContent=RAR[pt.rar].name+(PERKS[pt.id]?' ✨':'');rr.style.background=RAR[pt.rar].col;b.appendChild(rr);
     const pr=document.createElement('div');pr.className='pr';
     if(S.equip.pet===pt.id)pr.innerHTML='<span class="tag on">With you</span>';else if(S.owned[pt.id])pr.innerHTML='<span class="tag own">Owned</span>';else if(pt.wild)pr.innerHTML='<span class="tag own">Tame it</span>';else pr.innerHTML='<span class="coin-dot"></span>'+pt.price.toLocaleString();
     b.appendChild(pr);b.addEventListener('click',()=>{petSel=pt.id;renderPetShop();});grid.appendChild(b);});
-  const act=$('#petAction'),away=$('#petPutAway');away.hidden=!S.equip.pet;
-  if(!petSel){$('#petName').textContent=S.equip.pet?PETS.find(p=>p.id===S.equip.pet).name:'No pet yet';$('#petMeta').textContent=S.equip.pet?'Following you · +'+Math.round(RAR[PETS.find(p=>p.id===S.equip.pet).rar].bonus*100)+'% coins'+(PERKS[S.equip.pet]?' · '+PERKS[S.equip.pet].txt:''):'Tap a pet to meet it';act.disabled=true;act.textContent='Adopt';act.className='btn gold';return;}
-  const pt=PETS.find(p=>p.id===petSel),bon='+'+Math.round(RAR[pt.rar].bonus*100)+'% coins'+(PERKS[pt.id]?' · '+PERKS[pt.id].txt:'');$('#petName').textContent=pt.name;
+  const act=$('#petAction'),away=$('#petPutAway');away.hidden=!S.equip.pet;$('#petFeed').hidden=!S.equip.pet;
+  if(!petSel){$('#petName').textContent=S.equip.pet?petLabel(PETS.find(p=>p.id===S.equip.pet)):'No pet yet';$('#petMeta').textContent=S.equip.pet?petXPText(S.equip.pet)+' · Following you · +'+Math.round(RAR[PETS.find(p=>p.id===S.equip.pet).rar].bonus*100)+'% coins'+(PERKS[S.equip.pet]?' · '+PERKS[S.equip.pet].txt:''):'Tap a pet to meet it';act.disabled=true;act.textContent='Adopt';act.className='btn gold';return;}
+  const pt=PETS.find(p=>p.id===petSel),bon='+'+Math.round(RAR[pt.rar].bonus*100)+'% coins'+(PERKS[pt.id]?' · '+PERKS[pt.id].txt:'')+(S.owned[pt.id]?' · '+petXPText(pt.id)+(petStage(pt.id)?' ('+evoPerkText(petStage(pt.id))+')':''):'');$('#petName').textContent=S.owned[pt.id]?petLabel(pt):pt.name;
   if(S.equip.pet===pt.id){$('#petMeta').textContent=RAR[pt.rar].name+' · '+bon+' · following you';act.textContent='With you';act.disabled=true;act.className='btn green';}
   else if(S.owned[pt.id]){$('#petMeta').textContent=RAR[pt.rar].name+' · '+bon;act.textContent='Bring along';act.disabled=false;act.className='btn green';}
   else if(pt.wild){$('#petMeta').textContent='Wild · '+bon+' · Find one in '+pt.wild+' and feed it. Loves '+((FOODS.find(f=>f.id===pt.likes)||{}).name||'snacks')+'.';act.textContent='Not for sale';act.disabled=true;act.className='btn';}
@@ -1708,6 +1728,7 @@ $('#petAction').addEventListener('click',()=>{if(!petSel)return;const pt=PETS.fi
   if(!S.owned[pt.id]){if(S.coins<pt.price)return;S.coins-=pt.price;S.owned[pt.id]=1;sfx('buy');toast('You adopted a '+pt.name+'!','badge','🐾');award('pet_first');
     if(PETS.filter(p=>S.owned[p.id]).length>=5)award('pet_5');if(pt.rar==='legendary')award('pet_legend');}
   S.equip.pet=pt.id;setPet(pt.id);save();updateCoinsUI();renderPetShop();});
+$('#petFeed').addEventListener('click',()=>{openFeedPet();});
 $('#petPutAway').addEventListener('click',()=>{S.equip.pet=null;setPet(null);petSel=null;save();renderPetShop();});
 
 /* ---------- minigame list ---------- */
@@ -2079,7 +2100,7 @@ function startMinigame(id){
   MG_BUILD[id](mg);
   player.pos.copy(mg.spawn);snapToGround(player,mg.ground);camYaw=mg.yaw||0;snapCamera();
   $('#statusTitle').textContent=MG_INFO[id].name;
-  S.stats.played[id]=1;if(Object.keys(MG_INFO).every(k=>MG_INFO[k].city||S.stats.played[k]))award('game_night');save();
+  S.stats.played[id]=1;S.stats.mgPlays=(S.stats.mgPlays||0)+1;if(Object.keys(MG_INFO).every(k=>MG_INFO[k].city||S.stats.played[k]))award('game_night');save();
   refreshUI();
   startCountdown(()=>{if(mg)mg.phase='play';});
 }
@@ -2349,6 +2370,7 @@ function renderBag(){
     if(!foods.length)body.appendChild(el('p','sub','You have no food. Red vending machines sell snacks.'));body.appendChild(l);return;}
   $('#bagTitle').textContent='Bag';
   {const r=el('div');r.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px';const w=el('button','btn small','📺 Watch RollTube');w.addEventListener('click',openTV);const m=el('button','btn small gold','🎬 RollTube Studio');m.addEventListener('click',openStudio);r.append(w,m);body.appendChild(r);}
+  if(pet){body.appendChild(el('div','sec-h','Your pet'));const pl=el('div','list');pl.appendChild(rowItem('🐾',petLabel(pet.def),petXPText(pet.def.id)+' · feed it snacks to evolve','🍖 Feed',()=>openFeedPet()));body.appendChild(pl);}
   if(S.quest){const q=S.quest,n=NPCS.find(x=>x.id===q.npc);body.appendChild(el('div','sec-h','Quest'));body.appendChild(rowItem('📜',n.name+': '+questText(q),questProgress(q),null));}
   body.appendChild(el('div','sec-h','Food & drinks'));const l=el('div','list');let any=0;
   FOODS.forEach(f=>{if(!S.inv[f.id])return;any=1;l.appendChild(rowItem(f.icon,f.name+' ×'+S.inv[f.id],f.desc||(f.drink?'Refreshing':'Feed it to critters, trade it, or eat it'),f.drink?'Drink':'Eat',()=>useFood(f.id)));});
@@ -4610,7 +4632,7 @@ function updateV3(dt,t){
   if(ORB.g&&ORB.g.visible){ORB.orb.scale.setScalar(1+Math.sin(t*6)*.08);ORB.sparks.rotation.y=t*2;ORB.sparks.rotation.x=Math.sin(t)*.5;}
   if(playerLabel){playerLabel.visible=mode!=='title'&&player.mesh.visible;playerLabel.position.set(player.pos.x,player.pos.y+(player.hat?3.3:2.4),player.pos.z);}
   if(statue)statue.ball.rotation.y=t*.3;
-  isleTick(dt,t);inviteTick(dt);
+  isleTick(dt,t);inviteTick(dt);petEvoTick(dt,t);petXPTick(dt);chalTick(dt);
 }
 
 /* ================= V3 MINIGAMES ================= */
@@ -5566,7 +5588,7 @@ function addGuest(a,g,quiet){a.guests=a.guests||[];if(a.guests.find(x=>x.id===g.
   const G={id:g.id,g,b,lab,it,tgt:new V3(x,0,z),wait:Math.random()*2,ph:Math.random()*6};if(g.bro)a.broLab=lab;a.guests.push(G);if(!quiet){sfx('beep');toast(g.name+' is coming over!','', '🚪');}}
 function removeGuest(a,id){const i=(a.guests||[]).findIndex(x=>x.id===id);if(i<0)return;const G=a.guests[i];G.b.dispose();a.group.remove(G.lab);a.inter=a.inter.filter(o=>o!==G.it);if(a.broLab===G.lab)a.broLab=null;a.guests.splice(i,1);}
 function sendHome(a){(a.guests||[]).slice().forEach(G=>removeGuest(a,G.id));if(a.partyOn)endParty(a);toast('Everyone went home. Bye bye!','', '👋');}
-function startParty(a){guestList().forEach(g=>addGuest(a,g,true));a.partyOn=true;if(!a.party)toggleParty(a);else if(!juke&&!muted)jukePlay('disco');a.confT=0;award('party_host');toast('🎉 PARTY TIME! Everyone is here!','badge','🎉');}
+function startParty(a){S.stats.parties=(S.stats.parties||0)+1;save();guestList().forEach(g=>addGuest(a,g,true));a.partyOn=true;if(!a.party)toggleParty(a);else if(!juke&&!muted)jukePlay('disco');a.confT=0;award('party_host');toast('🎉 PARTY TIME! Everyone is here!','badge','🎉');}
 function endParty(a){a.partyOn=false;if(a.party)toggleParty(a);if(juke)jukeStop();}
 function guestTick(a,dt){if(!a.guests||!a.guests.length)return;const HX=a.gHX||17,HZ=a.gHZ||13;
   for(const G of a.guests){const b=G.b;G.wait-=dt;const near=b.pos.distanceTo(player.pos)<3;
@@ -5640,7 +5662,7 @@ function dcChoose(){const L=daycareList();const mine=ownedPetsSorted().filter(p=
   showResult({title:'Which pet?',big:'🐾',line:'Pick a pet to drop off at the daycare. Secret pets (⭐) are welcome too!',coins:null,buttons:mine.map(p=>({label:petBtnName(p),fn:()=>{closeSheets();dcDrop(p.id);}})).concat([{label:'Cancel',fn:()=>closeSheets()}])});}
 function dcDrop(id){const L=daycareList();if(L.length>=3||L.includes(id))return;L.push(id);S.daycareT=S.daycareT||{};S.daycareT[id]=Date.now();if(S.equip.pet===id){S.equip.pet=null;setPet(null);}save();sfx('buy');
   const d=PETS.find(p=>p.id===id);toast(d.name+' is now playing at the daycare!','', '🐾');if(area&&area.id==='daycare'&&area.addPet)area.addPet(id,'Your '+d.name,true);}
-function dcPickup(id,silent){const L=daycareList();const i=L.indexOf(id);if(i<0)return;const earned=daycareEarned(id);L.splice(i,1);delete S.daycareT[id];save();const n=earned?addCoins(earned):0;const d=PETS.find(p=>p.id===id);
+function dcPickup(id,silent){const L=daycareList();const i=L.indexOf(id);if(i<0)return;const earned=daycareEarned(id);const mins=S.daycareT&&S.daycareT[id]?Math.floor((Date.now()-S.daycareT[id])/60000):0;if(mins>=2)setTimeout(()=>addPetXP(id,Math.min(10,Math.floor(mins/2))),1200);L.splice(i,1);delete S.daycareT[id];save();const n=earned?addCoins(earned):0;const d=PETS.find(p=>p.id===id);
   if(!silent)toast('You picked up '+d.name+'!'+(n?' It earned '+n+' coins.':''),'coin','🐾');
   if(area&&area.id==='daycare'){const P2=area.pets.find(q=>q.mine&&q.def.id===id);if(P2){area.group.remove(P2.g);area.group.remove(P2.l);area.inter=area.inter.filter(o=>o!==P2.it);area.pets.splice(area.pets.indexOf(P2),1);}}}
 
@@ -5760,7 +5782,7 @@ function lbRespawn(a,msg){const s=lbStartPos(a);player.pos.copy(s);player.vel.se
 function lbEditMode(a,on){LBS.mode=on?'edit':'play';a.locked=on;player.setVisible(!on);a.boxes=on?[]:a.playBoxes;a.grid.visible=on;a.base.visible=on;a.cur.visible=false;a.camDist=on?30:null;lbStatusBar();
   if(!on){if(!a.startCell||!a.goalCell){toast(!a.startCell?'Place a 🚩 Start first!':'Place a 🏁 Goal first!','bad');lbEditMode(a,true);return;}a.time=0;a.got=0;a.done=false;a.coins.forEach(c=>c.m.visible=true);const s=lbStartPos(a);player.pos.copy(s);player.vel.set(0,0,0);a.spawn=s.clone();camYaw=0;snapCamera();sfx('go');}
   else{player.pos.set(LBS.focus.x,1.2,LBS.focus.z);}}
-function lbFinish(a){const L=lbLevel();const t=+a.time.toFixed(2);const nb=L.best==null||t<L.best;if(nb){L.best=t;save();}award('builder_finish');sfx('badge');
+function lbFinish(a){const L=lbLevel();S.stats.lbDone=(S.stats.lbDone||0)+1;const t=+a.time.toFixed(2);const nb=L.best==null||t<L.best;if(nb){L.best=t;save();}award('builder_finish');sfx('badge');
   showResult({title:L.name,big:'🏁',line:'You finished in '+t+'s with '+a.got+'/'+a.coins.length+' coins!'+(nb?' New best time!':' Best: '+L.best+'s'),coins:null,buttons:[{label:'Play again',cls:'gold',fn:()=>{closeSheets();lbEditMode(a,false);}},{label:'✏️ Back to building',fn:()=>{closeSheets();lbEditMode(a,true);}},{label:'📂 Levels',fn:()=>{closeSheets();openLevels();}}]});}
 function lbStatusBar(){const bar=$('#lbBar');if(!(mode==='area'&&area&&area.id==='builder')){bar.hidden=true;return;}bar.hidden=false;bar.innerHTML='';const mk=(html,fn,on,title)=>{const b=document.createElement('button');b.className='lb-b'+(on?' on':'');b.innerHTML=html;if(title)b.title=title;b.addEventListener('click',e=>{fn();e.currentTarget.blur();});bar.appendChild(b);return b;};
   if(LBS.mode==='play'){mk('✏️ Edit',()=>lbEditMode(area,true));mk('↺ Restart',()=>lbEditMode(area,false));return;}
@@ -5835,6 +5857,76 @@ function brWin(a){const first=!S.badges.secret_backrooms;S.owned.pat_backrooms=1
   showResult({title:'EXIT',big:'🚪',line:'You push open the door and fall… and wake up on your island, wrapped in a blanket. '+(first?'You got the Backrooms Wallpaper pattern!':'You escaped the Backrooms again!'),coins:first?got:null,
     buttons:[{label:'Wake up',cls:'gold',fn:()=>{closeSheets();fadeTo(()=>exitToWorld(a.exit));}}]});}
 
+/* ================= PET EVOLUTIONS ================= */
+const EVO=[{name:'Baby',need:0,scale:1,coins:0,speed:0,jump:0},{name:'Grown',need:10,scale:1.25,coins:.15,speed:.05,jump:.05},{name:'Super',need:30,scale:1.55,coins:.35,speed:.12,jump:.12}];
+const petXP=id=>{S.petXP=S.petXP||{};return S.petXP[id]||0;};
+const petStage=id=>{const x=petXP(id);return x>=EVO[2].need?2:x>=EVO[1].need?1:0;};
+const petLabel=def=>{const st=petStage(def.id);return(st?EVO[st].name+' ':'')+def.name;};
+function petXPText(id){const st=petStage(id),x=petXP(id);return EVO[st].name+(st<2?' · XP '+x+'/'+EVO[st+1].need:' · fully evolved!');}
+function evoPerkText(st){const e=EVO[st];return st?'+'+Math.round(e.coins*100)+'% coins, +'+Math.round(e.speed*100)+'% speed, +'+Math.round(e.jump*100)+'% jump':'no evolution bonus yet';}
+let perkCache=null;
+perk=function(){if(!pet||!pet.def)return{};const id=pet.def.id,st=petStage(id);if(perkCache&&perkCache.id===id&&perkCache.st===st)return perkCache.p;const b=PERKS[id]||{},e=EVO[st];
+  const p=Object.assign({},b,{speed:(b.speed||0)+e.speed,jump:(b.jump||0)+e.jump,coins:(b.coins||0)+e.coins});perkCache={id,st,p};return p;};
+const _setPetBase=setPet;setPet=function(id){_setPetBase(id);perkCache=null;petVisual();};
+function petVisual(){if(!pet)return;const g=pet.g,st=petStage(pet.def.id);g.scale.setScalar(1.25*EVO[st].scale);if(g.userData.evo){g.remove(g.userData.evo);g.userData.evo=null;}if(!st)return;
+  const fx=new THREE.Group();g.add(fx);g.userData.evo=fx;const col=st===2?0xffd23d:0x7fd8ff;
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.62,.045,8,40),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.85}));ring.rotation.x=Math.PI/2;ring.position.y=.04;fx.add(ring);
+  if(st===2){const star=new THREE.Mesh(new THREE.OctahedronGeometry(.13,0),new THREE.MeshStandardMaterial({color:0xfff1a8,emissive:0xffd23d,emissiveIntensity:1.2}));star.position.y=1.75;fx.add(star);fx.userData.star=star;
+    for(let i=0;i<3;i++){const sp=new THREE.Mesh(new THREE.OctahedronGeometry(.05,0),new THREE.MeshBasicMaterial({color:0xffffff}));fx.add(sp);(fx.userData.sp=fx.userData.sp||[]).push(sp);}}}
+let petWalkT=0;
+function petEvoTick(dt,t){if(!pet||!pet.g.userData.evo)return;const fx=pet.g.userData.evo;fx.children[0].scale.setScalar(1+Math.sin(t*3)*.06);if(fx.userData.star){fx.userData.star.rotation.y=t*2;fx.userData.star.position.y=1.75+Math.sin(t*2.5)*.08;}
+  if(fx.userData.sp)fx.userData.sp.forEach((s,i)=>{const a=t*1.6+i*2.1;s.position.set(Math.cos(a)*.7,.5+Math.sin(t*3+i)*.3,Math.sin(a)*.7);});}
+function petXPTick(dt){if(!pet||sheetOpen||mode==='title')return;if(Math.hypot(player.vel.x,player.vel.z)<3)return;petWalkT+=dt;if(petWalkT>=120){petWalkT=0;addPetXP(pet.def.id,1,true);}}
+function addPetXP(id,n,quiet){if(!n)return;const def=PETS.find(p=>p.id===id);if(!def)return;const before=petStage(id);S.petXP=S.petXP||{};S.petXP[id]=petXP(id)+n;save();const after=petStage(id);
+  if(after>before){perkCache=null;if(pet&&pet.def.id===id){petVisual();burst(pet.g.position.clone().add(new V3(0,1,0)),after===2?['#ffd23d','#ffffff','#ff9a3c']:['#7fd8ff','#ffffff','#b9a2f0'],50);}sfx('badge');
+    award('pet_evolve');if(after===2)award('pet_super');
+    setTimeout(()=>showResult({title:'Evolution!',big:after===2?'🌟':'✨',line:'Whoa! Your '+(before?EVO[before].name+' ':'')+def.name+' evolved into a '+EVO[after].name+' '+def.name+'! It is bigger now, and its bonus went up to '+evoPerkText(after)+'.'+(after===1?' Keep feeding it to reach Super!':''),coins:null,buttons:[{label:'Amazing!',cls:'gold',fn:()=>{closeSheets();if(document.querySelector('#petSheet')&&!$('#petSheet').hidden)renderPetShop();}}]}),sheetOpen==='resultSheet'?50:300);}
+  else if(!quiet)toast(def.name+' +'+n+' XP ('+petXPText(id)+')','', '🍖');else toast(def.name+' had fun rolling with you! +'+n+' XP','', '🐾');}
+function feedXP(f,def){let x=Math.max(1,Math.round(f.price/10));if(def&&def.likes===f.id)x*=2;return x;}
+function openFeedPet(){if(!pet){toast('Bring a pet along first!','bad');return;}const def=pet.def;const foods=FOODS.filter(f=>S.inv[f.id]>0);
+  if(!foods.length){showResult({title:'Feed '+petLabel(def),big:'🍖',line:'You have no snacks! Buy some from a vending machine, then come back to feed your pet. Pricier snacks give more XP.',coins:null,buttons:[{label:'Okay',cls:'gold',fn:()=>closeSheets()}]});return;}
+  showResult({title:'Feed '+petLabel(def),big:'🍖',line:petXPText(def.id)+'. Pick a snack! Bigger snacks give more XP'+(def.likes?' and its favorite gives double':'')+'.',coins:null,
+    buttons:foods.map(f=>({label:f.icon+' '+f.name+' ×'+S.inv[f.id]+' (+'+feedXP(f,def)+' XP)',fn:()=>{if(!invTake(f.id))return;S.stats.petFeeds=(S.stats.petFeeds||0)+1;sfx('coin');closeSheets();burst(pet.g.position.clone().add(new V3(0,1,0)),['#ff5c8a','#ffffff'],10);addPetXP(def.id,feedXP(f,def));}})).concat([{label:'Done',fn:()=>closeSheets()}])});}
+
+/* ================= WEEKLY CHALLENGES + PRIZE CRATES ================= */
+const CHAL_POOL=[
+  {id:'hoops',ic:'🏀',txt:'Sink 15 hoops',n:15,get:()=>S.stats.hoops||0},
+  {id:'races',ic:'🏁',txt:'Win 2 races',n:2,get:()=>S.stats.raceWins||0},
+  {id:'jumps',ic:'🦘',txt:'Jump 250 times',n:250,get:()=>S.stats.jumps||0},
+  {id:'coins',ic:'🪙',txt:'Earn 1,500 coins',n:1500,get:()=>S.earned||0},
+  {id:'snacks',ic:'🍔',txt:'Buy 6 snacks from vending machines',n:6,get:()=>S.snacks||0},
+  {id:'dist',ic:'🛞',txt:'Roll 4,000 meters',n:4000,get:()=>Math.floor(S.stats.dist||0)},
+  {id:'mg',ic:'🎮',txt:'Play 4 minigames',n:4,get:()=>S.stats.mgPlays||0},
+  {id:'feed',ic:'🍖',txt:'Feed your pet 5 times',n:5,get:()=>S.stats.petFeeds||0},
+  {id:'party',ic:'🎉',txt:'Throw a party at your house',n:1,get:()=>S.stats.parties||0},
+  {id:'build',ic:'🏗️',txt:'Finish 2 Level Builder levels',n:2,get:()=>S.stats.lbDone||0}];
+const weekNo=()=>Math.floor((Date.now()/86400000+3)/7);
+function weekly(){const w=weekNo();if(!S.weekly||S.weekly.week!==w){const r=mulberry32(w*7919+13);const pool=CHAL_POOL.slice();const list=[];while(list.length<5){const i=Math.floor(r()*pool.length);const c=pool.splice(i,1)[0];list.push({id:c.id,base:c.get(),done:0,claimed:0});}
+  S.weekly={week:w,list,bonus:0};save();}return S.weekly;}
+function chalDef(id){return CHAL_POOL.find(c=>c.id===id);}
+function chalProg(c){const d=chalDef(c.id);return Math.min(d.n,Math.max(0,d.get()-c.base));}
+let chalT=0;
+function chalTick(dt){chalT+=dt;if(chalT<1.5)return;chalT=0;if(mode==='title')return;const W=weekly();let ch=false;
+  for(const c of W.list){if(!c.done&&chalProg(c)>=chalDef(c.id).n){c.done=1;ch=true;sfx('badge');toast('Weekly challenge done: '+chalDef(c.id).txt+'! Claim your prize crate 🏆','badge','📦');}}if(ch){save();chalBadge();}}
+function chalBadge(){const W=weekly(),n=W.list.filter(c=>c.done&&!c.claimed).length+(W.list.every(c=>c.claimed)&&!W.bonus?1:0);const b=$('#hChal');b.textContent='🏆 Challenges'+(n?' ('+n+')':'');b.classList.toggle('gold',!!n);}
+function weekLeft(){const ms=((weekNo()+1)*7-3)*86400000-Date.now();const d=Math.floor(ms/86400000),h=Math.floor(ms%86400000/3600000);return d+'d '+h+'h';}
+function openChal(){openSheet('chalSheet');renderChal();}
+function renderChal(){const W=weekly(),box=$('#chalList');box.innerHTML='';$('#chalSub').textContent='New challenges in '+weekLeft()+'. Each one you finish gives a Prize Crate with a random hat, color or trail inside!';
+  W.list.forEach(c=>{const d=chalDef(c.id),p=chalProg(c);const r=document.createElement('div');r.className='ch-row'+(c.claimed?' claimed':'');
+    r.innerHTML='<span class="ch-ic"></span><div class="ch-m"><b></b><div class="ch-bar"><i></i></div><small></small></div>';r.querySelector('.ch-ic').textContent=d.ic;r.querySelector('b').textContent=d.txt;r.querySelector('i').style.width=(p/d.n*100)+'%';r.querySelector('small').textContent=p.toLocaleString()+' / '+d.n.toLocaleString();
+    const b=document.createElement('button');b.className='btn small'+(c.done&&!c.claimed?' gold':'');b.textContent=c.claimed?'Claimed ✓':c.done?'Claim 📦':'In progress';b.disabled=!c.done||c.claimed;b.addEventListener('click',()=>{c.claimed=1;S.crates=(S.crates||0)+1;const got=addCoins(50);save();sfx('buy');toast('You got a Prize Crate and '+got+' coins!','badge','📦');renderChal();chalBadge();});r.appendChild(b);box.appendChild(r);});
+  const all=W.list.every(c=>c.claimed);const gb=$('#chalGold');gb.hidden=!all||W.bonus;gb.onclick=()=>{W.bonus=1;S.goldCrates=(S.goldCrates||0)+1;award('weekly_all');save();sfx('badge');toast('You finished every challenge this week! Here is a GOLDEN crate!','badge','🌟');renderChal();chalBadge();};
+  $('#chalDone').hidden=!(all&&W.bonus);
+  $('#crateCount').textContent=(S.crates||0)+' prize crate'+((S.crates||0)===1?'':'s')+((S.goldCrates||0)?' · '+S.goldCrates+' golden':'');$('#crateOpen').disabled=!(S.crates||S.goldCrates);}
+function cratePrize(golden){const pool=[];const add=(list,kind,w)=>list.filter(x=>!x.special&&!x.city&&x.price>0&&!S.owned[x.id]).forEach(x=>pool.push({x,kind,w:golden?x.price:w}));
+  add(HATS,'hat',6);add(TRAILS,'trail',3);add(COLORS,'color',2);if(!pool.length)return null;if(golden){pool.sort((a,b)=>b.x.price-a.x.price);return pool[0];}
+  let tot=pool.reduce((s,p)=>s+p.w,0),r=Math.random()*tot;for(const p of pool){r-=p.w;if(r<=0)return p;}return pool[0];}
+function openCrate(){const golden=(S.goldCrates||0)>0&&!(S.crates>0)?true:false;if(golden)S.goldCrates--;else if(S.crates>0)S.crates--;else return;save();const st=$('#crateStage');st.hidden=false;setTimeout(()=>{try{st.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}},30);const box=$('#crateBox');box.textContent=golden?'🎁':'📦';box.className='crate-box shake';$('#crateMsg').textContent='Opening…';$('#crateEquip').hidden=true;sfx('beep');renderChal();
+  setTimeout(()=>{const p=cratePrize(golden);box.className='crate-box pop';sfx('badge');if(!p){const n=addCoins(golden?1500:300);box.textContent='🪙';$('#crateMsg').textContent='You already own everything! Have '+n+' coins instead.';return;}
+    S.owned[p.x.id]=1;if(golden)addCoins(500);save();box.textContent=p.kind==='hat'?'🎩':p.kind==='trail'?'✨':'🎨';$('#crateMsg').textContent=(golden?'GOLDEN PRIZE! ':'')+'You got the '+p.x.name+' '+(p.kind==='hat'?'hat':p.kind==='trail'?'trail':'ball color')+'!';
+    const eq=$('#crateEquip');eq.hidden=false;eq.onclick=()=>{S.equip[p.kind==='hat'?'hat':p.kind==='trail'?'trail':'color']=p.x.id;save();player.setLook(lookOf(S.equip));eq.hidden=true;toast('Equipped '+p.x.name+'!','', '✨');};},1300);}
+$('#hChal').addEventListener('click',()=>{blurBtn();openChal();});$('#crateOpen').addEventListener('click',openCrate);
+
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
@@ -5907,7 +5999,7 @@ buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildS
 player=new Ball(lookOf(S.equip));
 player.pos.set(SPAWN.x+14,0,SPAWN.z);snapToGround(player,heightAt);
 titleAng=0;camPos.set(player.pos.x,player.pos.y+12,player.pos.z+26);
-setPet(S.equip.pet);setPlayerLabel();updateCoinsUI();updateTitleStats();updateStarUI();refreshUI();
+setPet(S.equip.pet);chalBadge();setPlayerLabel();updateCoinsUI();updateTitleStats();updateStarUI();refreshUI();
 if(!S.name)setTimeout(()=>{openSheet('nameSheet');setTimeout(()=>$('#nameInput').focus(),60);},900);
 requestAnimationFrame(t=>{last=t;frame(t);});
 })();
