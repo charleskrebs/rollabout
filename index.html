@@ -7203,7 +7203,7 @@ BADGES.push({id:'tp_first',icon:'🌀',name:'Portal Owner',desc:'Buy your first 
 /* the Boss Teleporter Station */
 function swirlTex(col){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');const gr=g.createRadialGradient(64,64,4,64,64,64);gr.addColorStop(0,'#ffffff');gr.addColorStop(.35,col);gr.addColorStop(1,'#14062a');g.fillStyle=gr;g.fillRect(0,0,128,128);
   g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=4;for(let k=0;k<4;k++){g.beginPath();for(let i=0;i<60;i++){const a=k*Math.PI/2+i*.09,r=i;g.lineTo(64+Math.cos(a)*r,64+Math.sin(a)*r);}g.stroke();}return new THREE.CanvasTexture(c);}
-function buildTeleporters(){const x=-13,z=19,y=heightAt(x,z);const g=new THREE.Group();g.position.set(x,y,z);const face=Math.atan2(12-x,24-z);g.rotation.y=face;worldGroup.add(g);
+function buildTeleporters(){const x=2,z=37,y=heightAt(x,z);const g=new THREE.Group();g.position.set(x,y,z);const face=Math.atan2(12-x,24-z);g.rotation.y=face;worldGroup.add(g);
   const M=(c,o)=>std(c,Object.assign({flatShading:false},o||{}));
   const pad=new THREE.Mesh(new THREE.CylinderGeometry(6.4,6.6,.25,40),M(0x3a3f5c));pad.position.y=.12;pad.receiveShadow=true;g.add(pad);
   const ring=new THREE.Mesh(new THREE.TorusGeometry(6.45,.1,6,64),new THREE.MeshBasicMaterial({color:0x2ee6ff}));ring.rotation.x=Math.PI/2;ring.position.y=.27;g.add(ring);
