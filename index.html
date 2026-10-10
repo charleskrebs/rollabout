@@ -845,7 +845,7 @@ const BADGES=[
  {id:'weekly_all',icon:'📅',name:'Challenge Champ',desc:'Finish all 5 weekly challenges in one week'},
  {id:'pet_evolve',icon:'✨',name:'Growing Up',desc:'Evolve a pet'},{id:'pet_super',icon:'🌟',name:'Super Pet',desc:'Evolve a pet all the way to Super'},
  {id:'party_host',icon:'🎉',name:'Party Host',desc:'Throw a party at your house'},{id:'builder_finish',icon:'🏗️',name:'Level Maker',desc:'Finish a level in the Level Builder'},
- {id:'secret_backrooms',icon:'🟨',name:'No-Clip',desc:'Escaped the Backrooms',secret:1},
+ {id:'secret_backrooms',icon:'🟨',name:'No-Clip',desc:'Found the Backrooms',secret:1},
  {id:'pogo',icon:'🦘',name:'Pogo Ball',desc:'Jump 100 times'},
  {id:'kangaroo',icon:'🐇',name:'Kangaroo',desc:'Jump 500 times'},
  {id:'marathon',icon:'🛣️',name:'Marathon Roller',desc:'Roll 10,000 meters'}];
@@ -5876,7 +5876,7 @@ function brTex(kind){const c=document.createElement('canvas');c.width=c.height=1
   else if(kind==='carpet'){g.fillStyle='#a8945a';g.fillRect(0,0,128,128);for(let i=0;i<900;i++){g.fillStyle='rgba('+(Math.random()<.5?'90,75,40':'190,170,110')+','+(Math.random()*.25)+')';g.fillRect(Math.random()*128,Math.random()*128,2,2);}}
   else{g.fillStyle='#e9e2c6';g.fillRect(0,0,128,128);g.strokeStyle='rgba(0,0,0,.15)';g.lineWidth=2;g.strokeRect(0,0,64,64);g.strokeRect(64,64,64,64);g.strokeRect(64,0,64,64);g.strokeRect(0,64,64,64);}
   const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;}
-AREA_BUILD.backrooms=a=>{const N=16,CS=8,HALF=N*CS/2,WH=6;a.name='???';a.fp=true;a.silent=true;player.setVisible(false);a.leaveLabel='Wake up';a.exit=new V3(SPAWN.x+4,0,SPAWN.z+4);
+AREA_BUILD.backrooms=a=>{setTimeout(()=>award('secret_backrooms'),1500);const N=16,CS=8,HALF=N*CS/2,WH=6;a.name='???';a.fp=true;a.silent=true;player.setVisible(false);a.leaveLabel='Wake up';a.exit=new V3(SPAWN.x+4,0,SPAWN.z+4);
   a.sky={top:0xcbb866,bottom:0xcbb866,fog:0xbfae5e,near:3,far:42,hemi:.75,sun:.15,amb:.6};a.ground=(x,z)=>(Math.abs(x)<=HALF&&Math.abs(z)<=HALF)?0:null;a.killY=-20;const G=a.group;
   const ft=brTex('carpet');ft.repeat.set(N*2,N*2);const fl=new THREE.Mesh(new THREE.PlaneGeometry(N*CS,N*CS),new THREE.MeshStandardMaterial({map:ft,roughness:1}));fl.rotation.x=-Math.PI/2;G.add(fl);
   const ct=brTex('ceil');ct.repeat.set(N*2,N*2);const ce=new THREE.Mesh(new THREE.PlaneGeometry(N*CS,N*CS),new THREE.MeshStandardMaterial({map:ct,roughness:1,side:THREE.DoubleSide}));ce.rotation.x=Math.PI/2;ce.position.y=WH;G.add(ce);
@@ -5908,7 +5908,7 @@ AREA_BUILD.backrooms=a=>{const N=16,CS=8,HALF=N*CS/2,WH=6;a.name='???';a.fp=true
     if(!a.won&&Math.hypot(player.pos.x-ex,player.pos.z-(ez-1))<2.6){a.won=true;brWin(a);}};
   a.cleanup=()=>{player.setVisible(true);try{if(hum){hum.o.stop();hum.o2.stop();}}catch(e){}};
   setTimeout(()=>{if(area===a)toast('You noclipped out of reality…','', '🟨');},700);setTimeout(()=>{if(area===a)toast('Something hums in the distance. Do not let it catch you.','', '😶');},9000);};
-function brWin(a){const first=!S.badges.secret_backrooms;S.owned.pat_backrooms=1;award('secret_backrooms');const got=first?addCoins(1000):0;save();sfx('badge');
+function brWin(a){const first=!S.brEscaped&&!S.owned.pat_backrooms;S.brEscaped=1;S.owned.pat_backrooms=1;award('secret_backrooms');const got=first?addCoins(1000):0;save();sfx('badge');
   showResult({title:'EXIT',big:'🚪',line:'You push open the door and fall… and wake up on your island, wrapped in a blanket. '+(first?'You got the Backrooms Wallpaper pattern!':'You escaped the Backrooms again!'),coins:first?got:null,
     buttons:[{label:'Wake up',cls:'gold',fn:()=>{closeSheets();fadeTo(()=>exitToWorld(a.exit));}}]});}
 
