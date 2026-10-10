@@ -5504,8 +5504,8 @@ function jukeLoop(){const J=juke;if(!J||!actx)return;const b=60/J.T.bpm,t0=J.nex
   if(!muted){for(const n of J.mel){synthNote(n.f,t,n.len*b,J.T.wave,J.T.wave==='triangle'?.16:.06,J.out);t+=n.len*b;}t=t0;for(const n of J.bass){synthNote(n.f,t,n.len*b,'triangle',.2,J.out);t+=n.len*b;}
     const dr=J.T.drums;for(let i=0;i<32;i++){const c=dr[i%dr.length];if(c!=='.')drumHit(c==='h'?'h':c,t0+i*b/2,J.out,.8);}}
   J.next=t0+J.len*b;J.timer=setTimeout(jukeLoop,Math.max(50,(J.next-actx.currentTime-.35)*1000));}
-function jukePlay(id,quiet,opts){jukeStop();if(muted){if(quiet)return;toast('Sound is off! Turn it on to hear the jukebox.','', '🔇');return;}if(!audioReady())return;const T=JUKE_TRACKS.find(x=>x.id===id);
-  const mel=seqParse(T.mel),bass=seqParse(T.bass),len=Math.max(mel.reduce((s,n)=>s+n.len,0),bass.reduce((s,n)=>s+n.len,0),16);const out=actx.createGain();out.gain.value=opts&&opts.bg?.42:.8;out.connect(actx.destination);
+function jukePlay(id,quiet,opts){if(opts&&opts.fade&&juke&&!juke.user&&actx){const o=juke;clearTimeout(o.timer);try{o.out.gain.cancelScheduledValues(actx.currentTime);o.out.gain.setTargetAtTime(0,actx.currentTime,.3);}catch(e){}setTimeout(()=>{try{o.out.disconnect();}catch(e){}},2500);juke=null;}else jukeStop();if(muted){if(quiet)return;toast('Sound is off! Turn it on to hear the jukebox.','', '🔇');return;}if(!audioReady())return;const T=JUKE_TRACKS.find(x=>x.id===id);
+  const mel=seqParse(T.mel),bass=seqParse(T.bass),len=Math.max(mel.reduce((s,n)=>s+n.len,0),bass.reduce((s,n)=>s+n.len,0),16);const out=actx.createGain();out.gain.value=opts&&opts.bg?.42:.8;if(opts&&opts.fade){out.gain.setValueAtTime(.0001,actx.currentTime);out.gain.linearRampToValueAtTime(.42,actx.currentTime+1.2);}out.connect(actx.destination);
   juke={T,mel,bass,len,out,user:!(opts&&opts.bg),next:actx.currentTime+.08};jukeLoop();renderJukebox();if(!quiet)toast('Now playing: '+T.name,'',T.icon);}
 function jukeStop(){if(!juke)return;clearTimeout(juke.timer);try{juke.out.gain.setValueAtTime(0,actx.currentTime);juke.out.disconnect();}catch(e){}juke=null;renderJukebox();}
 function openJukebox(){openSheet('jukeSheet');renderJukebox();}
@@ -5627,9 +5627,18 @@ JUKE_TRACKS.push(
   {id:'night',name:'Moonlit Roll',icon:'🌙',bpm:76,wave:'triangle',drums:'k.......',mel:'E5:2 D5:1 C5:1 B4:2 A4:2 C5:2 B4:1 A4:1 G4:3 R:1',bass:'A2:4 F2:4 C3:4 E2:4'});
 PIANO_SONGS.splice(PIANO_SONGS.findIndex(s=>s.id==='theme')+1,0,{id:'theme2',name:'🟡 Rollabout Theme 2',beat:230,notes:'C.5 E.5 G.5 C5.5 B.5 G.5 A F.5 A.5 C5.5 A.5 G2 E.5 G.5 C5.5 E5.5 D5.5 C5.5 A.5 G.5 A.5 B.5 C53'},{id:'night',name:'🌙 Moonlit Roll',beat:520,notes:'E52 D5 C5 B2 A2 C52 B A G3 R'});
 (function(){const box=$('#songList');box.innerHTML='';PIANO_SONGS.forEach(s=>{const b=el('button','btn small',s.name);b.addEventListener('click',()=>{playSong(s.id);b.blur();});box.appendChild(b);});const st=el('button','btn small','⏹ Stop');st.addEventListener('click',stopSong);box.appendChild(st);})();
-function musicDirector(){if(!gestured)return;if(juke&&juke.user)return;let want=null;
-  if(!muted&&!(mode==='area'&&area&&area.silent)){if(mode==='title')want='theme';else if(S.bgMusic!==false)want=(mode==='area'&&area&&area.busy&&area.boss)?'showdown':(dayAmount<.5?'night':'theme');}
-  if(!want){if(juke)jukeStop();return;}if(!juke||juke.T.id!==want)jukePlay(want,true,{bg:true});}
+JUKE_TRACKS.push(
+  {id:'b_plains',name:'Sunny Plains',icon:'🌼',bpm:128,wave:'square',drums:'khshkhsh',mel:'G4:.5 B4:.5 D5:1 B4:.5 D5:.5 G5:1 F#5:.5 E5:.5 D5:1 B4:1 R:1 C5:.5 E5:.5 G5:.5 A5:.5 G5:1 E5:1 D5:.5 E5:.5 D5:.5 B4:.5 A4:2 B4:.5 D5:.5 E5:1 D5:.5 B4:.5 G4:1 A4:.5 B4:.5 C5:.5 E5:.5 D5:2 E5:.5 F#5:.5 G5:1 D5:1 B4:1 C5:.5 B4:.5 A4:.5 F#4:.5 G4:2',bass:pulse(['G2','G2','C3','D3','E2','D3','C3','G2'])},
+  {id:'b_desert',name:'Desert Mirage',icon:'🏜️',bpm:100,wave:'sawtooth',drums:'k.t.skt.',mel:'A4:1 A#4:.5 C#5:.5 D5:1 E5:1 F5:.5 E5:.5 D5:.5 C#5:.5 D5:1 A4:1 E5:1 F5:.5 E5:.5 D5:.5 C#5:.5 A#4:1 C#5:1 A#4:.5 A4:.5 A4:2 A5:.5 G5:.5 F5:.5 E5:.5 F5:1 D5:1 E5:.5 F5:.5 G5:.5 F5:.5 E5:2 D5:.5 C#5:.5 A#4:.5 C#5:.5 D5:1 E5:1 C#5:.5 A#4:.5 A4:1 R:2',bass:pulse(['A2','A2','A#2','A2','D3','A#2','A2','A2'])},
+  {id:'b_volcano',name:'Magma Rumble',icon:'🌋',bpm:156,wave:'sawtooth',drums:'kkshkksh',mel:'E5:.5 E5:.5 G5:.5 E5:.5 A5:1 G5:1 F#5:.5 E5:.5 D5:.5 E5:.5 B4:2 E5:.5 E5:.5 G5:.5 B5:.5 A5:1 G5:.5 F#5:.5 G5:.5 A5:.5 B5:1 E5:2 C6:.5 B5:.5 A5:.5 G5:.5 A5:1 E5:1 D5:.5 E5:.5 F#5:.5 D5:.5 E5:2 B4:.5 E5:.5 G5:.5 B5:.5 C6:1 B5:1 A5:.5 G5:.5 F#5:.5 D#5:.5 E5:2',bass:pulse(['E2','E2','C2','D2','C2','A1','B1','E2'])},
+  {id:'b_jungle',name:'Jungle Bounce',icon:'🌴',bpm:112,wave:'triangle',drums:'kt.tsth.',mel:'C5:.5 D5:.5 E5:.5 G5:.5 R:.5 E5:.5 G5:1 A5:.5 G5:.5 E5:.5 D5:.5 C5:1 R:1 E5:.5 G5:.5 A5:.5 C6:.5 A5:1 G5:1 E5:.5 D5:.5 E5:.5 G5:.5 D5:2 C5:.5 R:.5 C5:.5 D5:.5 E5:1 G5:.5 E5:.5 D5:.5 C5:.5 A4:.5 G4:.5 A4:2 G4:.5 A4:.5 C5:.5 D5:.5 E5:.5 G5:.5 A5:1 G5:.5 E5:.5 D5:.5 E5:.5 C5:2',bass:'C3:1 G2:1 C3:1 G2:1 F2:1 C3:1 G2:1 C3:1 A2:1 E2:1 A2:1 E2:1 G2:1 D3:1 G2:1 B2:1 C3:1 G2:1 E3:1 G2:1 F2:1 A2:1 G2:1 B2:1 A2:1 E3:1 F2:1 C3:1 G2:1 D3:1 C3:2'},
+  {id:'b_tundra',name:'Snowy Glide',icon:'❄️',bpm:90,wave:'triangle',drums:'k...h..h',mel:'F#5:1 A5:1 D6:1 C#6:.5 A5:.5 B5:1 A5:1 F#5:2 G5:1 B5:1 A5:1 F#5:1 E5:1 F#5:.5 E5:.5 D5:2 D5:.5 F#5:.5 A5:1 D6:1 E6:1 F#6:1 E6:.5 D6:.5 C#6:1 A5:1 B5:1 G5:1 A5:1 E5:1 F#5:1 E5:1 D5:2',bass:'D3:4 B2:4 G2:4 A2:4 D3:4 G2:4 G2:2 A2:2 D3:4'});
+const BIOME_TRACK={plains:'b_plains',desert:'b_desert',volcano:'b_volcano',jungle:'b_jungle',tundra:'b_tundra'};
+let musBiome=null,bioCand=null,bioSince=0;
+function musicDirector(){if(!gestured)return;if(juke&&juke.user)return;let want=null;const now=performance.now();
+  if(curBiome!==bioCand){bioCand=curBiome;bioSince=now;}if(musBiome===null||(bioCand!==musBiome&&now-bioSince>2500))musBiome=bioCand;
+  if(!muted&&!(mode==='area'&&area&&area.silent)){if(mode==='title')want='theme';else if(S.bgMusic!==false){if(mode==='area'&&area&&area.busy&&area.boss)want='showdown';else if(dayAmount<.5)want='night';else if(mode==='world'&&BIOME_TRACK[musBiome])want=BIOME_TRACK[musBiome];else want='theme';}}
+  if(!want){if(juke)jukeStop();return;}if(!juke||juke.T.id!==want){const isBio=want.startsWith('b_')&&juke&&!juke.user;jukePlay(want,true,{bg:true,fade:!!juke});if(isBio){const T=JUKE_TRACKS.find(x=>x.id===want);toast('Now playing: '+T.name,'',T.icon);}}}
 menuMusic=musicDirector;setInterval(musicDirector,1000);
 
 /* ================= PET DAYCARE ================= */
