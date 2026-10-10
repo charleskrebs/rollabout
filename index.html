@@ -7114,7 +7114,7 @@ function equippedAura(){const id=S.equip.aura;return id&&id!=='aura_none'&&S.own
 function auraTick(dt,t){const def=equippedAura();if(AURA&&(!def||AURA.id!==def.id)){scene.remove(AURA.g);AURA.dispose();AURA=null;}
   const vis=!!def&&mode!=='title'&&player.mesh.visible;if(!vis){if(AURA)AURA.g.visible=false;}else{if(!AURA){AURA=buildAura(def,false);scene.add(AURA.g);}
     AURA.g.visible=true;AURA.g.position.copy(player.pos);AURA.g.scale.setScalar(player.r||1);AURA.tick(t,dt,Math.atan2(camera.position.x-player.pos.x,camera.position.z-player.pos.z));}
-  auraShopTick(dt,t);}
+  auraShopTick(dt,t);tpTick(dt,t);}
 /* --- shop tab: swatches, rarity, live preview --- */
 {const _rsh=renderShop;renderShop=function(){S.owned.aura_none=1;_rsh();if(shopTab!=='auras')return;
   $$('#shopGrid .item').forEach((b,i)=>{const list=AURAS.filter(it=>(!it.special&&(!it.city||inCity()))||S.owned[it.id]);const it=list[i];if(!it)return;const sw=b.querySelector('.sw');sw.style.background=auraSwatch(it);sw.textContent=it.icon;sw.style.cssText+=';display:flex;align-items:center;justify-content:center;font-size:26px';
@@ -7165,6 +7165,72 @@ function auraShopTick(dt,t){const A=AURA_SHOP;if(!A)return;const vis=mode==='wor
   if(!near){if(A.show){scene.remove(A.show.g);A.show.dispose();A.show=null;}return;}
   A.showT-=dt;if(!A.show||A.showT<=0){if(A.show){scene.remove(A.show.g);A.show.dispose();}const list=AURAS.filter(a=>a.fx);A.showK=(A.showK+1)%list.length;A.show=buildAura(list[A.showK],true);A.show.g.scale.setScalar(.85);scene.add(A.show.g);A.showT=4;}
   A.show.g.position.copy(A.keeper.pos);A.show.tick(t,dt,Math.atan2(camera.position.x-A.keeper.pos.x,camera.position.z-A.keeper.pos.z));}
+/* ================= BOSS TELEPORTERS ================= */
+const TP_BOSSES=[
+ {id:'castle',name:'The True Sphere',icon:'⚪',price:2000,reward:500,col:'#d0b0ff',hint:'Find the True Sphere in his castle under the cave',beat:()=>!!(S.sec&&S.sec.boss)},
+ {id:'rectbattle',name:'Battle at the North Gate',icon:'⚔️',price:3000,reward:800,col:'#7fe0ff',hint:'Help Captain Rex in Rectangular Route',beat:()=>!!(ch2().rect&&ch2().rect.done)},
+ {id:'cubeboss',name:'The 4D Cube',icon:'🧊',price:5000,reward:2000,col:'#ff3fd1',hint:'Find the Fourth Dimensional Cube under Circular City',beat:()=>!!(S.sec&&S.sec.cube)},
+ {id:'godboss',name:'The God of 3 Dimensions',icon:'👑',price:10000,reward:3000,col:'#ffd23d',hint:'Finish Chapter 2',beat:()=>!!ch2().god},
+ {id:'c3boss',name:'The Perfect Sphere',icon:'🌌',price:25000,reward:8000,col:'#9a5cff',hint:'Finish Chapter 3',beat:()=>!!ch3().b3}];
+let BOSS_TP=null,TP_ST=null;
+function tpOwned(id){return !!(S.tp&&S.tp[id]);}
+function tpGo(b){if(mode!=='world'||(area&&area.busy)){toast('You can only teleport from the open world','bad','🌀');return;}closeSheets();BOSS_TP={id:b.id};sfx('go');burst(player.pos.clone(),[b.col,'#ffffff'],30);camShake=.3;
+  areaReturn=player.pos.clone();toast('Teleporting to '+b.name+'…','', '🌀');fadeTo(()=>enterArea(b.id));}
+function tpHome(){BOSS_TP=null;closeSheets();fadeTo(()=>{exitToWorld();sfx('go');burst(player.pos.clone(),['#2ee6ff','#ffffff','#9a5cff'],30);});}
+function tpBuy(b){if(tpOwned(b.id))return;if(S.coins<b.price){toast('You need '+(b.price-S.coins)+' more coins','bad','🪙');return;}
+  S.coins-=b.price;S.tp=S.tp||{};S.tp[b.id]=1;save();updateCoinsUI(true);sfx('buy');award('tp_first');if(TP_BOSSES.every(x=>tpOwned(x.id)))award('tp_all');tpRefresh();
+  showResult({title:'Teleporter bought!',big:'🌀',line:'Your teleporter to '+b.name+' is ready! Step up to its portal (or use the Bag) any time for a rematch. Win rematches to earn '+b.reward+' coins each time.',coins:null,
+    buttons:[{label:'Teleport now! '+b.icon,cls:'gold',fn:()=>tpGo(b)},{label:'Later',fn:()=>closeSheets()}]});}
+function tpPortal(b){if(!b.beat()){toast('🔒 Beat '+b.name+' first! Hint: '+b.hint,'bad','🔒');return;}
+  if(!tpOwned(b.id)){showResult({title:'Teleporter to '+b.name,big:b.icon,line:'You beat '+b.name+'! Buy this teleporter to rematch it whenever you want. Every rematch you win pays '+b.reward+' coins.',coins:null,
+    buttons:[{label:'Buy for '+b.price.toLocaleString()+' 🪙',cls:'gold',fn:()=>{closeSheets();tpBuy(b);}},{label:'Not now',fn:()=>closeSheets()}]});return;}
+  tpGo(b);}
+function tpWin(id){const b=TP_BOSSES.find(x=>x.id===id);S.coins+=b.reward;S.earned+=b.reward;S.bossWins=S.bossWins||{};S.bossWins[id]=(S.bossWins[id]||0)+1;
+  if(id==='c3boss'){const c=ch3();c.bossHp=PS_HP;c.nova=0;}save();updateCoinsUI(true);sfx('badge');award('tp_rematch');
+  setTimeout(()=>showResult({title:'Rematch won!',big:b.icon,line:'You beat '+b.name+' again! Rematch wins: '+S.bossWins[id]+'.',coins:b.reward,
+    buttons:[{label:'Fight again ⚔️',fn:()=>{closeSheets();enterArea(id);}},{label:'Teleport back 🌀',cls:'gold',fn:()=>tpHome()}]}),id==='c3boss'?200:1500);}
+function tpHint(id){const b=TP_BOSSES.find(x=>x.id===id);setTimeout(()=>toast('New! You can buy a teleporter to '+b.name+' at the Boss Teleporter Station 🌀','badge','🌀'),5000);}
+/* rematches: keep the player inside the boss loop and bring them back to the teleporter */
+{const _ea=enterArea;enterArea=function(id){const tb=BOSS_TP&&TP_BOSSES.find(b=>b.id===id);
+  if(BOSS_TP&&!tb){if(id==='c3end'){tpWin('c3boss');return;}BOSS_TP=null;cleanupArea();exitToWorld();return;}
+  _ea(id);if(tb&&area){area.leaveLabel='Teleport back';$('#statusLeave').textContent='Teleport back';area.onLeave=()=>tpHome();}};}
+{const _f=bossDefeated;bossDefeated=function(){if(BOSS_TP)return tpWin('castle');const first=!(S.sec&&S.sec.boss);_f.apply(this,arguments);if(first)tpHint('castle');};}
+{const _f=cubeDefeated;cubeDefeated=function(a){if(BOSS_TP)return tpWin('cubeboss');const first=!(S.sec&&S.sec.cube);_f.apply(this,arguments);if(first)tpHint('cubeboss');};}
+{const _f=godDefeated;godDefeated=function(a){if(BOSS_TP)return tpWin('godboss');const first=!ch2().god;_f.apply(this,arguments);if(first)tpHint('godboss');};}
+{const _f=rectDone;rectDone=function(a){if(BOSS_TP)return tpWin('rectbattle');const first=!(ch2().rect&&ch2().rect.done);_f.apply(this,arguments);if(first)tpHint('rectbattle');};}
+{const _f=c3Finish;c3Finish=function(a){const first=!ch3().b3;_f.apply(this,arguments);if(first)tpHint('c3boss');};}
+BADGES.push({id:'tp_first',icon:'🌀',name:'Portal Owner',desc:'Buy your first boss teleporter'},{id:'tp_all',icon:'🌌',name:'Portal Master',desc:'Own every boss teleporter'},{id:'tp_rematch',icon:'🥊',name:'Rematch!',desc:'Win a boss rematch'});
+/* the Boss Teleporter Station */
+function swirlTex(col){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');const gr=g.createRadialGradient(64,64,4,64,64,64);gr.addColorStop(0,'#ffffff');gr.addColorStop(.35,col);gr.addColorStop(1,'#14062a');g.fillStyle=gr;g.fillRect(0,0,128,128);
+  g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=4;for(let k=0;k<4;k++){g.beginPath();for(let i=0;i<60;i++){const a=k*Math.PI/2+i*.09,r=i;g.lineTo(64+Math.cos(a)*r,64+Math.sin(a)*r);}g.stroke();}return new THREE.CanvasTexture(c);}
+function buildTeleporters(){const x=-13,z=19,y=heightAt(x,z);const g=new THREE.Group();g.position.set(x,y,z);const face=Math.atan2(12-x,24-z);g.rotation.y=face;worldGroup.add(g);
+  const M=(c,o)=>std(c,Object.assign({flatShading:false},o||{}));
+  const pad=new THREE.Mesh(new THREE.CylinderGeometry(6.4,6.6,.25,40),M(0x3a3f5c));pad.position.y=.12;pad.receiveShadow=true;g.add(pad);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(6.45,.1,6,64),new THREE.MeshBasicMaterial({color:0x2ee6ff}));ring.rotation.x=Math.PI/2;ring.position.y=.27;g.add(ring);
+  const core=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,.08,32),new THREE.MeshBasicMaterial({map:swirlTex('#2ee6ff')}));core.position.y=.3;g.add(core);
+  const sign=makeLabel('🌀 BOSS TELEPORTERS 🌀',{scale:.9,bg:'rgba(46,230,255,.95)'});sign.position.set(0,7.6,-3.5);g.add(sign);
+  const portals=TP_BOSSES.map((b,k)=>{const ang=Math.PI+(k-2)*.62;const px=Math.sin(ang)*5,pz=Math.cos(ang)*5;const pg=new THREE.Group();pg.position.set(px,0,pz);pg.rotation.y=ang+Math.PI;g.add(pg);
+    const ped=new THREE.Mesh(new THREE.CylinderGeometry(.9,1.1,.6,16),M(0x5b6178));ped.position.y=.4;pg.add(ped);
+    const frame=new THREE.Mesh(new THREE.TorusGeometry(1.35,.16,10,40),M(0x888888,{metalness:.6,roughness:.3}));frame.position.y=2.25;pg.add(frame);
+    const disc=new THREE.Mesh(new THREE.CircleGeometry(1.22,40),new THREE.MeshBasicMaterial({map:swirlTex(b.col),side:THREE.DoubleSide,transparent:true,opacity:.95}));disc.position.y=2.25;pg.add(disc);
+    const lab=makeLabel('?',{scale:.5});lab.position.y=4.25;pg.add(lab);
+    const wp=new V3(px,0,pz).applyAxisAngle(new V3(0,1,0),face).add(g.position);addObstacle(wp.x,wp.z,1.1,y+3.6);
+    const ip=new V3(Math.sin(ang)*3.2,0,Math.cos(ang)*3.2).applyAxisAngle(new V3(0,1,0),face).add(g.position);
+    addInter({pos:new V3(ip.x,y+1,ip.z),r:2,label:()=>!b.beat()?'🔒 '+b.name+' (locked)':tpOwned(b.id)?'🌀 Teleport to '+b.name:'💰 Buy teleporter to '+b.name+' ('+b.price.toLocaleString()+')',act:()=>tpPortal(b)});
+    return{b,frame,disc,lab,pg,state:null};});
+  TP_ST={g,core,ring,portals,y};tpRefresh();}
+function tpRefresh(){if(!TP_ST)return;TP_ST.portals.forEach(P=>{const st=!P.b.beat()?'lock':tpOwned(P.b.id)?'own':'buy';if(P.state===st)return;P.state=st;
+  P.frame.material.color.set(st==='lock'?0x555a66:st==='buy'?0xffd23d:P.b.col);P.frame.material.emissive&&P.frame.material.emissive.set(st==='own'?P.b.col:0x000000);
+  P.disc.visible=st!=='lock';P.disc.material.opacity=st==='own'?.95:.35;
+  const old=P.lab;const txt=st==='lock'?'🔒 ???':st==='buy'?P.b.icon+' '+P.b.name+' · 🪙 '+P.b.price.toLocaleString():P.b.icon+' '+P.b.name;
+  const lab=makeLabel(txt,{scale:.5,bg:st==='own'?'rgba(255,255,255,.97)':st==='buy'?'rgba(255,231,140,.97)':'rgba(200,205,215,.95)'});lab.position.copy(old.position);P.pg.remove(old);P.pg.add(lab);P.lab=lab;});}
+function tpTick(dt,t){if(!TP_ST||mode!=='world')return;TP_ST.core.rotation.y-=dt*1.5;TP_ST.ring.material.color.setHSL((.5+Math.sin(t*.5)*.1),1,.55);
+  if(Math.floor(t*2)!==TP_ST.lastR){TP_ST.lastR=Math.floor(t*2);tpRefresh();}
+  TP_ST.portals.forEach((P,k)=>{if(P.state==='lock')return;P.disc.rotation.z-=dt*(P.state==='own'?2.5:.6);const s=1+Math.sin(t*3+k)*.04;P.disc.scale.set(s,s,1);});}
+/* Bag shortcut */
+{const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const own=TP_BOSSES.filter(b=>tpOwned(b.id));const body=$('#bagBody');body.appendChild(el('div','sec-h','Boss teleporters'));const l=el('div','list');
+  if(!own.length)body.appendChild(el('p','sub','Beat a boss, then buy its teleporter at the Boss Teleporter Station near spawn.'));
+  own.forEach(b=>l.appendChild(rowItem(b.icon,b.name,'Rematch wins: '+((S.bossWins||{})[b.id]||0)+' · +'+b.reward+' coins per win','Teleport',()=>tpGo(b),mode!=='world'||(area&&area.busy))));body.appendChild(l);};}
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
@@ -7233,7 +7299,7 @@ function frame(now){
 
 /* ================= BOOT ================= */
 envTex=makeEnv(renderer);
-buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();
+buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();buildTeleporters();
 player=new Ball(lookOf(S.equip));
 player.pos.set(SPAWN.x+14,0,SPAWN.z);snapToGround(player,heightAt);
 titleAng=0;camPos.set(player.pos.x,player.pos.y+12,player.pos.z+26);
