@@ -179,6 +179,7 @@ button{font-family:inherit}
 .standings li{display:flex;justify-content:space-between;padding:4px 10px;border-radius:10px;font-weight:700;font-variant-numeric:tabular-nums}
 .standings li.me{background:#fff2c7;outline:2px solid var(--ink)}
 .result .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+#resButtons{max-height:46vh;overflow-y:auto;padding:4px}
 
 /* pets, minimap, callout */
 .rar{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:0 7px;border:2px solid var(--ink)}
@@ -5609,8 +5610,10 @@ function openDaycare(){const L=daycareList();const lines=L.length?L.map(id=>{con
   const btns=[];L.forEach(id=>{const d=PETS.find(p=>p.id===id);btns.push({label:'Pick up '+d.name,fn:()=>{dcPickup(id);closeSheets();}});});
   if(L.length<3)btns.push({label:'🐾 Drop off a pet',cls:'gold',fn:()=>{closeSheets();dcChoose();}});btns.push({label:'Bye!',fn:()=>closeSheets()});
   showResult({title:'Daycare Dot',big:'🐾',line:'Hi hi! I look after pets while their owners are out rolling. You can leave up to 3 here, and they earn 3 coins a minute playing with their friends (up to 150 each). Your pets here: '+lines+'.',coins:null,buttons:btns});}
-function dcChoose(){const L=daycareList();const mine=PETS.filter(p=>S.owned[p.id]&&!L.includes(p.id));if(!mine.length){showResult({title:'Daycare Dot',big:'🐾',line:'You do not have any other pets to drop off right now!',coins:null,buttons:[{label:'Okay',cls:'gold',fn:()=>closeSheets()}]});return;}
-  showResult({title:'Which pet?',big:'🐾',line:'Pick a pet to drop off at the daycare.',coins:null,buttons:mine.slice(0,12).map(p=>({label:p.name,fn:()=>{closeSheets();dcDrop(p.id);}})).concat([{label:'Cancel',fn:()=>closeSheets()}])});}
+function ownedPetsSorted(){return PETS.filter(p=>S.owned[p.id]).sort((a,b)=>(b.special?1:0)-(a.special?1:0));}
+const petBtnName=p=>(p.special?'⭐ ':'')+p.name;
+function dcChoose(){const L=daycareList();const mine=ownedPetsSorted().filter(p=>!L.includes(p.id));if(!mine.length){showResult({title:'Daycare Dot',big:'🐾',line:'You do not have any other pets to drop off right now!',coins:null,buttons:[{label:'Okay',cls:'gold',fn:()=>closeSheets()}]});return;}
+  showResult({title:'Which pet?',big:'🐾',line:'Pick a pet to drop off at the daycare. Secret pets (⭐) are welcome too!',coins:null,buttons:mine.map(p=>({label:petBtnName(p),fn:()=>{closeSheets();dcDrop(p.id);}})).concat([{label:'Cancel',fn:()=>closeSheets()}])});}
 function dcDrop(id){const L=daycareList();if(L.length>=3||L.includes(id))return;L.push(id);S.daycareT=S.daycareT||{};S.daycareT[id]=Date.now();if(S.equip.pet===id){S.equip.pet=null;setPet(null);}save();sfx('buy');
   const d=PETS.find(p=>p.id===id);toast(d.name+' is now playing at the daycare!','', '🐾');if(area&&area.id==='daycare'&&area.addPet)area.addPet(id,'Your '+d.name,true);}
 function dcPickup(id,silent){const L=daycareList();const i=L.indexOf(id);if(i<0)return;const earned=daycareEarned(id);L.splice(i,1);delete S.daycareT[id];save();const n=earned?addCoins(earned):0;const d=PETS.find(p=>p.id===id);
@@ -5618,9 +5621,9 @@ function dcPickup(id,silent){const L=daycareList();const i=L.indexOf(id);if(i<0)
   if(area&&area.id==='daycare'){const P2=area.pets.find(q=>q.mine&&q.def.id===id);if(P2){area.group.remove(P2.g);area.group.remove(P2.l);area.inter=area.inter.filter(o=>o!==P2.it);area.pets.splice(area.pets.indexOf(P2),1);}}}
 
 /* ================= PET CAGE (decor) ================= */
-DECOR_ACT.d_petcage={label:g=>{const p=g.userData.place;const d=p&&p.pet&&PETS.find(x=>x.id===p.pet);return d?'Pet cage: '+d.name+' (change)':'Put a pet in the pet cage';},act:(g,a)=>{const p=g.userData.place;if(!p)return;const mine=PETS.filter(x=>S.owned[x.id]);
+DECOR_ACT.d_petcage={label:g=>{const p=g.userData.place;const d=p&&p.pet&&PETS.find(x=>x.id===p.pet);return d?'Pet cage: '+d.name+' (change)':'Put a pet in the pet cage';},act:(g,a)=>{const p=g.userData.place;if(!p)return;const mine=ownedPetsSorted();
   showResult({title:'Pet Cage',big:'🐹',line:mine.length?'Which pet should live in this cage? It is a cozy little home with a bed and a water bottle.':'You do not own any pets yet! Visit the Pet Shop.',coins:null,
-    buttons:mine.slice(0,12).map(x=>({label:x.name,fn:()=>{p.pet=x.id;save();closeSheets();refreshHouseDecor();sfx('buy');toast(x.name+' moved into the pet cage!','', '🐾');}})).concat(p.pet?[{label:'Empty the cage',fn:()=>{p.pet=null;save();closeSheets();refreshHouseDecor();}}]:[]).concat([{label:'Cancel',fn:()=>closeSheets()}])});}};
+    buttons:mine.map(x=>({label:petBtnName(x),fn:()=>{p.pet=x.id;save();closeSheets();refreshHouseDecor();sfx('buy');toast(x.name+' moved into the pet cage!','', '🐾');}})).concat(p.pet?[{label:'Empty the cage',fn:()=>{p.pet=null;save();closeSheets();refreshHouseDecor();}}]:[]).concat([{label:'Cancel',fn:()=>closeSheets()}])});}};
 function cageExtras(g,p){g.userData.place=p;if(!p.pet)return;const pg=makePet(p.pet);pg.scale.setScalar(.9);pg.position.y=.35;g.add(pg);g.userData.cagePet=pg;}
 
 /* ================= VISITING NEIGHBORS ================= */
