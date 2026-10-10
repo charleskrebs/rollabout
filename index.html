@@ -403,6 +403,7 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
           <button class="tab" role="tab" data-tab="patterns" aria-selected="false">Patterns</button>
           <button class="tab" role="tab" data-tab="accents" aria-selected="false">Pattern color</button>
           <button class="tab" role="tab" data-tab="trails" aria-selected="false">Trails</button>
+          <button class="tab" role="tab" data-tab="auras" aria-selected="false">✨ Auras</button>
         </div>
         <div class="grid" id="shopGrid"></div>
       </div>
@@ -763,7 +764,7 @@ const DECOR=[
  {id:'d_neon',name:'Neon Sign',icon:'💡',price:260},{id:'d_jukebox',name:'Jukebox',icon:'📻',price:320},{id:'d_drums',name:'Drum Kit',icon:'🥁',price:380},{id:'d_statue',name:'Golden Ball Statue',icon:'🏅',price:600},{id:'d_petcage',name:'Pet Cage',icon:'🐹',price:200},{id:'d_herotrophy',name:'Hero Trophy',icon:'🏆',price:0,special:1}];
 const SHOP_TABS={hats:{list:HATS,slot:'hat'},colors:{list:COLORS,slot:'color'},patterns:{list:PATTERNS,slot:'pattern'},accents:{list:ACCENTS,slot:'secondary'},trails:{list:TRAILS,slot:'trail'}};
 const ALL_ITEMS=[...HATS,...COLORS,...ACCENTS,...PATTERNS,...PETS,...TRAILS];
-const itemById=id=>{for(const L of [HATS,COLORS,ACCENTS,PATTERNS,PETS,TRAILS]){const f=L.find(i=>i.id===id);if(f)return f;}return undefined;};
+const itemById=id=>{for(const L of [HATS,COLORS,ACCENTS,PATTERNS,PETS,TRAILS,typeof AURAS!=='undefined'?AURAS:[]]){const f=L.find(i=>i.id===id);if(f)return f;}return undefined;};
 
 const BADGES=[
  {id:'first_roll',icon:'🟠',name:'First Roll',desc:'Start your first roll'},
@@ -1694,7 +1695,7 @@ function renderShop(){
     if(shopTab==='hats'){sw.classList.add('hat');if(hatThumbs[it.id])sw.style.backgroundImage='url('+hatThumbs[it.id]+')';else{sw.style.border='2.5px dashed #9aa7bb';sw.style.borderRadius='50%';}}
     else if(shopTab==='colors')sw.style.background=it.hex;
     else if(shopTab==='trails'){sw.style.background=it.cols?('radial-gradient(circle at 30% 35%,'+it.cols[0]+' 0 18%,transparent 19%),radial-gradient(circle at 68% 45%,'+(it.cols[1]||it.cols[0])+' 0 14%,transparent 15%),radial-gradient(circle at 45% 72%,'+(it.cols[2]||it.cols[0])+' 0 12%,transparent 13%),#14213d'):'#e4f0fb';}
-    else if(shopTab==='accents'){sw.style.background=it.hex||'conic-gradient(#ff3b3b,#ff9a2e,#ffe14d,#33c26b,#2f7bff,#9a5cff,#ff3b3b)';}
+    else if(shopTab==='auras'){}else if(shopTab==='accents'){sw.style.background=it.hex||'conic-gradient(#ff3b3b,#ff9a2e,#ffe14d,#33c26b,#2f7bff,#9a5cff,#ff3b3b)';}
     else{const col=(COLORS.find(c=>c.id===cur.color)||COLORS[0]).hex;const c=patternCanvas(col,cur.secondary,it.id);sw.style.backgroundImage='url('+c.toDataURL()+')';sw.style.backgroundSize='200% 100%';}
     b.appendChild(sw);
     const nm=document.createElement('div');nm.className='nm';nm.textContent=it.name;b.appendChild(nm);
@@ -1719,7 +1720,7 @@ $$('.tab').forEach(t=>t.addEventListener('click',()=>{shopTab=t.dataset.tab;shop
 $('#selAction').addEventListener('click',()=>{
   if(!shopSel)return;const it=itemById(shopSel),slot=SHOP_TABS[shopTab].slot;
   if(!S.owned[it.id]){if(S.coins<it.price)return;S.coins-=it.price;S.owned[it.id]=1;sfx('buy');toast('Bought '+it.name);
-    if(slot==='hat')award('hat');else if(slot==='trail')award('trail');else award('paint');
+    if(slot==='hat')award('hat');else if(slot==='trail')award('trail');else if(slot!=='aura')award('paint');
     if(HATS.filter(h=>h.price>0&&S.owned[h.id]).length>=10)award('hat_10');if(COLORS.filter(c=>S.owned[c.id]).length>=10)award('colors_10');
     const paid=Object.keys(S.owned).filter(k=>(itemById(k)||{}).price>0&&!k.startsWith('pet_')).length;if(paid>=10)award('shopaholic');}
   S.equip[slot]=it.id;save();updateCoinsUI();player.setLook(lookOf(S.equip));updateStatue();renderShop();
@@ -7016,20 +7017,6 @@ TIER_NAME.supernova='★ SUPERNOVA ★';TIER_BG.supernova='rgba(40,10,70,.96)';
   for(const sx of[-.16,.16]){const e=new THREE.Mesh(new THREE.SphereGeometry(.06,8,6),new THREE.MeshBasicMaterial({color:0xffffff}));e.position.set(sx,1.18,.42);g.add(e);}
   const sparks=new THREE.Group();sparks.position.y=1.1;g.add(sparks);for(let k=0;k<6;k++){const s=new THREE.Mesh(new THREE.OctahedronGeometry(.05,0),new THREE.MeshBasicMaterial({color:[0xffffff,0xb388ff,0xffd23d][k%3]}));const a=k/6*Math.PI*2;s.position.set(Math.cos(a)*.95,Math.sin(a*3)*.15,Math.sin(a)*.95);sparks.add(s);}
   g.userData.spin=sparks;g.scale.setScalar(1.35);return g;};}
-/* ---------- the Supernova Aura ---------- */
-let AURA=null;
-function auraTick(dt,t){const want=S.equip.aura==='aura_supernova'&&S.owned.aura_supernova&&mode!=='title'&&player.mesh.visible;
-  if(!want){if(AURA)AURA.g.visible=false;return;}if(!AURA){const g=new THREE.Group();scene.add(g);
-    const shell=new THREE.Mesh(new THREE.SphereGeometry(1.45,28,20),new THREE.MeshBasicMaterial({color:0xff7a2b,transparent:true,opacity:.18,blending:THREE.AdditiveBlending,depthWrite:false}));g.add(shell);
-    const rings=[];for(let k=0;k<3;k++){const r=new THREE.Mesh(new THREE.TorusGeometry(1.75+k*.18,.035,6,48),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false}));g.add(r);rings.push(r);}
-    const stars=[];for(let k=0;k<10;k++){const s=new THREE.Mesh(new THREE.OctahedronGeometry(.09,0),new THREE.MeshBasicMaterial({color:0xffffff}));g.add(s);stars.push(s);}AURA={g,shell,rings,stars};}
-  const A=AURA;A.g.visible=true;A.g.position.copy(player.pos);A.shell.material.color.setHSL((t*.15)%1,1,.55);A.shell.scale.setScalar(1+Math.sin(t*3)*.06);
-  A.rings.forEach((r,k)=>{r.rotation.x=t*(.9+k*.4)+k;r.rotation.y=t*(.6+k*.3);r.material.color.setHSL((t*.2+k*.33)%1,1,.65);});
-  A.stars.forEach((s,k)=>{const a=t*1.4+k/10*Math.PI*2;s.position.set(Math.cos(a)*2.1,Math.sin(t*2+k)*.9,Math.sin(a)*2.1);s.rotation.y=t*3;});if(Math.random()<dt*10)burst(player.pos.clone().add(new V3((Math.random()-.5)*2,(Math.random()-.5)*2,(Math.random()-.5)*2)),['#ff7a2b','#ffd23d','#ffffff','#9a5cff'],1);}
-{const _rs=renderSettings;renderSettings=function(){_rs();if(!S.owned.aura_supernova)return;const on=S.equip.aura==='aura_supernova';const body=$('#setBody');
-  body.appendChild(rowItem('🌌','Supernova Aura',on?'On · the rarest aura in the game':'Off','Turn '+(on?'off':'on'),()=>{S.equip.aura=on?null:'aura_supernova';save();renderSettings();toast(on?'Aura off':'Supernova Aura ON! 🌌','', '🌌');}));};}
-{const _rb=renderBag;renderBag=function(){_rb();if(feedTarget||!S.owned.aura_supernova)return;const on=S.equip.aura==='aura_supernova';const body=$('#bagBody');body.appendChild(el('div','sec-h','Aura'));const l=el('div','list');
-  l.appendChild(rowItem('🌌','Supernova Aura',on?'Equipped · the rarest aura in the game':'Not equipped',on?'Unequip':'Equip',()=>{S.equip.aura=on?null:'aura_supernova';save();renderBag();toast(on?'Aura off':'Supernova Aura ON! 🌌','', '🌌');}));body.appendChild(l);};}
 /* ---------- chapter 3 music ---------- */
 JUKE_TRACKS.push(
   {id:'a_mystic',name:'Mystic Mountain',icon:'🏔️',bpm:84,wave:'triangle',drums:'k...h...',mel:'E5:2 G5:1 A5:1 B5:2 A5:1 G5:1 E5:1 D5:1 E5:2 R:4 G5:2 A5:1 B5:1 D6:2 B5:1 A5:1 G5:1 E5:1 D5:2 E5:4',bass:'E2:4 C2:4 G2:4 D2:4 E2:4 C2:4 D2:4 E2:4'},
@@ -7037,6 +7024,147 @@ JUKE_TRACKS.push(
   {id:'boss_perfect',name:'The Perfect Sphere',icon:'🌑',bpm:150,wave:'sawtooth',drums:'kksskksk',mel:'B4:.5 D5:.5 F#5:.5 B5:.5 A5:1 F#5:1 G5:.5 F#5:.5 E5:.5 D5:.5 F#5:2 B4:.5 D5:.5 F#5:.5 B5:.5 C#6:1 D6:1 C#6:.5 B5:.5 A5:.5 F#5:.5 B5:2 D6:.5 C#6:.5 B5:.5 A5:.5 G5:1 A5:1 F#5:.5 E5:.5 D5:.5 C#5:.5 D5:2 E5:.5 F#5:.5 G5:.5 A5:.5 B5:1 D6:1 C#6:.5 A#5:.5 F#5:.5 C#5:.5 B4:2',bass:pulse(['B1','B1','G1','F#1','G1','D2','E2','F#1'])},
   {id:'boss_nova',name:'SUPERNOVA',icon:'💥',bpm:176,wave:'square',drums:'kkskkkss',mel:'F#5:.5 F#5:.5 B5:.5 F#5:.5 D6:.5 C#6:.5 B5:1 A5:.5 B5:.5 C#6:.5 A5:.5 F#5:2 F#5:.5 F#5:.5 B5:.5 F#5:.5 E6:.5 D6:.5 C#6:1 D6:.5 C#6:.5 B5:.5 A#5:.5 B5:2 G5:.5 B5:.5 D6:.5 G6:.5 F#6:1 D6:1 E6:.5 D6:.5 C#6:.5 A5:.5 B5:2 B5:.5 A#5:.5 B5:.5 C#6:.5 D6:.5 C#6:.5 D6:.5 E6:.5 F#6:1 C#6:1 B5:2',bass:pulse(['B1','B1','G1','A1','E1','G1','F#1','B1'])});
 function c3Tick(dt,t){c3ObbyTick(dt,t);c3EatTick(dt);auraTick(dt,t);if(STAR){const vis=ch2God()&&mode==='world';if(STAR.vis!==vis){STAR.vis=vis;STAR.g.visible=vis;STAR.b.setVisible(vis);}if(vis){STAR.orb.material.emissiveIntensity=.6+Math.sin(t*3)*.3;STAR.b.pos.y=STAR.pos.y-.15+Math.abs(Math.sin(t*1.5))*.08;STAR.b.sync(dt);}}}
+/* ================= AURA SHOP ================= */
+var AURAS=[
+ {id:'aura_none',name:'No aura',price:0,icon:'🚫',cols:['#dfe6ee']},
+ {id:'aura_sparkle',name:'Sparkle Dust',price:250,rar:'common',icon:'✨',cols:['#ffffff','#fff3a8','#ffe14d'],fx:{orbit:{n:8,geo:'oct',r:1.8,size:.08,spd:1.2},parts:{mode:'spark',rate:12,size:.06}}},
+ {id:'aura_bubble',name:'Bubbly',price:300,rar:'common',icon:'🫧',cols:['#8fd8ff','#ffffff','#bfefff'],fx:{orbit:{n:7,geo:'sphere',r:1.85,size:.17,bob:.6,op:.45},parts:{mode:'rise',rate:6,size:.08,geo:'sphere',spd:1.2}}},
+ {id:'aura_leaf',name:'Leafy Breeze',price:350,rar:'common',icon:'🍃',cols:['#39c45f','#8be04e','#2e8b3a'],fx:{orbit:{n:10,geo:'leaf',r:1.9,size:.2,spd:2,spiral:1,solid:1}}},
+ {id:'aura_petal',name:'Cherry Blossom',price:400,rar:'common',icon:'🌸',cols:['#ffb7d5','#ff8fbf','#ffffff'],fx:{orbit:{n:5,emoji:['🌸'],r:1.9,size:.22,bob:.5},parts:{mode:'fall',emoji:['🌸'],rate:5,size:.14,spd:1.1,life:2.2}}},
+ {id:'aura_sun',name:'Sunshine',price:800,rar:'uncommon',icon:'☀️',cols:['#ffd23d','#ffae00','#fff3a8'],fx:{shell:{op:.14},orbit:{n:6,geo:'tet',r:2,size:.13,spd:1},parts:{mode:'spark',rate:10,size:.06}}},
+ {id:'aura_frost',name:'Frostbite',price:900,rar:'uncommon',icon:'❄️',cols:['#bfefff','#ffffff','#7fd3ff'],fx:{shell:{op:.12},orbit:{n:6,geo:'crystal',r:1.9,size:.14,spd:.9},parts:{mode:'fall',emoji:['❄️'],rate:5,size:.13,spd:1.2,life:2}}},
+ {id:'aura_ember',name:'Ember',price:1000,rar:'uncommon',icon:'🔥',cols:['#ff8a1f','#ff3b00','#ffd23d'],fx:{shell:{op:.08,flicker:1},parts:{mode:'rise',rate:24,size:.07,spd:2.5}}},
+ {id:'aura_hearts',name:'Lovestruck',price:1200,rar:'uncommon',icon:'💖',cols:['#ff6fb5','#ff3b6b','#ffb7d5'],fx:{orbit:{n:6,emoji:['💖','💗','💕'],r:1.9,size:.24,bob:.5},parts:{mode:'rise',emoji:['💗'],rate:3,size:.12,spd:1}}},
+ {id:'aura_ocean',name:'Ocean Wave',price:2000,rar:'rare',icon:'🌊',cols:['#2a9df4','#7fe0ff','#ffffff'],fx:{rings:{n:3,mode:'flat',r:1.6,gap:.25,th:.05},parts:{mode:'rise',geo:'sphere',rate:8,size:.07,spd:1.5}}},
+ {id:'aura_thunder',name:'Thunderstruck',price:2500,rar:'rare',icon:'⚡',cols:['#ffe14d','#ffffff','#8cc8ff'],fx:{shell:{op:.1,flicker:1},bolts:{n:3},parts:{mode:'spark',rate:12,size:.06}}},
+ {id:'aura_toxic',name:'Toxic Ooze',price:2500,rar:'rare',icon:'☣️',cols:['#7dff3a','#c6ff6b','#39c45f'],fx:{shell:{op:.14,pulse:5},parts:{mode:'rise',geo:'sphere',rate:10,size:.12,spd:1.2}}},
+ {id:'aura_shadow',name:'Shadow Smoke',price:3000,rar:'rare',icon:'🌑',cols:['#2b0b3f','#5a1f8a','#120018'],fx:{shell:{dark:1,op:.35},parts:{mode:'rise',geo:'sphere',dark:1,rate:14,size:.22,spd:1,life:1.5}}},
+ {id:'aura_candy',name:'Candy Swirl',price:3000,rar:'rare',icon:'🍬',cols:['#ff6fb5','#ffffff','#ff3b6b'],fx:{orbit:{n:12,geo:'sphere',r:1.8,size:.12,spd:2.4,spiral:1,solid:1},rings:{n:2,r:1.7}}},
+ {id:'aura_music',name:'Music Notes',price:5000,rar:'epic',icon:'🎵',cols:['#9a5cff','#2ee6ff','#ff6fb5'],fx:{orbit:{n:6,emoji:['🎵','🎶'],r:2,size:.26,bob:.7},rings:{n:1,mode:'flat',r:1.7,rainbow:1}}},
+ {id:'aura_galaxy',name:'Galaxy',price:6000,rar:'epic',icon:'🌌',cols:['#9a5cff','#ffffff','#2ee6ff'],fx:{shell:{op:.18,col:'#6a2cff'},orbit:{n:14,geo:'oct',r:2.1,size:.06,spd:.8},rings:{n:1,r:1.9}}},
+ {id:'aura_halo',name:'Golden Halo',price:7000,rar:'epic',icon:'😇',cols:['#ffd23d','#fff3a8','#ffffff'],fx:{halo:{},shell:{op:.07},parts:{mode:'spark',rate:10,size:.06}}},
+ {id:'aura_wings',name:'Angel Wings',price:8000,rar:'epic',icon:'🪽',cols:['#ffffff','#fff3a8','#dff4ff'],fx:{wings:{},halo:{},parts:{mode:'fall',geo:'sphere',rate:6,size:.05,spd:.8,life:2}}},
+ {id:'aura_inferno',name:'Inferno',price:12000,rar:'legendary',icon:'🌋',cols:['#ff3b00','#ff8a1f','#ffd23d'],fx:{shell:{op:.2,flicker:1,col:'#ff5a1f'},rings:{n:2,r:1.75},parts:{mode:'rise',rate:40,size:.09,spd:3}}},
+ {id:'aura_blizzard',name:'Blizzard',price:12000,rar:'legendary',icon:'🌨️',cols:['#ffffff','#bfefff','#7fd3ff'],fx:{shell:{op:.1},orbit:{n:4,geo:'crystal',r:2,size:.16,spd:1.5},parts:{mode:'swirl',rate:34,size:.07,spd:1.4,life:1.6}}},
+ {id:'aura_rainbow',name:'Rainbow',price:15000,rar:'legendary',icon:'🌈',cols:['#ff3b3b','#ff9a2e','#ffe14d','#33c26b','#2f7bff','#9a5cff'],fx:{rings:{n:3,r:1.7,rainbow:1},orbit:{n:12,geo:'sphere',r:2.15,size:.1,spd:1.8,spiral:1},parts:{mode:'spark',rate:14,size:.06}}},
+ {id:'aura_storm',name:'Storm Cloud',price:15000,rar:'legendary',icon:'⛈️',cols:['#9fb4d6','#ffe14d','#dff4ff'],fx:{cloud:{},bolts:{n:2,from:'cloud'},parts:{mode:'fall',geo:'drop',rate:34,size:.04,spd:7,top:2.1,r:1,life:.5}}},
+ {id:'aura_crystal',name:'Crystal Core',price:18000,rar:'legendary',icon:'💎',cols:['#7ff3ff','#c18bff','#ff9ad5'],fx:{shell:{op:.12,col:'#b388ff'},orbit:{n:6,geo:'crystal',r:2,size:.2,spd:1,solid:1},parts:{mode:'spark',rate:12,size:.06}}},
+ {id:'aura_void',name:'The Void',price:30000,rar:'mythic',icon:'🕳️',cols:['#9a5cff','#ff2ee6','#5a1f8a'],fx:{shell:{dark:1,op:.55},rings:{n:3,r:1.75},parts:{mode:'in',rate:26,size:.07}}},
+ {id:'aura_phoenix',name:'Phoenix',price:40000,rar:'mythic',icon:'🐦',cols:['#ff8a1f','#ff3b00','#ffd23d'],fx:{wings:{fire:1},shell:{op:.12,flicker:1,col:'#ff5a1f'},parts:{mode:'rise',rate:36,size:.08,spd:2.6}}},
+ {id:'aura_money',name:'Money Storm',price:50000,rar:'mythic',icon:'💰',cols:['#ffd23d','#ffb300','#fff3a8'],fx:{orbit:{n:10,geo:'coin',r:2,size:.2,spd:2,spiral:1,solid:1},parts:{mode:'fall',geo:'coin',rate:8,size:.1,spd:2.5,life:1.6,solid:1}}},
+ {id:'aura_supernova',name:'Supernova',price:0,rar:'mythic',icon:'🌟',special:1,cols:['#ff7a2b','#ffd23d','#9a5cff']}
+];
+const auraById=id=>AURAS.find(a=>a.id===id);
+SHOP_TABS.auras={list:AURAS,slot:'aura'};
+function auraSwatch(it){const c=it.cols||['#dfe6ee'];return it.id==='aura_none'?'#e4f0fb':'radial-gradient(circle,'+c[0]+' 0 22%,'+(c[1]||c[0])+' 46%,'+(c[2]||c[0])+' 64%,#14213d 66%)';}
+/* --- generic aura builder --- */
+const _auraGeoC={},_emojiTexC={};
+function auraGeo(kind,s){const k=kind+s;if(_auraGeoC[k])return _auraGeoC[k];let g;
+  if(kind==='sphere')g=new THREE.SphereGeometry(s,10,8);else if(kind==='tet')g=new THREE.TetrahedronGeometry(s,0);else if(kind==='coin'){g=new THREE.CylinderGeometry(s,s,s*.25,14);g.rotateX(Math.PI/2);}
+  else if(kind==='leaf')g=new THREE.SphereGeometry(s,6,4).scale(1,.25,.55);else if(kind==='crystal')g=new THREE.OctahedronGeometry(s,0).scale(.7,1.6,.7);else if(kind==='drop')g=new THREE.BoxGeometry(s*.6,s*6,s*.6);else g=new THREE.OctahedronGeometry(s,0);
+  g.userData.shared=1;return _auraGeoC[k]=g;}
+function emojiTex(e){if(_emojiTexC[e])return _emojiTexC[e];const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.font='50px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(e,32,36);const t=new THREE.CanvasTexture(c);t.userData={shared:1};return _emojiTexC[e]=t;}
+const auraGlow=(col,op)=>new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op==null?.9:op,blending:THREE.AdditiveBlending,depthWrite:false});
+const auraDark=(col,op)=>new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,depthWrite:false});
+const auraSolid=col=>new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.35,metalness:.55,roughness:.3});
+const AURA_SHELL_GEO=new THREE.SphereGeometry(1.45,28,20);AURA_SHELL_GEO.userData.shared=1;
+function auraSprite(e,size){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex(e),transparent:true,depthWrite:false}));m.scale.setScalar(size*2);return m;}
+function buildAura(def,preview){if(def.id==='aura_supernova')return buildSupernovaAura(preview);
+  const fx=def.fx||{},g=new THREE.Group(),up=[],cols=def.cols;const pick=k=>cols[k%cols.length];
+  if(fx.shell){const sh=fx.shell,op=sh.op||.16;const m=new THREE.Mesh(AURA_SHELL_GEO,sh.dark?auraDark(sh.col||cols[0],op):auraGlow(sh.col||cols[0],op));g.add(m);
+    up.push(t=>{m.scale.setScalar(1+Math.sin(t*(sh.pulse||3))*.06);if(sh.flicker)m.material.opacity=op*(.65+Math.random()*.7);});}
+  if(fx.rings){const R=fx.rings;for(let k=0;k<R.n;k++){const m=new THREE.Mesh(new THREE.TorusGeometry((R.r||1.75)+k*(R.gap||.18),R.th||.035,6,48),auraGlow(pick(k),.85));g.add(m);
+    up.push(t=>{if(R.mode==='flat'){m.rotation.set(Math.PI/2,0,t*.5);m.position.y=Math.sin(t*2+k*2.1)*1.1;m.scale.setScalar(1+.1*Math.sin(t*3+k));}else{m.rotation.x=t*(.9+k*.4)+k;m.rotation.y=t*(.6+k*.3);}
+      if(R.rainbow)m.material.color.setHSL((t*.2+k/R.n)%1,1,.6);});}}
+  if(fx.orbit){const O=fx.orbit;for(let k=0;k<O.n;k++){const m=O.emoji?auraSprite(O.emoji[k%O.emoji.length],O.size):new THREE.Mesh(auraGeo(O.geo,O.size),O.solid?auraSolid(pick(k)):auraGlow(pick(k),O.op==null?.95:O.op));g.add(m);const ph=k/O.n*Math.PI*2;
+    up.push(t=>{const a=t*(O.spd||1.4)+ph,r=O.r||2;if(O.spiral){const y=((t*.35+k/O.n)%1)*3-1.5;m.position.set(Math.cos(a)*r,y,Math.sin(a)*r);}else m.position.set(Math.cos(a)*r,Math.sin(t*2+k)*(O.bob==null?.9:O.bob),Math.sin(a)*r);
+      if(!O.emoji){m.rotation.y=t*3+k;m.rotation.x=t*2;}});}}
+  if(fx.halo){const h=new THREE.Mesh(new THREE.TorusGeometry(.62,.08,8,32),auraGlow(cols[0],1));g.add(h);up.push(t=>{h.rotation.set(Math.PI/2,0,t);h.position.y=1.75+Math.sin(t*2)*.08;});}
+  if(fx.wings){const W=fx.wings,wg=new THREE.Group();g.add(wg);const sh=new THREE.Shape();sh.moveTo(0,0);sh.bezierCurveTo(.6,1.1,1.6,1.5,2.3,1.3);sh.bezierCurveTo(1.9,1,2.1,.7,1.9,.5);sh.bezierCurveTo(1.6,.4,1.8,.1,1.5,-.1);sh.bezierCurveTo(1.1,-.2,1.2,-.5,.8,-.5);sh.bezierCurveTo(.4,-.4,.2,-.3,0,0);
+    const geo=new THREE.ShapeGeometry(sh,10);const wings=[-1,1].map(s=>{const p=new THREE.Group();p.position.set(s*.45,.35,-.75);wg.add(p);const m=new THREE.Mesh(geo,W.fire?auraGlow(cols[0],.75):new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.92,side:THREE.DoubleSide,depthWrite:false}));m.material.side=THREE.DoubleSide;const ws=W.fire?1.35:1;m.scale.set(s*ws,ws,ws);p.add(m);p.s=s;return p;});
+    up.push((t,dt,yaw)=>{wg.rotation.y=yaw||0;const f=Math.sin(t*(W.fire?7:5));wings.forEach(p=>{p.rotation.y=p.s*(.35+f*.35);p.rotation.z=p.s*f*.08;});if(W.fire)wings.forEach(p=>p.children[0].material.color.setHSL(.04+Math.random()*.06,1,.55));});}
+  let cloud=null;if(fx.cloud){cloud=new THREE.Group();cloud.position.y=2.4;g.add(cloud);const cm=new THREE.MeshStandardMaterial({color:0x6f7d93,emissive:0x000000,roughness:1,flatShading:true});[[0,0,0,.6],[.55,-.05,.1,.45],[-.55,-.05,-.05,.48],[.2,.25,-.1,.42],[-.25,.2,.15,.4]].forEach(([x,y,z,r])=>{const s=new THREE.Mesh(new THREE.SphereGeometry(r,8,6),cm);s.position.set(x,y,z);cloud.add(s);});
+    up.push(t=>{cloud.position.y=2.4+Math.sin(t*1.5)*.08;cm.emissive.setRGB(0,0,0);});cloud.mat=cm;}
+  if(fx.bolts){const B=fx.bolts;const bolts=[];for(let k=0;k<B.n;k++){const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(7*3),3));const l=new THREE.Line(geo,new THREE.LineBasicMaterial({color:cols[k%2],transparent:true,opacity:1,blending:THREE.AdditiveBlending}));l.visible=false;g.add(l);bolts.push({l,cd:Math.random()*1.5,on:0});}
+    up.push((t,dt)=>{bolts.forEach(b=>{b.cd-=dt;if(b.on>0){b.on-=dt;if(b.on<=0)b.l.visible=false;}if(b.cd<=0){b.cd=.5+Math.random()*1.6;b.on=.12;b.l.visible=true;const p=b.l.geometry.attributes.position;const a=Math.random()*Math.PI*2;
+      for(let i=0;i<7;i++){const f=i/6;let x,y,z;if(B.from==='cloud'){x=Math.cos(a)*.5*f+(Math.random()-.5)*.35;y=2.2-f*3.3;z=Math.sin(a)*.5*f+(Math.random()-.5)*.35;}else{const r=1.15+f*1.2;x=Math.cos(a)*r+(Math.random()-.5)*.3;y=(Math.random()-.5)*.6+f*(Math.random()-.5)*1.2;z=Math.sin(a)*r+(Math.random()-.5)*.3;}p.setXYZ(i,x,y,z);}
+      p.needsUpdate=true;if(cloud)cloud.mat.emissive.setRGB(.8,.8,.5);}});});}
+  if(fx.parts){const P=fx.parts,N=P.n||44,pool=[];for(let k=0;k<N;k++){const m=P.emoji?auraSprite(P.emoji[k%P.emoji.length],P.size):new THREE.Mesh(auraGeo(P.geo||'oct',P.size||.06),P.solid?auraSolid(pick(k)):P.dark?auraDark(pick(k),.55):auraGlow(pick(k),1));m.visible=false;g.add(m);pool.push({m,life:0,max:1,v:new V3(),bs:m.scale.x});}
+    let acc=0;up.push((t,dt)=>{acc+=dt*(P.rate||10);while(acc>=1){acc--;const p=pool.find(q=>q.life<=0);if(!p)break;p.life=p.max=(P.life||1.2)*(.8+Math.random()*.4);const a=Math.random()*Math.PI*2,r=(P.r||1.3)*(.6+Math.random()*.6);const m=p.m;
+        if(P.mode==='fall'){m.position.set(Math.cos(a)*r*1.4,P.top||2.6,Math.sin(a)*r*1.4);p.v.set(0,-(P.spd||4),0);}
+        else if(P.mode==='spark'){m.position.set(Math.cos(a)*r*1.5,(Math.random()-.5)*2.6,Math.sin(a)*r*1.5);p.v.set(0,.3,0);}
+        else if(P.mode==='in'){m.position.set(Math.cos(a)*2.6,(Math.random()-.5)*2.2,Math.sin(a)*2.6);p.v.copy(m.position).multiplyScalar(-1/p.max);}
+        else{m.position.set(Math.cos(a)*r,-.9+Math.random()*.5,Math.sin(a)*r);p.v.set((Math.random()-.5)*.4,(P.spd||2)*(.7+Math.random()*.6),(Math.random()-.5)*.4);}
+        m.visible=true;}
+      pool.forEach(p=>{if(p.life<=0)return;p.life-=dt;const m=p.m;m.position.addScaledVector(p.v,dt);if(P.mode==='swirl'){const c=Math.cos(dt*3),s=Math.sin(dt*3),x=m.position.x,z=m.position.z;m.position.x=x*c-z*s;m.position.z=x*s+z*c;}
+        if(P.geo==='coin'&&!P.emoji)m.rotation.y+=dt*6;const f=Math.max(0,p.life/p.max);m.scale.setScalar(p.bs*(P.mode==='spark'||P.mode==='fall'&&P.emoji?Math.sin(f*Math.PI):P.mode==='in'?.3+f:Math.max(.08,f)));if(p.life<=0)m.visible=false;});});}
+  return{g,id:def.id,tick:(t,dt,yaw)=>up.forEach(f=>f(t,dt,yaw)),dispose:()=>g.traverse(o=>{if(o.geometry&&!o.geometry.userData.shared)o.geometry.dispose();if(o.material)o.material.dispose();})};}
+function buildSupernovaAura(preview){const g=new THREE.Group();
+  const shell=new THREE.Mesh(AURA_SHELL_GEO,auraGlow(0xff7a2b,.18));g.add(shell);
+  const rings=[];for(let k=0;k<3;k++){const r=new THREE.Mesh(new THREE.TorusGeometry(1.75+k*.18,.035,6,48),auraGlow(0xffffff,.8));g.add(r);rings.push(r);}
+  const stars=[];for(let k=0;k<10;k++){const s=new THREE.Mesh(new THREE.OctahedronGeometry(.09,0),new THREE.MeshBasicMaterial({color:0xffffff}));g.add(s);stars.push(s);}
+  return{g,id:'aura_supernova',tick:(t,dt)=>{shell.material.color.setHSL((t*.15)%1,1,.55);shell.scale.setScalar(1+Math.sin(t*3)*.06);
+    rings.forEach((r,k)=>{r.rotation.x=t*(.9+k*.4)+k;r.rotation.y=t*(.6+k*.3);r.material.color.setHSL((t*.2+k*.33)%1,1,.65);});
+    stars.forEach((s,k)=>{const a=t*1.4+k/10*Math.PI*2;s.position.set(Math.cos(a)*2.1,Math.sin(t*2+k)*.9,Math.sin(a)*2.1);s.rotation.y=t*3;});
+    if(!preview&&Math.random()<dt*10)burst(player.pos.clone().add(new V3((Math.random()-.5)*2,(Math.random()-.5)*2,(Math.random()-.5)*2)),['#ff7a2b','#ffd23d','#ffffff','#9a5cff'],1);},
+    dispose:()=>g.traverse(o=>{if(o.geometry&&!o.geometry.userData.shared)o.geometry.dispose();if(o.material)o.material.dispose();})};}
+/* --- the player's aura --- */
+let AURA=null;
+function equippedAura(){const id=S.equip.aura;return id&&id!=='aura_none'&&S.owned[id]?auraById(id):null;}
+function auraTick(dt,t){const def=equippedAura();if(AURA&&(!def||AURA.id!==def.id)){scene.remove(AURA.g);AURA.dispose();AURA=null;}
+  const vis=!!def&&mode!=='title'&&player.mesh.visible;if(!vis){if(AURA)AURA.g.visible=false;}else{if(!AURA){AURA=buildAura(def,false);scene.add(AURA.g);}
+    AURA.g.visible=true;AURA.g.position.copy(player.pos);AURA.g.scale.setScalar(player.r||1);AURA.tick(t,dt,Math.atan2(camera.position.x-player.pos.x,camera.position.z-player.pos.z));}
+  auraShopTick(dt,t);}
+/* --- shop tab: swatches, rarity, live preview --- */
+{const _rsh=renderShop;renderShop=function(){S.owned.aura_none=1;_rsh();if(shopTab!=='auras')return;
+  $$('#shopGrid .item').forEach((b,i)=>{const list=AURAS.filter(it=>(!it.special&&(!it.city||inCity()))||S.owned[it.id]);const it=list[i];if(!it)return;const sw=b.querySelector('.sw');sw.style.background=auraSwatch(it);sw.textContent=it.icon;sw.style.cssText+=';display:flex;align-items:center;justify-content:center;font-size:26px';
+    if(it.rar){const r=el('div','nm',RAR[it.rar].name);r.style.cssText='font-size:11px;font-weight:800;color:'+(it.special?'#9a5cff':'#14213d')+';background:'+(it.special?'linear-gradient(90deg,#ff7a2b,#ffd23d,#9a5cff)':RAR[it.rar].col)+';border-radius:8px;padding:0 6px;margin-top:2px';if(it.special)r.style.color='#fff';b.insertBefore(r,b.querySelector('.pr'));}});
+  if(shopSel){const it=auraById(shopSel);if(it&&it.rar)$('#selMeta').textContent+=' · '+(it.special?'Ultra Special':RAR[it.rar].name)+' aura';}};}
+let pvAura=null;
+{const _rp=renderPreview;renderPreview=function(t){if(!pv||sheetOpen!=='shopSheet')return _rp(t);
+  const id=shopTab==='auras'&&shopSel?shopSel:S.equip.aura;const def=id&&id!=='aura_none'?auraById(id):null;
+  if(pvAura&&(!def||pvAura.id!==def.id)){pv.sc.remove(pvAura.g);pvAura.dispose();pvAura=null;}if(def&&!pvAura){pvAura=buildAura(def,true);pvAura.g.scale.setScalar(.72);pv.sc.add(pvAura.g);}
+  if(pvAura)pvAura.tick(t/1000,1/60,0);
+  const dark=shopTab==='auras';if(pv.dark!==dark){pv.dark=dark;pv.r.setClearColor(0x1b1533,dark?1:0);const cv=$('#shopPreview');cv.style.borderRadius=dark?'14px':'';}
+  if(!dark)return _rp(t);
+  pv.cam.position.set(0,1.3,9);pv.cam.lookAt(0,.5,0);const a=t*.0006;pv.ball.rotation.y=a;pv.holder.rotation.y=a;pv.r.render(pv.sc,pv.cam);};}
+/* badges for collecting auras */
+BADGES.push({id:'aura_1',icon:'✨',name:'Glow Up',desc:'Buy your first aura'},{id:'aura_10',icon:'🌟',name:'Aura Collector',desc:'Own 10 auras'},{id:'aura_all',icon:'🌈',name:'Aura Legend',desc:'Own every aura in the Aura Shop'});
+function auraBadgeCheck(){const buy=AURAS.filter(a=>a.price>0&&!a.special),n=buy.filter(a=>S.owned[a.id]).length;if(n>=1)award('aura_1');if(n>=10)award('aura_10');if(n>=buy.length)award('aura_all');}
+$('#selAction').addEventListener('click',()=>{if(shopTab==='auras')setTimeout(auraBadgeCheck,50);});
+function openAuraShop(){shopTab='auras';openSheet('shopSheet');}
+/* settings + bag rows (replaces the old Supernova-only toggles) */
+{const _rs=renderSettings;renderSettings=function(){_rs();const def=equippedAura();const body=$('#setBody');
+  body.appendChild(rowItem(def?def.icon:'✨','Aura',def?def.name+' is on':'No aura on',def?'Take off':'Aura Shop',()=>{if(def){S.equip.aura='aura_none';save();renderSettings();toast('Aura off','', '✨');}else openAuraShop();}));};}
+{const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const def=equippedAura();const body=$('#bagBody');body.appendChild(el('div','sec-h','Aura'));const l=el('div','list');
+  if(def)l.appendChild(rowItem(def.icon,def.name,'Equipped · '+(def.special?'the rarest aura in the game':RAR[def.rar].name),'Take off',()=>{S.equip.aura='aura_none';save();renderBag();toast('Aura off','', '✨');}));
+  const owned=AURAS.filter(a=>a.id!=='aura_none'&&S.owned[a.id]).length;l.appendChild(rowItem('✨','Aura Shop','You own '+owned+' of '+(AURAS.length-1)+' auras','Open',()=>openAuraShop()));body.appendChild(l);};}
+/* --- the Aura Shop stall near spawn --- */
+let AURA_SHOP=null;
+function buildAuraShop(){const x=2,z=11,y=heightAt(x,z);const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=Math.atan2(12-x,24-z);worldGroup.add(g);
+  const M=(c,o)=>std(c,Object.assign({flatShading:false},o||{}));
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(3.5,3.7,.45,28),M(0x5a3b8c));base.position.y=.22;base.receiveShadow=true;g.add(base);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(3.55,.08,6,48),auraGlow(0xc18bff,.9));rim.rotation.x=Math.PI/2;rim.position.y=.46;g.add(rim);
+  for(let k=0;k<6;k++){const a=k/6*Math.PI*2+Math.PI/6;const p=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,3.8,8),M(0xe8d9ff,{metalness:.4}));p.position.set(Math.cos(a)*3,2.3,Math.sin(a)*3);g.add(p);}
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(4.3,2.3,6),M(0xb04de0));roof.position.y=5.3;roof.rotation.y=Math.PI/6;roof.castShadow=true;g.add(roof);
+  const trim=new THREE.Mesh(new THREE.CylinderGeometry(4.3,4.3,.25,6),M(0xffd23d,{metalness:.5}));trim.position.y=4.2;trim.rotation.y=Math.PI/6;g.add(trim);
+  const orb=new THREE.Mesh(new THREE.IcosahedronGeometry(.55,1),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xc18bff,emissiveIntensity:1,flatShading:true}));orb.position.y=7;g.add(orb);
+  const counter=new THREE.Mesh(new THREE.BoxGeometry(4.2,1.15,1),M(0x7a4fc4));counter.position.set(0,1.02,1.7);g.add(counter);const top=new THREE.Mesh(new THREE.BoxGeometry(4.5,.14,1.25),M(0xffd23d,{metalness:.5}));top.position.set(0,1.66,1.7);g.add(top);
+  const jars=[];[[-1.5,0xff6fb5],[-.5,0x2ee6ff],[.5,0x7dff3a],[1.5,0xffd23d]].forEach(([jx,c])=>{const j=new THREE.Mesh(new THREE.SphereGeometry(.26,14,10),auraGlow(c,.85));j.position.set(jx,2.02,1.7);g.add(j);jars.push(j);});
+  const light=new THREE.PointLight(0xc18bff,1.2,16);light.position.set(0,3.4,0);g.add(light);
+  const sign=makeLabel('✨ AURA SHOP ✨',{scale:.95,bg:'rgba(193,139,255,.97)'});sign.position.y=8.4;g.add(sign);
+  const keeper=new Ball({color:'#c18bff',secondary:'sec_white',pattern:'pat_solid',hat:'hat_top'},.85);const kl=makeLabel('Auralee',{scale:.5});g.add(kl);kl.position.set(0,3.6,.2);
+  const kp=new V3(0,0,.2).applyAxisAngle(new V3(0,1,0),g.rotation.y).add(g.position);keeper.pos.set(kp.x,y+1.3,kp.z);
+  addObstacle(x,z,3.4,y+6.4);
+  const fr=new V3(0,0,3.3).applyAxisAngle(new V3(0,1,0),g.rotation.y).add(g.position);
+  addInter({pos:new V3(fr.x,y+1,fr.z),r:4.5,label:'✨ Visit the Aura Shop',act:()=>{const L=['Ooh, you\'ve got a sparkly vibe! Pick an aura!','Every aura glows different. Try them on before you buy!','The rarest auras are Mythic. Save up!','I heard there is one aura you can\'t buy… it comes from saving the Universe.'];toast('Auralee: '+L[Math.floor(Math.random()*L.length)],'','✨');openAuraShop();}});
+  AURA_SHOP={g,orb,jars,keeper,kp,y,show:null,showK:0,showT:0,rim};}
+function auraShopTick(dt,t){const A=AURA_SHOP;if(!A)return;const vis=mode==='world';if(A.vis!==vis){A.vis=vis;A.keeper.setVisible(vis);if(A.show)A.show.g.visible=vis;}if(!vis)return;
+  const near=Math.hypot(player.pos.x-A.kp.x,player.pos.z-A.kp.z)<70;A.orb.rotation.y+=dt;A.orb.material.emissive.setHSL((t*.1)%1,.8,.5);A.orb.position.y=7+Math.sin(t*1.5)*.15;A.jars.forEach((j,k)=>j.scale.setScalar(1+Math.sin(t*3+k)*.12));A.rim.material.color.setHSL((t*.1+.5)%1,.9,.65);
+  A.keeper.pos.y=A.y+1.3+Math.abs(Math.sin(t*2.2))*.12;A.keeper.sync(dt);
+  if(!near){if(A.show){scene.remove(A.show.g);A.show.dispose();A.show=null;}return;}
+  A.showT-=dt;if(!A.show||A.showT<=0){if(A.show){scene.remove(A.show.g);A.show.dispose();}const list=AURAS.filter(a=>a.fx);A.showK=(A.showK+1)%list.length;A.show=buildAura(list[A.showK],true);A.show.g.scale.setScalar(.85);scene.add(A.show.g);A.showT=4;}
+  A.show.g.position.copy(A.keeper.pos);A.show.tick(t,dt,Math.atan2(camera.position.x-A.keeper.pos.x,camera.position.z-A.keeper.pos.z));}
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
@@ -7105,7 +7233,7 @@ function frame(now){
 
 /* ================= BOOT ================= */
 envTex=makeEnv(renderer);
-buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();
+buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();
 player=new Ball(lookOf(S.equip));
 player.pos.set(SPAWN.x+14,0,SPAWN.z);snapToGround(player,heightAt);
 titleAng=0;camPos.set(player.pos.x,player.pos.y+12,player.pos.z+26);
