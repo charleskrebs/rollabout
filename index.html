@@ -520,6 +520,15 @@ button{font-family:inherit}
     <p class="sub">Tap the pads, or use your keyboard: A S D F G.</p><div id="drumPads"></div>
     <div class="row" style="margin-top:12px"><button class="btn small gold" id="drumAuto">▶ Play a beat</button></div>
   </section>
+  <section class="sheet" id="inviteSheet" hidden aria-label="Invite friends" style="max-width:640px">
+    <header><h2>📞 Invite Friends</h2><button class="btn x" data-close aria-label="Close">✕</button></header>
+    <p class="sub" id="inviteSub"></p><div id="inviteList"></div>
+  </section>
+  <section class="sheet" id="broSheet" hidden aria-label="Name your brother" style="max-width:460px">
+    <header><h2>Name your brother</h2><button class="btn x" data-close aria-label="Close">✕</button></header>
+    <form class="namebox" id="broForm"><p class="sub" style="margin:0">What do you call your big brother? Leave it empty to call him The Sphere.</p>
+      <input id="broInput" maxlength="18" placeholder="The Sphere" autocomplete="off"><button class="btn gold" type="submit">That's his name!</button></form>
+  </section>
   <section class="sheet" id="setSheet" hidden aria-label="Settings" style="max-width:600px">
     <header><h2>⚙️ Settings &amp; Stats</h2><button class="btn x" data-close aria-label="Close">✕</button></header>
     <div id="setBody"></div>
@@ -771,6 +780,7 @@ const BADGES=[
  {id:'ch2_tri',icon:'💎',name:'Midnight Gem',desc:'Put the gem of Triangular Town back together',secret:1},{id:'ch2_quad',icon:'🟦',name:'Borders On',desc:'Turned the borders of Quadrilateral Corner back on',secret:1},
  {id:'ch2_rect',icon:'⚔️',name:'Defender of the Route',desc:'Beat all three waves of 2D shapes',secret:1},{id:'ch2_god',icon:'🕳️',name:'Three Dimensions',desc:'Defeated the God of 3 Dimensions',secret:1},
  {id:'ch2_hero',icon:'🏆',name:'Our Hero!',desc:'Got a trophy from the mayor. To be continued…',secret:1},
+ {id:'party_host',icon:'🎉',name:'Party Host',desc:'Throw a party at your house'},
  {id:'pogo',icon:'🦘',name:'Pogo Ball',desc:'Jump 100 times'},
  {id:'kangaroo',icon:'🐇',name:'Kangaroo',desc:'Jump 500 times'},
  {id:'marathon',icon:'🛣️',name:'Marathon Roller',desc:'Roll 10,000 meters'}];
@@ -1561,7 +1571,7 @@ function refreshUI(){
   $('#status').hidden=!(mode==='race'||mode==='mg'||mode==='area');$('#biomeChip').hidden=!inWorld;
   $('#questPill').hidden=mode==='title'||!S.quest;if(S.quest)updateQuestUI();
   if(mode!=='area')$('#boss').hidden=true;
-  $('#touch').hidden=mode==='title'||!isTouch;
+  $('#touch').hidden=mode==='title'||!isTouch;menuMusic();
   if(mode!=='world')$('#invite').hidden=true;
 }
 function blurBtn(){const a=document.activeElement;if(a&&a.tagName==='BUTTON')a.blur();}
@@ -2152,7 +2162,7 @@ $('#hGames').addEventListener('click',()=>{blurBtn();openSheet('gamesSheet');});
 $('#hBadges').addEventListener('click',()=>{blurBtn();openSheet('badgeSheet');});
 $('#hMenu').addEventListener('click',()=>{blurBtn();mode='title';titleAng=camYaw;refreshUI();});
 $('#hBag').addEventListener('click',()=>{blurBtn();feedTarget=null;openSheet('bagSheet');});
-$('#hSound').addEventListener('click',e=>{muted=!muted;e.currentTarget.textContent='Sound: '+(muted?'off':'on');blurBtn();});
+$('#hSound').addEventListener('click',e=>{muted=!muted;e.currentTarget.textContent='Sound: '+(muted?'off':'on');if(muted)jukeStop();blurBtn();});
 $('#carExit').addEventListener('click',()=>{blurBtn();if(area&&area.drive)exitCar(area);});
 $('#statusLeave').addEventListener('click',()=>{blurBtn();if(mode==='race'){endRace();toast('You left the race','bad');}else if(mode==='mg'){exitMinigame();}else if(mode==='area'){leaveArea();}});
 $('#joinRace').addEventListener('click',()=>{blurBtn();startRace();});
@@ -2816,7 +2826,7 @@ function decorSpot(id){const sp=DECOR_SPOT[id]||[0,0,0],n=S.decor.placed.filter(
   if(n%2===1){x=-x;rot=-rot;if(Math.abs(x)<1)x+=4;}if(n>=2)z=clamp(z+Math.floor(n/2)*2.6*(z<0?1:-1),-12.6,12.6);return{x,z,rot};}
 function placeDecor(id){const p=decorSpot(id);S.decor.placed.push({id,x:p.x,z:p.z,rot:p.rot});save();refreshHouseDecor();
   sfx('buy');if(S.decor.placed.length>=5)award('decor_5');}
-function refreshHouseDecor(){if(!(mode==='area'&&area&&area.id==='house'))return;const a=area;if(a.decorG)a.group.remove(a.decorG);a.decorG=new THREE.Group();a.group.add(a.decorG);a.obs=[];a.anim=[];
+function refreshHouseDecor(){if(!(mode==='area'&&area&&area.id==='house'))return;const a=area;if(a.decorG)a.group.remove(a.decorG);a.decorG=new THREE.Group();a.group.add(a.decorG);a.obs=[{x:-6,z:13,r:.9,top:1.5}];a.anim=[];
   a.tvScreen=null;a.gumball=null;a.piano=null;a.arcade=null;if(a.decorInters)a.inter=a.inter.filter(o=>!a.decorInters.includes(o));a.decorInters=[];
   S.decor.placed.forEach(p=>{const g=makeDecor(p.id);g.position.set(p.x,0,p.z);g.rotation.y=p.rot;a.decorG.add(g);if(g.userData.r>0)a.obs.push({x:p.x,z:p.z,r:g.userData.r,top:4});a.anim.push(g);
     if(g.userData.screen&&!a.tvScreen){a.tvScreen=g.userData.screen;a.tvInter.pos.set(p.x-Math.sin(p.rot)*-3.5,1,p.z+Math.cos(p.rot)*3.5);}
@@ -3003,7 +3013,7 @@ AREA_BUILD.lighthouse=a=>{
 };
 /* ---- house ---- */
 AREA_BUILD.house=a=>{
-  const HX=18,HZ=14;a.name='Your House';a.fp=true;player.setVisible(false);a.cleanup=()=>{player.setVisible(true);jukeStop();};if(!S.fpTip){S.fpTip=1;save();setTimeout(()=>toast('First-person view: W / S to walk, A / D to turn','','🏠'),600);}a.ground=(x,z)=>(Math.abs(x)<=HX+1&&Math.abs(z)<=HZ+1)?0:null;a.spawn=new V3(0,0,1);a.yaw=0;
+  const HX=18,HZ=14;a.name='Your House';a.fp=true;player.setVisible(false);a.cleanup=()=>{player.setVisible(true);jukeStop();(a.guests||[]).forEach(G=>G.b.dispose());};if(!S.fpTip){S.fpTip=1;save();setTimeout(()=>toast('First-person view: W / S to walk, A / D to turn','','🏠'),600);}a.ground=(x,z)=>(Math.abs(x)<=HX+1&&Math.abs(z)<=HZ+1)?0:null;a.spawn=new V3(0,0,1);a.yaw=0;
   a.exit=new V3(houseDoor.x+Math.sin(houseDoor.face)*3,0,houseDoor.z+Math.cos(houseDoor.face)*3);
   const fc=document.createElement('canvas');fc.width=256;fc.height=256;const fg=fc.getContext('2d');for(let i=0;i<8;i++){fg.fillStyle=i%2?'#c48a55':'#b77c48';fg.fillRect(0,i*32,256,32);fg.fillStyle='rgba(0,0,0,.12)';fg.fillRect(((i*97)%256),i*32,3,32);}
   const ft=new THREE.CanvasTexture(fc);ft.wrapS=ft.wrapT=THREE.RepeatWrapping;ft.repeat.set(4,3);
@@ -3016,6 +3026,9 @@ AREA_BUILD.house=a=>{
   for(const cx of[-9,0,9]){const cl=new THREE.Mesh(new THREE.CylinderGeometry(.8,.8,.15,16),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xfff1c4,emissiveIntensity:1}));cl.position.set(cx,5.9,-2);a.group.add(cl);}
   const lt=new THREE.PointLight(0xffe2b0,1.3,60);lt.position.set(0,5,0);a.group.add(lt);
   a.inter.push({pos:new V3(0,1,HZ-1),r:3.5,label:'Leave your house',act:()=>leaveArea()});
+  {const ph=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.2,1),std(0xe8413c,{flatShading:false}));ph.position.set(-6,.6,HZ-1.2);a.group.add(ph);const hs=new THREE.Mesh(new THREE.BoxGeometry(1.1,.25,.35),std(0x14213d));hs.position.set(-6,1.35,HZ-1.2);a.group.add(hs);
+   const pl=makeLabel('📞 Invite friends',{scale:.6,bg:'rgba(255,194,61,.96)'});pl.position.set(-6,2.8,HZ-1.2);a.group.add(pl);a.obs.push({x:-6,z:HZ-1.2,r:.9,top:1.5});
+   a.inter.push({pos:new V3(-6,1,HZ-3),r:3,label:()=>a.partyOn?'Party phone (party is on! 🎉)':'Invite friends or throw a party',act:()=>openInvites()});}
   const kx=-HX+3.5,kz=-HZ+3;const ctr=new THREE.Mesh(new THREE.BoxGeometry(5,1.4,2),std(0x2f7bff,{flatShading:false}));ctr.position.set(kx,.7,kz);a.group.add(ctr);a.boxes.push({x0:kx-2.5,x1:kx+2.5,z0:kz-1,z1:kz+1,top:1.4});
   const sl=makeLabel('Decor Shop',{scale:.8,bg:'rgba(255,194,61,.96)'});sl.position.set(kx,3.6,kz);a.group.add(sl);
   a.inter.push({pos:new V3(kx,1,kz+2),r:3.8,label:'Open the Decor Shop',act:()=>openSheet('decorSheet')});
@@ -3031,7 +3044,7 @@ AREA_BUILD.house=a=>{
   a.clamp=b2=>{b2.pos.x=clamp(b2.pos.x,-HX+1,HX-1);b2.pos.z=clamp(b2.pos.z,-HZ+1,HZ-1);};
   a.status=()=>'Decorate with items from the Decor Shop';a.sky=null;
   setTimeout(()=>{refreshHouseDecor();},0);
-  a.tick=dt=>{gumballTick(dt,a);decorTick(a,dt);const t=a.t;for(const g of a.anim){const u=g.userData;if(u.spin)u.spin.rotation.y=t*.8+(u.extra||0);if(u.bob)u.bob.position.y=.6+Math.sin(t*1.3)*.35;if(u.flame)u.flame.scale.y=1+Math.sin(t*12)*.2;if(u.fish)u.fish.forEach((f,i)=>f.position.x=Math.sin(t*.8+i*1.7)*1);if(u.spots)u.spots.forEach((s,i)=>{const r=3+i%3;s.position.set(Math.cos(t+i)*r,.02,Math.sin(t*1.2+i)*r);});}};
+  a.tick=dt=>{gumballTick(dt,a);decorTick(a,dt);guestTick(a,dt);const t=a.t;for(const g of a.anim){const u=g.userData;if(u.spin)u.spin.rotation.y=t*.8+(u.extra||0);if(u.bob)u.bob.position.y=.6+Math.sin(t*1.3)*.35;if(u.flame)u.flame.scale.y=1+Math.sin(t*12)*.2;if(u.fish)u.fish.forEach((f,i)=>f.position.x=Math.sin(t*.8+i*1.7)*1);if(u.spots)u.spots.forEach((s,i)=>{const r=3+i%3;s.position.set(Math.cos(t+i)*r,.02,Math.sin(t*1.2+i)*r);});}};
 };
 /* ---- moon ---- */
 const MOON_COLS=[['Red','#ff3b3b'],['Yellow','#ffe14d'],['Green','#39ff6a'],['Blue','#2f7bff'],['Purple','#b05cff'],['White','#ffffff']];
@@ -3622,7 +3635,7 @@ AREA_BUILD.apartment=a=>{const sec=citySec();a.name="The Sphere's Apartment";a.c
   const desk=new THREE.Mesh(new THREE.BoxGeometry(3,1.4,1.6),std(0x8a5a35));desk.position.set(16,30.7,15);G.add(desk);a.boxes.push({x0:14.5,x1:17.5,z0:14.2,z1:15.8,top:31.4,bot:30});
   const note=makeLabel('📝',{scale:.8,bg:'rgba(0,0,0,0)'});note.position.set(16,31.9,15);G.add(note);
   a.inter.push({pos:new V3(16,31,13),r:2.4,label:'Read the note on the desk',act:()=>cityTalk('A note from your brother','Hey little bro! If you are reading this, you made it to the city. I am off exploring. Check out the view from the roof, it is the best in the city. But do NOT jump. Seriously. Unless you have been really, REALLY good. — The Sphere')});
-  if(S.sec.cube){const bro=new Ball({color:'#ffd23d',secondary:'sec_white',pattern:'pat_solid',hat:'hat_spherecrown'},.9);bro.pos.set(22,30.9,9.5);a.bro=bro;const bl=makeLabel('The Sphere (your brother)',{scale:.55,bg:'rgba(255,215,90,.98)'});bl.position.set(22,33.4,9.5);G.add(bl);
+  if(S.sec.cube){const bro=new Ball({color:'#ffd23d',secondary:'sec_white',pattern:'pat_solid',hat:'hat_spherecrown'},.9);bro.pos.set(22,30.9,9.5);a.bro=bro;const bl=makeLabel(broName()+' (your brother)',{scale:.55,bg:'rgba(255,215,90,.98)'});bl.position.set(22,33.4,9.5);G.add(bl);a.broLab=bl;
     a.boxes.push({x0:21,x1:23,z0:8.5,z1:10.5,top:32,bot:30});a.inter.push({pos:new V3(20.5,31,8),r:3.2,label:'Talk to your brother',act:()=>brotherTalk()});
     if(!ch2().gift)setTimeout(()=>{if(area===a)toast('Your brother is home! He is waiting in room 459 on floor 4.','badge','🟡');},800);}
   const poster=makeLabel('👑 TRUE SPHERE FAN CLUB 👑',{scale:.6,bg:'rgba(255,215,90,.98)'});poster.position.set(20,34.5,16.4);G.add(poster);
@@ -3838,12 +3851,13 @@ function travelTo(id){closeSheets();CITY.ret=null;sfx('shimmer');fadeTo(()=>ente
 function openTravel(){if(!ch2().gift)return;showResult({title:'The Poorly Wrapped Gift',big:'🎁',line:'You peel back a corner of the crinkly paper. It glows, and four shapes appear in the air. Where do you want to go?',coins:null,buttons:[
   {label:'⚪ Circular City',cls:'gold',fn:()=>travelTo('city')},{label:'🔺 Triangular Town',cls:'gold',fn:()=>travelTo('tri')},{label:'🟦 Quadrilateral Corner',cls:'gold',fn:()=>travelTo('quad')},{label:'▬ Rectangular Route',cls:'gold',fn:()=>travelTo('rect')},{label:'Not now',fn:()=>closeSheets()}]});}
 function brotherTalk(){const c=ch2();
-  if(!c.gift){talkSeq('The Sphere','🟡',['Hey bro, I heard you disabled the borders!','Thanks, you saved everyone in Circular City!','We are now free!','Here is a gift for you!',{who:'',t:'*He hands you a little object, poorly wrapped with paper*',big:'🎁'}],()=>{
+  if(!c.gift){talkSeq(broName(),'🟡',['Hey bro, I heard you disabled the borders!','Thanks, you saved everyone in Circular City!','We are now free!','Here is a gift for you!',{who:'',t:'*He hands you a little object, poorly wrapped with paper*',big:'🎁'}],()=>{
       c.gift=1;keyAdd('gift');save();sfx('badge');refreshUI();burst(player.pos,['#ffd23d','#ffffff','#ff6fb5'],30);
       setTimeout(()=>toast('You got the Poorly Wrapped Gift! Tap the 🎁 Gift button (or use it from your Bag) to travel.','badge','🎁'),300);},'Thanks, bro!');return;}
-  if(c.hero){cityTalk('The Sphere','Bro! They are calling you the hero of every shape! I always knew my little brother would be famous.');return;}
-  if(ch2Ready()){cityTalk('The Sphere','You helped all three shape cities?! A scientist came by looking for you. He looked… panicky. He is waiting near the ferry terminal.');return;}
-  cityTalk('The Sphere','Use the gift! It can take you to Triangular Town, Quadrilateral Corner and Rectangular Route. I hear they all need a hero right now.',[{label:'Use the gift 🎁',cls:'gold',fn:()=>openTravel()}]);}
+  const nick={label:'✏️ Give him a name',fn:()=>{closeSheets();openBroName();}};
+  if(c.hero){cityTalk(broName(),'Bro! They are calling you the hero of every shape! I always knew my little brother would be famous. Invite me over to your house sometime!',[nick]);return;}
+  if(ch2Ready()){cityTalk(broName(),'You helped all three shape cities?! A scientist came by looking for you. He looked… panicky. He is waiting near the ferry terminal.');return;}
+  cityTalk(broName(),'Use the gift! It can take you to Triangular Town, Quadrilateral Corner and Rectangular Route. I hear they all need a hero right now.',[{label:'Use the gift 🎁',cls:'gold',fn:()=>openTravel()},nick]);}
 
 /* ---- geometry helpers for shaped cities ---- */
 function polyPrep(poly){const cx=poly.reduce((s,p)=>s+p[0],0)/poly.length,cz=poly.reduce((s,p)=>s+p[1],0)/poly.length;const E=[];
@@ -4390,7 +4404,7 @@ AREA_BUILD.ceremony=a=>{const c=ch2();a.name='Two weeks later…';a.busy=true;a.
   const rnd=mulberry32(55);for(let i=0;i<26;i++){const an=rnd()*Math.PI*2,r=70+rnd()*40,w=12+rnd()*16,h=30+rnd()*60;const m=new THREE.Mesh(i%3===0?new THREE.CylinderGeometry(w/2,w/2,h,i%2?3:4):new THREE.BoxGeometry(w,h,w),towerMat(i,w,h));m.position.set(Math.cos(an)*r,h/2,Math.sin(an)*r-20);G.add(m);}
   for(let i=0;i<10;i++){const an=-.4-i*.25;const p=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,10,6),std(0xc9ccd2));const x=Math.cos(an)*14,z=Math.sin(an)*4-12;p.position.set(x,5,z);}
   a.crowd=[];for(let i=0;i<34;i++){const look=npcLook();if(i%5===0)look.pattern='pat_cube';const b=new Ball(look,.85);const row=Math.floor(i/9),x=(i%9-4)*3.6+(row%2)*1.6,z=1+row*2.6;b.pos.set(x,.85,z);a.crowd.push({b,ph:Math.random()*6,sp:6+Math.random()*4});}
-  const bro=new Ball({color:'#ffd23d',secondary:'sec_white',pattern:'pat_solid',hat:'hat_spherecrown'},.9);bro.pos.set(-12,.9,-3);a.crowd.push({b:bro,ph:0,sp:8});const bl=makeLabel('The Sphere',{scale:.5});bl.position.set(-12,3,-3);G.add(bl);
+  const bro=new Ball({color:'#ffd23d',secondary:'sec_white',pattern:'pat_solid',hat:'hat_spherecrown'},.9);bro.pos.set(-12,.9,-3);a.crowd.push({b:bro,ph:0,sp:8});const bl=makeLabel(broName(),{scale:.5});bl.position.set(-12,3,-3);G.add(bl);
   const sci=new Ball(SCI_LOOK,.85);sci.pos.set(12,.85,-3);a.crowd.push({b:sci,ph:1,sp:7});const sl=makeLabel('Dr. Prism',{scale:.5});sl.position.set(12,3,-3);G.add(sl);
   const mayor=new Ball({color:'#f6f1e6',secondary:'sec_gold',pattern:'pat_solid',hat:'hat_top'},1.1);mayor.pos.set(4,2.7,-9);a.mayor=mayor;const ml=makeLabel('Mayor Orb',{scale:.55});ml.position.set(4,5.2,-9);G.add(ml);
   const medal=new THREE.Group();const disc=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.08,24),new THREE.MeshStandardMaterial({color:0xffd23d,metalness:.9,roughness:.2,emissive:0x664400}));disc.rotation.x=Math.PI/2;medal.add(disc);
@@ -4452,7 +4466,7 @@ function isleTick(dt,t){if(!ISLE)return;const vis=ISLE.g.visible&&(mode==='world
 /* ================= SETTINGS & STATS ================= */
 function renderSettings(){const body=$('#setBody');body.innerHTML='';const c=S.sec.ch2||{};
   body.appendChild(el('div','sec-h','Settings'));const l=el('div','list');
-  l.appendChild(rowItem(muted?'🔇':'🔊','Sound',muted?'Off':'On',muted?'Turn on':'Turn off',()=>{muted=!muted;$('#hSound').textContent='Sound: '+(muted?'off':'on');renderSettings();}));
+  l.appendChild(rowItem(muted?'🔇':'🔊','Sound (and menu music)',muted?'Off':'On',muted?'Turn on':'Turn off',()=>{muted=!muted;$('#hSound').textContent='Sound: '+(muted?'off':'on');if(muted)jukeStop();else menuMusic();renderSettings();}));
   if(c.hero)l.appendChild(rowItem('🔷','Shapes & people on your island',S.islandShapes!==false?'On: sculptures and visitors from the shape cities':'Off: your island looks like it used to',S.islandShapes!==false?'Turn off':'Turn on',()=>{setIslandShapes(S.islandShapes===false);renderSettings();toast(S.islandShapes?'Shapes and people are back on your island!':'Your island is back to normal.','', '🔷');}));
   else l.appendChild(rowItem('🔒','Shapes & people on your island','Finish the story of the shape cities to unlock this',null));
   body.appendChild(l);
@@ -5415,9 +5429,9 @@ function jukeLoop(){const J=juke;if(!J||!actx)return;const b=60/J.T.bpm,t0=J.nex
   if(!muted){for(const n of J.mel){synthNote(n.f,t,n.len*b,J.T.wave,J.T.wave==='triangle'?.16:.06,J.out);t+=n.len*b;}t=t0;for(const n of J.bass){synthNote(n.f,t,n.len*b,'triangle',.2,J.out);t+=n.len*b;}
     const dr=J.T.drums;for(let i=0;i<32;i++){const c=dr[i%dr.length];if(c!=='.')drumHit(c==='h'?'h':c,t0+i*b/2,J.out,.8);}}
   J.next=t0+J.len*b;J.timer=setTimeout(jukeLoop,Math.max(50,(J.next-actx.currentTime-.35)*1000));}
-function jukePlay(id){jukeStop();if(muted){toast('Sound is off! Turn it on to hear the jukebox.','', '🔇');return;}if(!audioReady())return;const T=JUKE_TRACKS.find(x=>x.id===id);
+function jukePlay(id,quiet){jukeStop();if(muted){if(quiet)return;toast('Sound is off! Turn it on to hear the jukebox.','', '🔇');return;}if(!audioReady())return;const T=JUKE_TRACKS.find(x=>x.id===id);
   const mel=seqParse(T.mel),bass=seqParse(T.bass),len=Math.max(mel.reduce((s,n)=>s+n.len,0),bass.reduce((s,n)=>s+n.len,0),16);const out=actx.createGain();out.gain.value=.8;out.connect(actx.destination);
-  juke={T,mel,bass,len,out,next:actx.currentTime+.08};jukeLoop();renderJukebox();toast('Now playing: '+T.name,'',T.icon);}
+  juke={T,mel,bass,len,out,next:actx.currentTime+.08};jukeLoop();renderJukebox();if(!quiet)toast('Now playing: '+T.name,'',T.icon);}
 function jukeStop(){if(!juke)return;clearTimeout(juke.timer);try{juke.out.gain.setValueAtTime(0,actx.currentTime);juke.out.disconnect();}catch(e){}juke=null;renderJukebox();}
 function openJukebox(){openSheet('jukeSheet');renderJukebox();}
 function renderJukebox(){const box=$('#jukeList');if(!box)return;box.innerHTML='';$('#jukeNow').textContent=juke?'♫ Now playing: '+juke.T.icon+' '+juke.T.name+' (it keeps playing while you are home)':'Pick a song! Music keeps playing while you walk around your house.';
@@ -5474,14 +5488,61 @@ const DECOR_ACT={
   d_table:{label:'Check the coffee table',act:()=>toast(pick(['Just a coaster.','A RollTube magazine. You are on the cover!','Crumbs. Someone was snacking.']),'', '🟫')}};
 function decorInterPos(p,g){const d=Math.max(1.2,(g.userData.r||0)+1.3);return new V3(p.x+Math.sin(p.rot)*d,1,p.z+Math.cos(p.rot)*d);}
 function toggleParty(a){if(a.party){a.party.forEach(l=>a.group.remove(l));a.party=null;sfx('blip');toast('Party over. For now.','', '🪩');return;}
-  a.party=[0xff3fd1,0x2ee6ff,0xffd23d,0x39ff6a].map(c=>{const l=new THREE.PointLight(c,1.4,26);l.position.set(0,4,0);a.group.add(l);return l;});sfx('go');if(!juke&&!muted)jukePlay('disco');toast('DANCE PARTY!','', '🪩');}
+  a.party=[0xff3fd1,0x2ee6ff,0xffd23d,0x39ff6a].map(c=>{const l=new THREE.PointLight(c,.7,20);l.position.set(0,4,0);a.group.add(l);return l;});sfx('go');if(!juke&&!muted)jukePlay('disco');toast('DANCE PARTY!','', '🪩');}
 function decorTick(a,dt){const t=a.t;
-  if(a.party)a.party.forEach((l,i)=>{l.position.set(Math.cos(t*1.7+i*1.6)*10,4+Math.sin(t*3+i)*1,Math.sin(t*1.3+i*1.6)*8);l.intensity=1+Math.sin(t*8+i)*.5;});
+  if(a.party)a.party.forEach((l,i)=>{l.position.set(Math.cos(t*1.7+i*1.6)*10,4+Math.sin(t*3+i)*1,Math.sin(t*1.3+i*1.6)*8);l.intensity=.6+Math.sin(t*8+i)*.3;});
   for(const g of a.anim){const u=g.userData;
     if(u.boost>0){u.boost-=dt;u.extra=(u.extra||0)+dt*14*Math.min(1,u.boost);}
     if(u.feed>0){u.feed-=dt;if(u.fish)u.fish.forEach((f,i)=>f.position.x+=Math.sin(t*9+i*2)*.08);}
     if(u.launch!=null){u.launch+=dt;const k=u.launch;g.position.y=k<1.5?k*k*2:k<2.3?4.5:Math.max(0,4.5-(k-2.3)*(k-2.3)*3);g.rotation.y+=dt*(k<2.3?6:2);if(k<1.6&&Math.random()<.5)burst(g.position.clone().add(new V3(0,.2,0)),['#ff8a1f','#ffd23d','#ffffff'],3);if(k>3.6){g.position.y=0;u.launch=null;sfx('bump');}}
     if(juke&&u.juke)u.juke.material.emissiveIntensity=.6+Math.abs(Math.sin(t*8))*.8;}}
+
+/* ================= MENU MUSIC ================= */
+let gestured=false;
+function menuMusic(){if(!gestured)return;if(mode==='title'&&!muted){if(!juke){jukePlay('theme',true);if(juke)juke.menu=true;}}else if(juke&&juke.menu)jukeStop();}
+['pointerdown','keydown'].forEach(ev=>addEventListener(ev,()=>{if(gestured)return;gestured=true;audioReady();setTimeout(menuMusic,50);},{capture:true}));
+
+/* ================= YOUR BROTHER'S NAME ================= */
+const broName=()=>(S.broName||'').trim()||'The Sphere';
+function openBroName(after){$('#broInput').value=S.broName||'';openSheet('broSheet');broAfter=after||null;setTimeout(()=>$('#broInput').focus(),50);}
+let broAfter=null;
+$('#broForm').addEventListener('submit',e=>{e.preventDefault();S.broName=$('#broInput').value.trim().slice(0,18);save();closeSheets();sfx('buy');toast('Your brother is now called '+broName()+'!','', '🟡');if(area&&area.broLab)refreshBroLabel(area);if(broAfter)broAfter();});
+$('#broInput').addEventListener('keydown',e=>e.stopPropagation());
+function refreshBroLabel(a){const p=a.broLab.position.clone();a.group.remove(a.broLab);a.broLab=makeLabel(broName()+(a.id==='house'?'':' (your brother)'),{scale:.55,bg:'rgba(255,215,90,.98)'});a.broLab.position.copy(p);a.group.add(a.broLab);}
+function knowsBrother(){return!!(S.sec&&S.sec.apt&&S.sec.apt.found);}
+
+/* ================= INVITES AND HOUSE PARTIES ================= */
+const BRO_LOOK=()=>({color:'#ffd23d',secondary:'sec_white',pattern:'pat_solid',hat:'hat_spherecrown'});
+function guestList(){const L=NPCS.map(n=>({id:n.id,name:n.name,look:{color:n.color,secondary:n.sec,pattern:n.pat,hat:n.hat},lines:(n.chat||[]).concat(n.hello||[])}));
+  if(knowsBrother())L.unshift({id:'bro',name:broName(),bro:true,look:BRO_LOOK(),lines:['Nice place, bro! You decorated it yourself?','I brought snacks. Okay, I ate the snacks on the way.','Remember when we were little and rolled down the volcano? Mom was SO mad.','Your house is way cozier than my apartment.','Best little brother ever. Do not tell anyone I said that.']});
+  const c=S.sec&&S.sec.ch2;if(c&&c.hero)ISLE_PEOPLE.forEach(([nm,line],i)=>L.push({id:'isle'+i,name:nm,look:nm==='Dr. Prism'?SCI_LOOK:{color:['#ff8a1f','#2ee6ff','#39c45f','#ffd23d','#9a5cff'][i%5],secondary:'sec_white',pattern:i%2?'pat_cube':'pat_solid',hat:'hat_none'},lines:[line,'Thanks for inviting me, hero!']}));
+  return L;}
+const PARTY_LINES=['Best. Party. Ever!','Who picked this song? It slaps.','I am going to dance until I get dizzy. Well, dizzier.','Are there more snacks?','Woooo!','I love your house!','Turn it up!'];
+function openInvites(){const a=area;if(!a||a.id!=='house')return;openSheet('inviteSheet');renderInvites();}
+function renderInvites(){const a=area,box=$('#inviteList');box.innerHTML='';if(!a||a.id!=='house')return;const here=a.guests||[];
+  $('#inviteSub').textContent=a.partyOn?'🎉 The party is ON! '+here.length+' guest'+(here.length===1?'':'s')+' dancing.':here.length?here.length+' guest'+(here.length===1?' is':'s are')+' visiting.':'Invite friends over to hang out, or throw a party for everyone!';
+  const top=el('div');top.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px';
+  const party=el('button','btn small gold',a.partyOn?'⏹ End the party':'🎉 Throw a party (invite everyone!)');party.addEventListener('click',()=>{a.partyOn?endParty(a):startParty(a);renderInvites();});top.appendChild(party);
+  if(here.length){const home=el('button','btn small','👋 Send everyone home');home.addEventListener('click',()=>{sendHome(a);renderInvites();});top.appendChild(home);}
+  if(knowsBrother()){const nm=el('button','btn small','✏️ Name your brother');nm.addEventListener('click',()=>openBroName(()=>openInvites()));top.appendChild(nm);}
+  box.appendChild(top);const l=el('div','list');
+  guestList().forEach(g=>{const is=here.find(x=>x.id===g.id);const ball=el('span');ball.style.cssText='display:inline-block;width:26px;height:26px;border-radius:50%;border:2px solid #14213d;background:'+g.look.color;
+    const r=rowItem('',g.name+(g.bro?' (your brother)':''),is?'Here now':(g.bro?'Your big brother':'Friend'),is?'Send home':'Invite',()=>{is?removeGuest(a,g.id):addGuest(a,g);renderInvites();});r.firstChild.innerHTML='';r.firstChild.appendChild(ball);l.appendChild(r);});
+  box.appendChild(l);if(!knowsBrother())box.appendChild(el('p','sub','Find your brother\'s room in Circular City to be able to invite him too.'));}
+function addGuest(a,g,quiet){a.guests=a.guests||[];if(a.guests.find(x=>x.id===g.id))return;const b=new Ball(g.look,.85);const x=(Math.random()-.5)*22,z=-10+Math.random()*9;b.pos.set(x,.85,z);
+  const lab=makeLabel(g.name,{scale:.5,bg:g.bro?'rgba(255,215,90,.98)':undefined});a.group.add(lab);const it={pos:new V3(x,1,z),r:2.6,label:'Talk to '+g.name,act:()=>cityTalk(g.name,a.partyOn?pick(PARTY_LINES):pick(g.lines))};a.inter.push(it);
+  const G={id:g.id,g,b,lab,it,tgt:new V3(x,0,z),wait:Math.random()*2,ph:Math.random()*6};if(g.bro)a.broLab=lab;a.guests.push(G);if(!quiet){sfx('beep');toast(g.name+' is coming over!','', '🚪');}}
+function removeGuest(a,id){const i=(a.guests||[]).findIndex(x=>x.id===id);if(i<0)return;const G=a.guests[i];G.b.dispose();a.group.remove(G.lab);a.inter=a.inter.filter(o=>o!==G.it);if(a.broLab===G.lab)a.broLab=null;a.guests.splice(i,1);}
+function sendHome(a){(a.guests||[]).slice().forEach(G=>removeGuest(a,G.id));if(a.partyOn)endParty(a);toast('Everyone went home. Bye bye!','', '👋');}
+function startParty(a){guestList().forEach(g=>addGuest(a,g,true));a.partyOn=true;if(!a.party)toggleParty(a);else if(!juke&&!muted)jukePlay('disco');a.confT=0;award('party_host');toast('🎉 PARTY TIME! Everyone is here!','badge','🎉');}
+function endParty(a){a.partyOn=false;if(a.party)toggleParty(a);if(juke)jukeStop();}
+function guestTick(a,dt){if(!a.guests||!a.guests.length)return;const HX=17,HZ=13;
+  for(const G of a.guests){const b=G.b;G.wait-=dt;const near=b.pos.distanceTo(player.pos)<3;
+    if(!near&&G.wait<=0&&Math.hypot(G.tgt.x-b.pos.x,G.tgt.z-b.pos.z)<.6){G.wait=a.partyOn?.4+Math.random():1.5+Math.random()*3;G.tgt.set((Math.random()-.5)*HX*1.6,0,(Math.random()-.5)*HZ*1.5);}
+    if(!near&&G.wait<=0){const dx=G.tgt.x-b.pos.x,dz=G.tgt.z-b.pos.z,d=Math.hypot(dx,dz)||1,sp=a.partyOn?4:2.2;b.vel.set(dx/d*sp,0,dz/d*sp);b.pos.x+=b.vel.x*dt;b.pos.z+=b.vel.z*dt;}else b.vel.set(0,0,0);
+    b.pos.x=clamp(b.pos.x,-HX,HX);b.pos.z=clamp(b.pos.z,-HZ,HZ);for(const o of a.obs){const ox=b.pos.x-o.x,oz=b.pos.z-o.z,od=Math.hypot(ox,oz),m=o.r+b.r;if(od<m&&od>1e-3){b.pos.x=o.x+ox/od*m;b.pos.z=o.z+oz/od*m;}}
+    b.pos.y=b.r+(a.partyOn?Math.abs(Math.sin(a.t*6+G.ph))*1.1:0);b.sync(dt);G.lab.position.set(b.pos.x,b.pos.y+1.9,b.pos.z);G.it.pos.set(b.pos.x,1,b.pos.z);}
+  if(a.partyOn){a.confT=(a.confT||0)-dt;if(a.confT<=0){a.confT=.6;burst(new V3((Math.random()-.5)*26,4.5,(Math.random()-.5)*18),['#ff4f6d','#ffd23d','#39c45f','#2ee6ff','#9a5cff'],12);}}}
 
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
