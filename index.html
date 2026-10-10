@@ -7169,9 +7169,9 @@ function auraShopTick(dt,t){const A=AURA_SHOP;if(!A)return;const vis=mode==='wor
 const TP_BOSSES=[
  {id:'castle',name:'The True Sphere',icon:'⚪',price:2000,reward:500,col:'#d0b0ff',hint:'Find the True Sphere in his castle under the cave',beat:()=>!!(S.sec&&S.sec.boss)},
  {id:'rectbattle',name:'Battle at the North Gate',icon:'⚔️',price:3000,reward:800,col:'#7fe0ff',hint:'Help Captain Rex in Rectangular Route',beat:()=>!!(ch2().rect&&ch2().rect.done)},
- {id:'cubeboss',name:'The 4D Cube',icon:'🧊',price:5000,reward:2000,col:'#ff3fd1',hint:'Find the Fourth Dimensional Cube under Circular City',beat:()=>!!(S.sec&&S.sec.cube)},
- {id:'godboss',name:'The God of 3 Dimensions',icon:'👑',price:10000,reward:3000,col:'#ffd23d',hint:'Finish Chapter 2',beat:()=>!!ch2().god},
- {id:'c3boss',name:'The Perfect Sphere',icon:'🌌',price:25000,reward:8000,col:'#9a5cff',hint:'Finish Chapter 3',beat:()=>!!ch3().b3}];
+ {id:'cubeboss',name:'The 4D Cube',icon:'🧊',price:5000,reward:5000,col:'#ff3fd1',hint:'Find the Fourth Dimensional Cube under Circular City',beat:()=>!!(S.sec&&S.sec.cube)},
+ {id:'godboss',name:'The God of 3 Dimensions',icon:'👑',price:10000,reward:10000,col:'#ffd23d',hint:'Finish Chapter 2',beat:()=>!!ch2().god},
+ {id:'c3boss',name:'The Perfect Sphere',icon:'🌌',price:25000,reward:100000,col:'#9a5cff',hint:'Finish Chapter 3',beat:()=>!!ch3().b3}];
 let BOSS_TP=null,TP_ST=null;
 function tpOwned(id){return !!(S.tp&&S.tp[id]);}
 function tpGo(b){if(mode!=='world'||(area&&area.busy)){toast('You can only teleport from the open world','bad','🌀');return;}closeSheets();BOSS_TP={id:b.id};sfx('go');burst(player.pos.clone(),[b.col,'#ffffff'],30);camShake=.3;
