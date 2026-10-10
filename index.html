@@ -1552,7 +1552,7 @@ const PERKS={pet_moon:{jump:.6,dj:1,grav:.6,txt:'🌙 Moon Jump: DOUBLE JUMP, ju
   pet_rectwarrior:{speed:.25,coins:.5,txt:'⚔️ Warrior Spirit: roll 25% faster, +50% extra coins'},pet_shapes:{speed:.35,jump:.4,dj:2,coins:1.5,txt:'🔷 Every Shape: TRIPLE JUMP, jump 40% higher, roll 35% faster, +150% extra coins'},
   pet_pigeon:{jump:.15,txt:'🐦 Flap: jump 15% higher'},pet_rat:{speed:.15,txt:'🐀 Scurry: roll 15% faster'}};
 function perk(){return(pet&&pet.def&&PERKS[pet.def.id])||{};}
-function canJump(){if(player.grounded||player.coyote>0){player.airUsed=0;return true;}if((player.airUsed|0)<(perk().dj||0)){player.airUsed=(player.airUsed|0)+1;player.vel.y=Math.max(0,player.vel.y);burst(player.pos,['#ffffff','#fff1a8','#bfe9ff'],12);return true;}return false;}
+function canJump(){if(player.grounded||player.coyote>0){player.airUsed=0;return true;}if(mode==='area'&&area&&area.id==='builder')return false;if((player.airUsed|0)<(perk().dj||0)){player.airUsed=(player.airUsed|0)+1;player.vel.y=Math.max(0,player.vel.y);burst(player.pos,['#ffffff','#fff1a8','#bfe9ff'],12);return true;}return false;}
 function setPet(id){if(pet)scene.remove(pet.g);pet=null;if(!id)return;const def=PETS.find(p=>p.id===id);if(!def)return;const g=makePet(id);g.scale.setScalar(1.25);scene.add(g);pet={g,def};petPos.copy(player.pos).add(new V3(2,0,2));}
 function animPet(g,t,moving){const u=g.userData;if(u.wings){const a=Math.sin(t*(u.fast?40:10))*.6;u.wings[0].rotation.z=a;u.wings[1].rotation.z=-a;}
   if(u.wobble){u.wobble.scale.set(.5+Math.sin(t*6)*.04,.38-Math.sin(t*6)*.04,.5+Math.sin(t*6)*.04);}
@@ -5771,8 +5771,8 @@ AREA_BUILD.builder=a=>{const L=lbLevel();a.name='Level Builder';a.leaveLabel='Ex
   LBS.mode='edit';LBS.focus.set(0,0,0);if(L){const s=Object.keys(L.cells).find(k=>L.cells[k].start);if(s){const [i,j]=s.split(',').map(Number),c=lbCenter(i,j);LBS.focus.set(c.x,0,c.z);}}
   a.camDist=30;lbRebuild(a);lbEditMode(a,true);
   a.camClamp=o=>{if(LBS.mode==='edit')o.y=Math.max(o.y,player.pos.y+16);};
-  a.status=()=>LBS.mode==='edit'?'Editing "'+lbLevel().name+'" · click to place, right-click to erase · WASD to move · drag to turn':'⏱ '+a.time.toFixed(1)+'s · 🪙 '+a.got+'/'+a.coins.length+' · roll to the 🏁';
-  a.tick=dt=>{const t=performance.now()/1000;for(const c of a.coins)c.m.rotation.z=t*2;if(a.goalRing)a.goalRing.scale.setScalar(1+Math.sin(t*4)*.1);
+  a.status=()=>LBS.mode==='edit'?'Editing "'+lbLevel().name+'" · click to place, right-click to erase · WASD to move · drag or ←/→ to turn 90°':'⏱ '+a.time.toFixed(1)+'s · 🪙 '+a.got+'/'+a.coins.length+' · roll to the 🏁';
+  a.tick=dt=>{lbCamTick(a,dt);const t=performance.now()/1000;for(const c of a.coins)c.m.rotation.z=t*2;if(a.goalRing)a.goalRing.scale.setScalar(1+Math.sin(t*4)*.1);
     if(LBS.mode==='edit'){const d=inputDir();LBS.focus.x=clamp(LBS.focus.x+d.x*30*dt,-80,80);LBS.focus.z=clamp(LBS.focus.z+d.z*30*dt,-80,80);player.pos.set(LBS.focus.x,1.2,LBS.focus.z);player.vel.set(0,0,0);
       const hv=LBS.hover;a.cur.visible=!!hv;if(hv){const L2=lbLevel(),c=L2.cells[lbKey(hv[0],hv[1])],{x,z}=lbCenter(hv[0],hv[1]);a.cur.position.set(x,(c?(c.t==='ramp'?c.h*2+1:c.h*2):0)+.25,z);a.cur.material.color.set(LBS.tool==='erase'?0xff4f6d:0xffd23d);}return;}
     a.time+=dt;const p=player;const {i,j}=lbCell(p.pos.x,p.pos.z);const c=lbLevel().cells[lbKey(i,j)];
@@ -5785,10 +5785,23 @@ AREA_BUILD.builder=a=>{const L=lbLevel();a.name='Level Builder';a.leaveLabel='Ex
     for(const co of a.coins){if(co.m.visible&&co.m.position.distanceTo(p.pos)<2.2){co.m.visible=false;a.got++;sfx('coin');}}
     if(p.pos.y<-22)lbRespawn(a,'You fell off!');};
   a.cleanup=()=>{$('#lbBar').hidden=true;LBS.mode='edit';player.setVisible(true);};};
+/* builder camera: faces along the course, turns only in 90 degree steps */
+const LB_YAW=[0,-Math.PI/2,Math.PI,Math.PI/2];const LB_DV=[[0,-1],[1,0],[0,1],[-1,0]];
+const lbWalk=c=>c&&c.t!=='air'&&c.t!=='lava';
+function lbNext(L,i,j,d){for(let s=1;s<=3;s++){const ii=i+LB_DV[d][0]*s,jj=j+LB_DV[d][1]*s;if(ii<0||jj<0||ii>=LB.N||jj>=LB.N)return null;const c=L.cells[lbKey(ii,jj)];if(lbWalk(c))return[ii,jj];}return null;}
+function lbFlow(a){const L=lbLevel();const dist={};if(!a.goalCell)return dist;const q=[a.goalCell];dist[lbKey(...a.goalCell)]=0;
+  for(let h=0;h<q.length;h++){const [i,j]=q[h],dd=dist[lbKey(i,j)];for(let d=0;d<4;d++){const n=lbNext(L,i,j,d);if(!n)continue;const k=lbKey(n[0],n[1]);if(dist[k]==null){dist[k]=dd+1;q.push(n);}}}return dist;}
+function lbFwd(a,i,j){const L=lbLevel(),f=a.flow||{};const here=f[lbKey(i,j)];if(here==null)return null;let best=null,bv=here;for(let d=0;d<4;d++){const n=lbNext(L,i,j,d);if(!n)continue;const v=f[lbKey(n[0],n[1])];if(v!=null&&v<bv){bv=v;best=d;}}return best;}
+function lbCamSet(a,d){a.yawT=LB_YAW[d];camYaw=a.yawT;a.lastYaw=camYaw;a.turnAcc=0;}
+function lbCamTick(a,dt){const now=performance.now()/1000;if(a.yawT==null){a.yawT=Math.round(camYaw/(Math.PI/2))*Math.PI/2;a.lastYaw=camYaw;a.turnAcc=0;a.manualT=-9;a.cool=0;}
+  const moved=wrapA(camYaw-a.lastYaw);a.cool=Math.max(0,a.cool-dt);
+  if(a.cool>0)a.turnAcc=0;else{a.turnAcc+=moved;if(Math.abs(a.turnAcc)>.25){a.yawT+=Math.sign(a.turnAcc)*Math.PI/2;a.turnAcc=0;a.cool=.4;a.manualT=now;sfx('blip');}}
+  if(LBS.mode==='play'&&now-a.manualT>2.5){const {i,j}=lbCell(player.pos.x,player.pos.z);const d=lbFwd(a,i,j);if(d!=null){if(d!==a.fwdD){a.fwdD=d;a.fwdT=now;}else if(now-a.fwdT>.35&&Math.abs(wrapA(LB_YAW[d]-a.yawT))>.1)a.yawT=LB_YAW[d];}}
+  camYaw=a.lastYaw+wrapA(a.yawT-a.lastYaw)*Math.min(1,dt*7);a.lastYaw=camYaw;}
 function lbStartPos(a){if(!a.startCell)return null;const [i,j]=a.startCell,c=lbLevel().cells[lbKey(i,j)],{x,z}=lbCenter(i,j);return new V3(x,c.h*2+1.2,z);}
-function lbRespawn(a,msg){const s=lbStartPos(a);player.pos.copy(s);player.vel.set(0,0,0);snapCamera();if(msg)toast(msg,'', '↺');sfx('bad');}
+function lbRespawn(a,msg){const s=lbStartPos(a);player.pos.copy(s);player.vel.set(0,0,0);{const d0=lbFwd(a,a.startCell[0],a.startCell[1]);lbCamSet(a,d0==null?0:d0);a.manualT=-9;}snapCamera();if(msg)toast(msg,'', '↺');sfx('bad');}
 function lbEditMode(a,on){LBS.mode=on?'edit':'play';a.locked=on;player.setVisible(!on);a.boxes=on?[]:a.playBoxes;a.grid.visible=on;a.base.visible=on;a.cur.visible=false;a.camDist=on?30:null;lbStatusBar();
-  if(!on){if(!a.startCell||!a.goalCell){toast(!a.startCell?'Place a 🚩 Start first!':'Place a 🏁 Goal first!','bad');lbEditMode(a,true);return;}a.time=0;a.got=0;a.done=false;a.coins.forEach(c=>c.m.visible=true);const s=lbStartPos(a);player.pos.copy(s);player.vel.set(0,0,0);a.spawn=s.clone();camYaw=0;snapCamera();sfx('go');}
+  if(!on){if(!a.startCell||!a.goalCell){toast(!a.startCell?'Place a 🚩 Start first!':'Place a 🏁 Goal first!','bad');lbEditMode(a,true);return;}a.time=0;a.got=0;a.done=false;a.coins.forEach(c=>c.m.visible=true);const s=lbStartPos(a);player.pos.copy(s);player.vel.set(0,0,0);a.spawn=s.clone();a.flow=lbFlow(a);const d0=lbFwd(a,a.startCell[0],a.startCell[1]);lbCamSet(a,d0==null?0:d0);a.fwdD=d0;a.fwdT=0;a.manualT=-9;snapCamera();sfx('go');}
   else{player.pos.set(LBS.focus.x,1.2,LBS.focus.z);}}
 function lbFinish(a){const L=lbLevel();S.stats.lbDone=(S.stats.lbDone||0)+1;const t=+a.time.toFixed(2);const nb=L.best==null||t<L.best;if(nb){L.best=t;save();}award('builder_finish');sfx('badge');
   showResult({title:L.name,big:'🏁',line:'You finished in '+t+'s with '+a.got+'/'+a.coins.length+' coins!'+(nb?' New best time!':' Best: '+L.best+'s'),coins:null,buttons:[{label:'Play again',cls:'gold',fn:()=>{closeSheets();lbEditMode(a,false);}},{label:'✏️ Back to building',fn:()=>{closeSheets();lbEditMode(a,true);}},{label:'📂 Levels',fn:()=>{closeSheets();openLevels();}}]});}
