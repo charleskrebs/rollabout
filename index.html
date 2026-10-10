@@ -5796,7 +5796,6 @@ function lbCamSet(a,d){a.yawT=LB_YAW[d];camYaw=a.yawT;a.lastYaw=camYaw;a.turnAcc
 function lbCamTick(a,dt){const now=performance.now()/1000;if(a.yawT==null){a.yawT=Math.round(camYaw/(Math.PI/2))*Math.PI/2;a.lastYaw=camYaw;a.turnAcc=0;a.manualT=-9;a.cool=0;}
   const moved=wrapA(camYaw-a.lastYaw);a.cool=Math.max(0,a.cool-dt);
   if(a.cool>0)a.turnAcc=0;else{a.turnAcc+=moved;if(Math.abs(a.turnAcc)>.25){a.yawT+=Math.sign(a.turnAcc)*Math.PI/2;a.turnAcc=0;a.cool=.4;a.manualT=now;sfx('blip');}}
-  if(LBS.mode==='play'&&now-a.manualT>2.5){const {i,j}=lbCell(player.pos.x,player.pos.z);const d=lbFwd(a,i,j);if(d!=null){if(d!==a.fwdD){a.fwdD=d;a.fwdT=now;}else if(now-a.fwdT>.35&&Math.abs(wrapA(LB_YAW[d]-a.yawT))>.1)a.yawT=LB_YAW[d];}}
   camYaw=a.lastYaw+wrapA(a.yawT-a.lastYaw)*Math.min(1,dt*7);a.lastYaw=camYaw;}
 function lbStartPos(a){if(!a.startCell)return null;const [i,j]=a.startCell,c=lbLevel().cells[lbKey(i,j)],{x,z}=lbCenter(i,j);return new V3(x,c.h*2+1.2,z);}
 function lbRespawn(a,msg){const s=lbStartPos(a);player.pos.copy(s);player.vel.set(0,0,0);{const d0=lbFwd(a,a.startCell[0],a.startCell[1]);lbCamSet(a,d0==null?0:d0);a.manualT=-9;}snapCamera();if(msg)toast(msg,'', '↺');sfx('bad');}
