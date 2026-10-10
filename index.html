@@ -763,7 +763,7 @@ const DECOR=[
  {id:'d_neon',name:'Neon Sign',icon:'💡',price:260},{id:'d_jukebox',name:'Jukebox',icon:'📻',price:320},{id:'d_drums',name:'Drum Kit',icon:'🥁',price:380},{id:'d_statue',name:'Golden Ball Statue',icon:'🏅',price:600},{id:'d_petcage',name:'Pet Cage',icon:'🐹',price:200},{id:'d_herotrophy',name:'Hero Trophy',icon:'🏆',price:0,special:1}];
 const SHOP_TABS={hats:{list:HATS,slot:'hat'},colors:{list:COLORS,slot:'color'},patterns:{list:PATTERNS,slot:'pattern'},accents:{list:ACCENTS,slot:'secondary'},trails:{list:TRAILS,slot:'trail'}};
 const ALL_ITEMS=[...HATS,...COLORS,...ACCENTS,...PATTERNS,...PETS,...TRAILS];
-const itemById=id=>ALL_ITEMS.find(i=>i.id===id);
+const itemById=id=>{for(const L of [HATS,COLORS,ACCENTS,PATTERNS,PETS,TRAILS]){const f=L.find(i=>i.id===id);if(f)return f;}return undefined;};
 
 const BADGES=[
  {id:'first_roll',icon:'🟠',name:'First Roll',desc:'Start your first roll'},
@@ -7028,6 +7028,8 @@ function auraTick(dt,t){const want=S.equip.aura==='aura_supernova'&&S.owned.aura
   A.stars.forEach((s,k)=>{const a=t*1.4+k/10*Math.PI*2;s.position.set(Math.cos(a)*2.1,Math.sin(t*2+k)*.9,Math.sin(a)*2.1);s.rotation.y=t*3;});if(Math.random()<dt*10)burst(player.pos.clone().add(new V3((Math.random()-.5)*2,(Math.random()-.5)*2,(Math.random()-.5)*2)),['#ff7a2b','#ffd23d','#ffffff','#9a5cff'],1);}
 {const _rs=renderSettings;renderSettings=function(){_rs();if(!S.owned.aura_supernova)return;const on=S.equip.aura==='aura_supernova';const body=$('#setBody');
   body.appendChild(rowItem('🌌','Supernova Aura',on?'On · the rarest aura in the game':'Off','Turn '+(on?'off':'on'),()=>{S.equip.aura=on?null:'aura_supernova';save();renderSettings();toast(on?'Aura off':'Supernova Aura ON! 🌌','', '🌌');}));};}
+{const _rb=renderBag;renderBag=function(){_rb();if(feedTarget||!S.owned.aura_supernova)return;const on=S.equip.aura==='aura_supernova';const body=$('#bagBody');body.appendChild(el('div','sec-h','Aura'));const l=el('div','list');
+  l.appendChild(rowItem('🌌','Supernova Aura',on?'Equipped · the rarest aura in the game':'Not equipped',on?'Unequip':'Equip',()=>{S.equip.aura=on?null:'aura_supernova';save();renderBag();toast(on?'Aura off':'Supernova Aura ON! 🌌','', '🌌');}));body.appendChild(l);};}
 /* ---------- chapter 3 music ---------- */
 JUKE_TRACKS.push(
   {id:'a_mystic',name:'Mystic Mountain',icon:'🏔️',bpm:84,wave:'triangle',drums:'k...h...',mel:'E5:2 G5:1 A5:1 B5:2 A5:1 G5:1 E5:1 D5:1 E5:2 R:4 G5:2 A5:1 B5:1 D6:2 B5:1 A5:1 G5:1 E5:1 D5:2 E5:4',bass:'E2:4 C2:4 G2:4 D2:4 E2:4 C2:4 D2:4 E2:4'},
