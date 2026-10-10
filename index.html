@@ -5641,7 +5641,7 @@ const BIOME_TRACK={plains:'b_plains',desert:'b_desert',volcano:'b_volcano',jungl
 let musBiome=null,bioCand=null,bioSince=0;
 function musicDirector(){if(!gestured)return;if(juke&&juke.user)return;let want=null;const now=performance.now();
   if(curBiome!==bioCand){bioCand=curBiome;bioSince=now;}if(musBiome===null||(bioCand!==musBiome&&now-bioSince>2500))musBiome=bioCand;
-  if(!muted&&!(mode==='area'&&area&&area.silent)){if(mode==='title')want='theme';else if(S.bgMusic!==false){if(mode==='area'&&area&&area.busy&&area.boss)want='showdown';else if(mode==='area'&&area&&area.id==='cave')want='a_cave';else if(mode==='area'&&area&&area.city)want=dayAmount<.5?'a_citynight':'a_cityday';else if(dayAmount<.5)want='night';else if(mode==='world'&&BIOME_TRACK[musBiome])want=BIOME_TRACK[musBiome];else want='theme';}}
+  if(!muted&&!(mode==='area'&&area&&area.silent)){if(mode==='title')want='theme';else if(S.bgMusic!==false){if(mode==='area'&&area&&area.busy&&area.boss)want='showdown';else if(mode==='world'&&typeof PL!=='undefined'&&PL&&PL.party)want='a_poolparty';else if(mode==='area'&&area&&area.id==='cave')want='a_cave';else if(mode==='area'&&area&&area.city)want=dayAmount<.5?'a_citynight':'a_cityday';else if(dayAmount<.5)want='night';else if(mode==='world'&&BIOME_TRACK[musBiome])want=BIOME_TRACK[musBiome];else want='theme';}}
   if(!want){if(juke)jukeStop();return;}if(!juke||juke.T.id!==want){const isBio=(want.startsWith('b_')||want.startsWith('a_'))&&juke&&!juke.user;jukePlay(want,true,{bg:true,fade:!!juke});if(isBio){const T=JUKE_TRACKS.find(x=>x.id===want);toast('Now playing: '+T.name,'',T.icon);}}}
 menuMusic=musicDirector;setInterval(musicDirector,1000);
 
@@ -6427,88 +6427,142 @@ CHAL_POOL.push({id:'garden',ic:'🌻',txt:'Pick 8 flowers from your garden',n:8,
   const c=new THREE.Mesh(new THREE.SphereGeometry(.05,8,6),S2(0xffe27a,{emissive:0xffc23d,emissiveIntensity:.8}));fl.add(c);g.userData.spin=fl;return g;};}
 /* ================= SWIMMING POOL ================= */
 const POOL_PRICE=2500,POOL_UPS=[{id:'slide',name:'Water Slide',ic:'🛝',price:1500,desc:'A twisty slide that drops you right into the pool!'},{id:'lights',name:'Rainbow Pool Lights',ic:'🌈',price:800,desc:'The water glows in rainbow colors at night.'},{id:'floaties',name:'Pool Floaties',ic:'🦆',price:300,desc:'A rubber duck and a donut float bobbing in the water.'}];
-const pool=()=>{S.pool=S.pool||{};return S.pool;};
+const POOL_LV=[{hu:2.8,ht:4.4,name:'Small Pool'},{hu:3.2,ht:4.8,name:'Family Pool',price:1500},{hu:3.6,ht:5.2,name:'Big Pool',price:3000},{hu:4.1,ht:5.6,name:'Huge Pool',price:5000},{hu:4.6,ht:6,name:'MEGA Pool',price:8000}];
+const pool=()=>{S.pool=S.pool||{};if(S.pool.own&&!S.pool.lv)S.pool.lv=1;return S.pool;};
 let PL=null;
 function buildPool(){const toSpawn=Math.atan2(SPAWN.z-NB.z,SPAWN.x-NB.x),a=toSpawn+Math.PI*2/18,R=44,y=NBH;
   const u={x:Math.cos(a),z:Math.sin(a)},t={x:-Math.sin(a),z:Math.cos(a)};const cx=NB.x+u.x*R,cz=NB.z+u.z*R;const W=(du,dt)=>({x:cx+u.x*du+t.x*dt,z:cz+u.z*du+t.z*dt});const yaw=Math.atan2(t.x,t.z);
   const loc=(x,z)=>{const dx=x-cx,dz=z-cz;return{du:dx*u.x+dz*u.z,dt:dx*t.x+dz*t.z};};
-  const grp=new THREE.Group();worldGroup.add(grp);PL={grp,y,u,t,cx,cz,W,loc,yaw,HU:2.8,HT:4.4,DEPTH:2.4,built:false,sign:null,ride:null,inWater:false,boardT:0,splashCD:0};
-  // for-sale sign (or pool shop sign once bought)
-  const sq=W(-4.6,-5.2);const sg=new THREE.Group();sg.position.set(sq.x,y,sq.z);sg.rotation.y=yaw;grp.add(sg);const post=new THREE.Mesh(new THREE.BoxGeometry(.15,2,.15),std(0x8a5a35));post.position.y=1;sg.add(post);
+  const grp=new THREE.Group();worldGroup.add(grp);PL={grp,y,u,t,cx,cz,W,loc,yaw,HU:2.8,HT:4.4,DEPTH:2.4,built:false,ride:null,inWater:false,boardT:0,party:null};
+  const sq=W(-7.2,-5.4);const sg=new THREE.Group();sg.position.set(sq.x,y,sq.z);sg.rotation.y=yaw;grp.add(sg);const post=new THREE.Mesh(new THREE.BoxGeometry(.15,2,.15),std(0x8a5a35));post.position.y=1;sg.add(post);
   const board=new THREE.Mesh(new THREE.BoxGeometry(1.8,1,.12),std(0xffffff));board.position.y=2.1;sg.add(board);const strip=new THREE.Mesh(new THREE.BoxGeometry(1.8,.25,.13),std(0x2f9bff));strip.position.y=2.45;sg.add(strip);
-  PL.signLab=makeLabel(pool().own?'🏊 Pool Shop':'🏊 For Sale: Pool',{scale:.5,bg:'rgba(47,155,255,.95)'});PL.signLab.position.set(sq.x,y+3.4,sq.z);grp.add(PL.signLab);
-  addInter({pos:new V3(sq.x,y+1,sq.z),r:2.8,label:()=>pool().own?'Open the Pool Shop':'Buy a Swimming Pool (🪙 '+POOL_PRICE+')',act:poolSign});
-  // outline before purchase
+  PL.signLab=makeLabel('🏊 For Sale: Pool',{scale:.5,bg:'rgba(47,155,255,.95)'});PL.signLab.position.set(sq.x,y+3.4,sq.z);grp.add(PL.signLab);
+  PL.shopLab=makeLabel('🏊 Pool Shop',{scale:.5,bg:'rgba(47,155,255,.95)'});PL.shopLab.position.copy(PL.signLab.position);PL.shopLab.visible=false;grp.add(PL.shopLab);
+  addInter({pos:new V3(sq.x,y+1,sq.z),r:2.8,label:()=>pool().own?(PL.party?'🎉 Pool party! ('+Math.ceil(PL.party.t)+'s left)':'Open the Pool Shop'):'Buy a Swimming Pool (🪙 '+POOL_PRICE+')',act:poolSign});
+  PL.slideInter=addInter({pos:new V3(0,-999,0),r:2.2,on:()=>!!pool().slide&&PL.built,label:'🛝 Climb up and slide!',act:poolSlide});
   const rope=new THREE.Group();grp.add(rope);PL.rope=rope;for(const [a1,b1,a2,b2] of [[-3.4,-5,3.4,-5],[-3.4,5,3.4,5],[-3.4,-5,-3.4,5],[3.4,-5,3.4,5]]){const p1=W(a1,b1),p2=W(a2,b2);const L=Math.hypot(p2.x-p1.x,p2.z-p1.z);const r=new THREE.Mesh(new THREE.BoxGeometry(.06,.06,L),std(0xffd23d));r.position.set((p1.x+p2.x)/2,y+.6,(p1.z+p2.z)/2);r.rotation.y=Math.atan2(p2.x-p1.x,p2.z-p1.z);rope.add(r);}
   for(const [a1,b1] of [[-3.4,-5],[3.4,-5],[-3.4,5],[3.4,5]]){const q=W(a1,b1);const c=new THREE.Mesh(new THREE.ConeGeometry(.25,.7,10),std(0xff8a1f));c.position.set(q.x,y+.35,q.z);rope.add(c);}
   if(pool().own)buildPoolBody();}
 function poolGround(x,z){if(!PL||!PL.built)return null;const {du,dt}=PL.loc(x,z);if(Math.abs(du)>PL.HU||Math.abs(dt)>PL.HT)return null;
   const steps=dt>PL.HT-2.2?(PL.HT-dt)/2.2:1;return PL.y-PL.DEPTH*clamp(steps,0,1);}
-function buildPoolBody(){if(PL.built)return;PL.built=true;PL.rope.visible=false;const {grp,y,W,yaw,HU,HT}=PL;const P=pool();
-  // deck
-  const deck=new THREE.Mesh(new THREE.BoxGeometry(HT*2+3,.1,HU*2+3),std(0xf1e4cc,{flatShading:false}));const c0=W(0,0);deck.position.set(c0.x,y+.05,c0.z);deck.rotation.y=yaw+Math.PI/2;deck.receiveShadow=true;grp.add(deck);
-  // water
+function buildPoolBody(){const P=pool();const L=POOL_LV[(P.lv||1)-1];PL.HU=L.hu;PL.HT=L.ht;PL.DEPTH=2.4+((P.lv||1)-1)*.25;
+  if(PL.body){PL.grp.remove(PL.body);if(PL.lights)PL.lights.forEach(m=>{const k=nightLamps.indexOf(m);if(k>=0)nightLamps.splice(k,1);});}
+  const body=new THREE.Group();PL.grp.add(body);PL.body=body;PL.built=true;PL.rope.visible=false;PL.signLab.visible=false;PL.shopLab.visible=true;const {y,W,yaw,HU,HT}=PL;const add=o=>{body.add(o);return o;};
+  const c0=W(0,0);const deck=add(new THREE.Mesh(new THREE.BoxGeometry(HT*2+3,.1,HU*2+3),std(0xf1e4cc,{flatShading:false})));deck.position.set(c0.x,y+.05,c0.z);deck.rotation.y=yaw+Math.PI/2;deck.receiveShadow=true;
   const wm=new THREE.MeshStandardMaterial({color:0x29b6f6,roughness:.08,metalness:.1,emissive:0x0277bd,emissiveIntensity:.25});PL.wm=wm;
-  const water=new THREE.Mesh(new THREE.PlaneGeometry(HT*2,HU*2),wm);water.rotation.x=-Math.PI/2;water.rotation.z=yaw+Math.PI/2;water.position.set(c0.x,y+.12,c0.z);grp.add(water);
+  const water=add(new THREE.Mesh(new THREE.PlaneGeometry(HT*2,HU*2),wm));water.rotation.x=-Math.PI/2;water.rotation.z=yaw+Math.PI/2;water.position.set(c0.x,y+.12,c0.z);
   const cv=document.createElement('canvas');cv.width=cv.height=128;const g=cv.getContext('2d');g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=3;for(let k=0;k<14;k++){g.beginPath();const sx=Math.random()*128,sy=Math.random()*128;g.moveTo(sx,sy);g.bezierCurveTo(sx+20,sy-15,sx+30,sy+15,sx+50,sy);g.stroke();}
-  const tex=new THREE.CanvasTexture(cv);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(3,1.6);PL.tex=tex;const shim=new THREE.Mesh(new THREE.PlaneGeometry(HT*2,HU*2),new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:.55,depthWrite:false}));shim.rotation.copy(water.rotation);shim.position.set(c0.x,y+.14,c0.z);grp.add(shim);
-  // tiled rim + steps
-  const rim=std(0xffffff,{flatShading:false}),tile=std(0x4fc3f7,{flatShading:false});const bar=(du,dt,lu,lt,m,h)=>{const q=W(du,dt);const b=new THREE.Mesh(new THREE.BoxGeometry(lt,h||.22,lu),m);b.position.set(q.x,y+.12,q.z);b.rotation.y=yaw+Math.PI/2;b.castShadow=true;grp.add(b);return b;};
+  const tex=new THREE.CanvasTexture(cv);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(HT*.7,HU*.6);PL.tex=tex;const shim=add(new THREE.Mesh(new THREE.PlaneGeometry(HT*2,HU*2),new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:.55,depthWrite:false})));shim.rotation.copy(water.rotation);shim.position.set(c0.x,y+.14,c0.z);
+  const rim=std(0xffffff,{flatShading:false}),tile=std(0x4fc3f7,{flatShading:false});const bar=(du,dt,lu,lt,m,h)=>{const q=W(du,dt);const b=add(new THREE.Mesh(new THREE.BoxGeometry(lt,h||.22,lu),m));b.position.set(q.x,y+.12,q.z);b.rotation.y=yaw+Math.PI/2;b.castShadow=true;return b;};
   bar(-HU-.2,0,.4,HT*2+.8,rim);bar(HU+.2,0,.4,HT*2+.8,rim);bar(0,-HT-.2,HU*2,.4,rim);bar(0,HT+.2,HU*2,.4,rim);for(let k=0;k<3;k++)bar(0,HT-.4-k*.7,HU*2-.2,.12,tile,.16);
-  // underwater lights (glow at night)
-  PL.lights=[];for(const s of[-1,1])for(const k of[-2.4,0,2.4]){const lm=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xbfefff,emissiveIntensity:.2});nightLamps.push(lm);PL.lights.push(lm);const q=W(s*(HU-.05),k);const l=new THREE.Mesh(new THREE.SphereGeometry(.16,10,8),lm);l.position.set(q.x,y+.1,q.z);grp.add(l);}
-  // ladder
-  for(const s of[-.35,.35]){const q=W(-HU-.05,-HT+1.2+s);const r=new THREE.Mesh(new THREE.TorusGeometry(.35,.05,6,14,Math.PI),std(0xcfd8dc,{metalness:.7}));r.position.set(q.x,y+.35,q.z);r.rotation.y=yaw;grp.add(r);}
-  // diving board at the +HT end (over the deep part? no: deep end is -HT) -> board at -HT end
-  const bq=W(0,-HT-1.6);const bd=new THREE.Group();bd.position.set(bq.x,y,bq.z);bd.rotation.y=yaw;grp.add(bd);
+  PL.lights=[];for(const s of[-1,1])for(let k=-HT+1.4;k<=HT-1.3;k+=2.3){const lm=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xbfefff,emissiveIntensity:.2});nightLamps.push(lm);PL.lights.push(lm);const q=W(s*(HU-.05),k);const l=add(new THREE.Mesh(new THREE.SphereGeometry(.16,10,8),lm));l.position.set(q.x,y+.1,q.z);}
+  for(const s of[-.35,.35]){const q=W(-HU-.05,-HT+1.2+s);const r=add(new THREE.Mesh(new THREE.TorusGeometry(.35,.05,6,14,Math.PI),std(0xcfd8dc,{metalness:.7})));r.position.set(q.x,y+.35,q.z);r.rotation.y=yaw;}
+  const bq=W(0,-HT-1.6);const bd=add(new THREE.Group());bd.position.set(bq.x,y,bq.z);bd.rotation.y=yaw;
   const stand=new THREE.Mesh(new THREE.BoxGeometry(.8,1.1,.6),std(0x90a4ae));stand.position.set(0,.55,-.4);bd.add(stand);
   const plank=new THREE.Group();plank.position.set(0,1.15,-.4);bd.add(plank);const pk=new THREE.Mesh(new THREE.BoxGeometry(.9,.14,3.4),std(0x2f9bff));pk.position.z=1.6;pk.castShadow=true;plank.add(pk);PL.plank=plank;
   const step=new THREE.Mesh(new THREE.BoxGeometry(.9,.55,.6),std(0xb0bec5));step.position.set(0,.28,-1.1);bd.add(step);
-  // lounge chairs + umbrella
-  for(const s of[-1,1]){const q=W(HU+2.2,s*2.4);const ch=new THREE.Group();ch.position.set(q.x,y,q.z);ch.rotation.y=yaw;grp.add(ch);const seat=new THREE.Mesh(new THREE.BoxGeometry(.8,.12,1.8),std(s>0?0xff5c8a:0xffd23d));seat.position.y=.45;ch.add(seat);const back=new THREE.Mesh(new THREE.BoxGeometry(.8,.12,.8),std(s>0?0xff5c8a:0xffd23d));back.position.set(0,.75,-.9);back.rotation.x=-.9;ch.add(back);
-    for(const lx of[-.32,.32])for(const lz of[-.7,.7]){const l=new THREE.Mesh(new THREE.BoxGeometry(.06,.45,.06),std(0xffffff));l.position.set(lx,.22,lz);ch.add(l);}addObstacle(q.x,q.z,.9,y+1);}
-  {const q=W(HU+2.2,0);const pole=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,3,8),std(0xffffff));pole.position.set(q.x,y+1.5,q.z);grp.add(pole);
-    const um=new THREE.Mesh(new THREE.ConeGeometry(1.7,.7,10,1,true),new THREE.MeshStandardMaterial({color:0xff5c8a,side:THREE.DoubleSide,flatShading:true}));um.position.set(q.x,y+3.1,q.z);grp.add(um);
-    const um2=new THREE.Mesh(new THREE.ConeGeometry(1.71,.7,10,1,true,0,Math.PI/5),new THREE.MeshStandardMaterial({color:0xffffff,side:THREE.DoubleSide}));for(let k=0;k<5;k++){const m=um2.clone();m.rotation.y=k*Math.PI*2/5;m.position.copy(um.position);grp.add(m);}addObstacle(q.x,q.z,.4,y+3);}
-  PL.extras={};poolExtras();PL.signLab.visible=false;const l2=makeLabel('🏊 Pool Shop',{scale:.5,bg:'rgba(47,155,255,.95)'});l2.position.copy(PL.signLab.position);grp.add(l2);
+  PL.chairs=[];for(const s of[-1,1]){const q=W(HU+2.2,s*2.4);const ch=add(new THREE.Group());ch.position.set(q.x,y,q.z);ch.rotation.y=yaw;const col=s>0?0xff5c8a:0xffd23d;const seat=new THREE.Mesh(new THREE.BoxGeometry(.8,.12,1.8),std(col));seat.position.y=.45;ch.add(seat);const back=new THREE.Mesh(new THREE.BoxGeometry(.8,.12,.8),std(col));back.position.set(0,.75,-.9);back.rotation.x=-.9;ch.add(back);
+    for(const lx of[-.32,.32])for(const lz of[-.7,.7]){const l=new THREE.Mesh(new THREE.BoxGeometry(.06,.45,.06),std(0xffffff));l.position.set(lx,.22,lz);ch.add(l);}PL.chairs.push(q);}
+  {const q=W(HU+2.2,0);const pole=add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,3,8),std(0xffffff)));pole.position.set(q.x,y+1.5,q.z);
+    const um=add(new THREE.Mesh(new THREE.ConeGeometry(1.7,.7,10,1,true),new THREE.MeshStandardMaterial({color:0xff5c8a,side:THREE.DoubleSide,flatShading:true})));um.position.set(q.x,y+3.1,q.z);
+    for(let k=0;k<5;k++){const m=add(new THREE.Mesh(new THREE.ConeGeometry(1.71,.7,10,1,true,k*Math.PI*2/5,Math.PI/5),new THREE.MeshStandardMaterial({color:0xffffff,side:THREE.DoubleSide})));m.position.copy(um.position);}}
+  if((P.lv||1)>=3){for(const s of[-1,1]){const q=W(s*(HU+1.1),-HT-.9);const pl=add(new THREE.Group());pl.position.set(q.x,y,q.z);const tr=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,2.4,8),std(0x8a5a35));tr.position.y=1.2;pl.add(tr);
+    for(let k=0;k<5;k++){const lf=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),std(0x3aa845));lf.scale.set(.9,.12,.3);const an=k/5*Math.PI*2;lf.position.set(Math.cos(an)*.7,2.35,Math.sin(an)*.7);lf.rotation.y=-an;lf.rotation.z=-.4;pl.add(lf);}}}
+  if((P.lv||1)>=5){const fq=W(0,-HT-4.2);const ft=add(new THREE.Mesh(new THREE.CylinderGeometry(.9,1,.6,18),std(0xffffff)));ft.position.set(fq.x,y+.3,fq.z);const fw=add(new THREE.Mesh(new THREE.CylinderGeometry(.75,.75,.1,18),wm));fw.position.set(fq.x,y+.62,fq.z);PL.fount=new V3(fq.x,y+.7,fq.z);}
+  PL.extras={};PL.floats=null;poolExtras();
   if(!PL.wrapped){PL.wrapped=true;const _h=heightAt;heightAt=function(x,z){const g=poolGround(x,z);return g==null?_h(x,z):g;};}}
-function poolExtras(){if(!PL||!PL.built)return;const P=pool(),{grp,y,W,yaw,HT}=PL;
-  if(P.slide&&!PL.extras.slide){PL.extras.slide=1;const base=W(0,HT+2.2);const tower=new THREE.Group();tower.position.set(base.x,y,base.z);tower.rotation.y=yaw;grp.add(tower);
+function poolExtras(){if(!PL||!PL.built)return;const P=pool(),{y,W,yaw,HT,body}=PL;
+  if(P.slide&&!PL.extras.slide){PL.extras.slide=1;const base=W(0,HT+2.2);const tower=new THREE.Group();tower.position.set(base.x,y,base.z);tower.rotation.y=yaw;body.add(tower);
     for(const lx of[-.6,.6])for(const lz of[-.6,.6]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,4,8),std(0xffffff));l.position.set(lx,2,lz+.6);tower.add(l);}const top=new THREE.Mesh(new THREE.BoxGeometry(1.5,.15,1.5),std(0xffd23d));top.position.set(0,4,.6);tower.add(top);
     for(let k=0;k<7;k++){const r=new THREE.Mesh(new THREE.BoxGeometry(1.2,.06,.06),std(0xcfd8dc));r.position.set(0,.5+k*.5,1.3);tower.add(r);}
     const pts=PL.slidePts=[];for(let k=0;k<=24;k++){const f=k/24,an=f*Math.PI*1.4;pts.push({du:Math.sin(an)*1.6,dt:HT+1.9-f*3.4+Math.cos(an)*.4,h:4.1-f*3.6});}
-    const sm=std(0x9a5cff,{flatShading:false});for(let k=0;k<pts.length-1;k++){const a=pts[k],b=pts[k+1],pa=W(a.du,a.dt),pb=W(b.du,b.dt);const A=new V3(pa.x,y+a.h,pa.z),B=new V3(pb.x,y+b.h,pb.z);const L=A.distanceTo(B);
-      const seg=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,L+.05,10,1,true,0,Math.PI),new THREE.MeshStandardMaterial({color:0x9a5cff,side:THREE.DoubleSide}));seg.position.copy(A).lerp(B,.5);seg.quaternion.setFromUnitVectors(new V3(0,1,0),B.clone().sub(A).normalize());seg.rotateY(Math.PI/2);grp.add(seg);}
-    const lq=W(0,HT+3.1);addInter({pos:new V3(lq.x,y+1,lq.z),r:2.2,label:'🛝 Climb up and slide!',act:poolSlide});}
+    for(let k=0;k<pts.length-1;k++){const a=pts[k],b=pts[k+1],pa=W(a.du,a.dt),pb=W(b.du,b.dt);const A=new V3(pa.x,y+a.h,pa.z),B=new V3(pb.x,y+b.h,pb.z);const L=A.distanceTo(B);
+      const seg=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,L+.05,10,1,true,0,Math.PI),new THREE.MeshStandardMaterial({color:0x9a5cff,side:THREE.DoubleSide}));seg.position.copy(A).lerp(B,.5);seg.quaternion.setFromUnitVectors(new V3(0,1,0),B.clone().sub(A).normalize());seg.rotateY(Math.PI/2);body.add(seg);}
+    const lq=W(0,HT+3.1);PL.slideInter.pos.set(lq.x,y+1,lq.z);}
   if(P.floaties&&!PL.extras.floaties){PL.extras.floaties=1;const duck=new THREE.Group();const b=new THREE.Mesh(new THREE.SphereGeometry(.45,14,10),std(0xffd23d,{flatShading:false}));b.scale.set(1,.8,1.3);duck.add(b);const h=new THREE.Mesh(new THREE.SphereGeometry(.28,12,10),std(0xffd23d,{flatShading:false}));h.position.set(0,.45,.4);duck.add(h);
-      const bk=new THREE.Mesh(new THREE.ConeGeometry(.1,.25,8),std(0xff8a1f));bk.rotation.x=Math.PI/2;bk.position.set(0,.42,.72);duck.add(bk);for(const s of[-.12,.12]){const e=new THREE.Mesh(new THREE.SphereGeometry(.04,6,5),std(0x14213d));e.position.set(s,.55,.62);duck.add(e);}grp.add(duck);
-    const don=new THREE.Mesh(new THREE.TorusGeometry(.55,.22,10,22),std(0xff9ad5,{flatShading:false}));don.rotation.x=Math.PI/2;grp.add(don);PL.floats=[{m:duck,ph:0},{m:don,ph:2}];}}
-function poolSign(){const P=pool();if(!P.own){showResult({title:'Swimming Pool',big:'🏊',line:'Get your very own pool right next to your house! It comes with a diving board, lounge chairs, an umbrella and underwater lights. Roll in to swim, and jump off the diving board for a CANNONBALL!',coins:null,
-    buttons:[{label:'Buy it! 🪙 '+POOL_PRICE,cls:S.coins>=POOL_PRICE?'gold':'',fn:()=>{if(S.coins<POOL_PRICE){toast('You need '+POOL_PRICE+' coins!','bad');return;}S.coins-=POOL_PRICE;updateCoinsUI(true);P.own=1;save();closeSheets();buildPoolBody();sfx('splash');award('pool_own');const c=PL.W(0,0);burst(new V3(c.x,PL.y+1,c.z),['#7fd8ff','#2f9bff','#ffffff'],50);toast('You bought a swimming pool! Roll in and make a splash! 🏊','badge','🏊');}},{label:'Maybe later',fn:()=>closeSheets()}]});return;}
-  showResult({title:'Pool Shop',big:'🏊',line:'Make your pool even cooler!'+(P.best?' Your best cannonball splash: '+P.best+'!':' Jump off the diving board for a cannonball splash score!')+' Tip: hold Space as you roll onto the diving board for a SUPER bounce!'+(''),coins:null,
-    buttons:POOL_UPS.map(it=>({label:P[it.id]?it.ic+' '+it.name+' ✓':it.ic+' '+it.name+' · 🪙 '+it.price,cls:!P[it.id]&&S.coins>=it.price?'gold':'',fn:()=>{if(P[it.id])return;if(S.coins<it.price){toast('You need '+it.price+' coins!','bad');return;}S.coins-=it.price;updateCoinsUI(true);P[it.id]=1;save();closeSheets();poolExtras();sfx('buy');toast('Got the '+it.name+'! '+it.desc,'badge',it.ic);}})).concat([{label:'Close',fn:()=>closeSheets()}])});}
+      const bk=new THREE.Mesh(new THREE.ConeGeometry(.1,.25,8),std(0xff8a1f));bk.rotation.x=Math.PI/2;bk.position.set(0,.42,.72);duck.add(bk);for(const s of[-.12,.12]){const e=new THREE.Mesh(new THREE.SphereGeometry(.04,6,5),std(0x14213d));e.position.set(s,.55,.62);duck.add(e);}body.add(duck);
+    const don=new THREE.Mesh(new THREE.TorusGeometry(.55,.22,10,22),std(0xff9ad5,{flatShading:false}));don.rotation.x=Math.PI/2;body.add(don);PL.floats=[{m:duck,ph:0},{m:don,ph:2}];}}
+function poolSign(){const P=pool();if(!P.own){showResult({title:'Swimming Pool',big:'🏊',line:'Get your very own pool right next to your house! It comes with a diving board, lounge chairs, an umbrella and underwater lights. Upgrade it to make it BIGGER, and at level 5 you can throw a POOL PARTY!',coins:null,
+    buttons:[{label:'Buy it! 🪙 '+POOL_PRICE,cls:S.coins>=POOL_PRICE?'gold':'',fn:()=>{if(S.coins<POOL_PRICE){toast('You need '+POOL_PRICE+' coins!','bad');return;}S.coins-=POOL_PRICE;updateCoinsUI(true);P.own=1;P.lv=1;save();closeSheets();buildPoolBody();sfx('splash');award('pool_own');const c=PL.W(0,0);burst(new V3(c.x,PL.y+1,c.z),['#7fd8ff','#2f9bff','#ffffff'],50);toast('You bought a swimming pool! Roll in and make a splash! 🏊','badge','🏊');}},{label:'Maybe later',fn:()=>closeSheets()}]});return;}
+  if(PL.party){showResult({title:'Pool Party!',big:'🎉',line:'The party is going! '+Math.ceil(PL.party.t)+' seconds left. Do cannonballs for your guests and knock the beach balls around!',coins:null,buttons:[{label:'Keep partying!',cls:'gold',fn:()=>closeSheets()},{label:'End the party now',fn:()=>{closeSheets();poolPartyEnd();}}]});return;}
+  const lv=P.lv||1,nx=POOL_LV[lv];const btns=[];
+  if(nx)btns.push({label:'⬆ Make it bigger: '+nx.name+' (Lv '+(lv+1)+') · 🪙 '+nx.price,cls:S.coins>=nx.price?'gold':'',fn:()=>{if(S.coins<nx.price){toast('You need '+nx.price+' coins!','bad');return;}S.coins-=nx.price;updateCoinsUI(true);P.lv=lv+1;save();closeSheets();poolLevelUp();}});
+  btns.push(lv>=5?{label:'🎉 Throw a POOL PARTY!',cls:'gold',fn:()=>{closeSheets();poolPartyStart();}}:{label:'🔒 Pool Party (unlocks at Pool Level 5)',fn:()=>toast('Upgrade your pool to Level 5 to throw pool parties!','', '🔒')});
+  POOL_UPS.forEach(it=>btns.push({label:P[it.id]?it.ic+' '+it.name+' ✓':it.ic+' '+it.name+' · 🪙 '+it.price,cls:!P[it.id]&&S.coins>=it.price?'gold':'',fn:()=>{if(P[it.id])return;if(S.coins<it.price){toast('You need '+it.price+' coins!','bad');return;}S.coins-=it.price;updateCoinsUI(true);P[it.id]=1;save();closeSheets();poolExtras();sfx('buy');toast('Got the '+it.name+'! '+it.desc,'badge',it.ic);}}));
+  btns.push({label:'Close',fn:()=>closeSheets()});
+  showResult({title:'Pool Shop · '+POOL_LV[lv-1].name+' (Lv '+lv+')',big:'🏊',line:(nx?'Upgrade your pool to make it bigger! ':'Your pool is MAX level! ')+(P.best?'Best cannonball splash: '+P.best+'. ':'')+'Tip: hold Space as you roll onto the diving board for a SUPER bounce!',coins:null,buttons:btns});}
+function poolLevelUp(){const P=pool();buildPoolBody();sfx('badge');const c=PL.W(0,0);burst(new V3(c.x,PL.y+1.5,c.z),['#7fd8ff','#2f9bff','#ffffff','#ffd23d'],70);
+  if(P.lv>=5){award('pool_max');setTimeout(()=>showResult({title:'MEGA POOL!',big:'🏝️',line:'Your pool is MAX level! It is huge, it has palm trees and a fountain, and you can now throw POOL PARTIES from the Pool Shop. Invite the whole neighborhood!',coins:null,buttons:[{label:'Throw a party now! 🎉',cls:'gold',fn:()=>{closeSheets();poolPartyStart();}},{label:'Later',fn:()=>closeSheets()}]}),400);}
+  else toast('Your pool grew into a '+POOL_LV[P.lv-1].name+'! (Level '+P.lv+')','badge','🏊');}
 function poolSlide(){if(!PL||!PL.slidePts||PL.ride)return;PL.ride={t:0};sfx('go');}
 function poolSplash(v){const q=player.pos;const n=Math.round(Math.min(60,8+v*2));burst(new V3(q.x,PL.y+.4,q.z),['#7fd8ff','#bfe9ff','#ffffff','#2f9bff'],n);sfx('splash');
-  if(v>11){const P=pool();const score=Math.round(v*v*.55);const nb=score>(P.best||0);if(nb){P.best=score;save();}toast((score>=500?'MEGA CANNONBALL! ':'Cannonball! ')+'Splash score '+score+(nb?' · NEW BEST!':' (best '+P.best+')'),score>=500?'badge':'', '💦');if(score>=500)award('pool_mega');}}
-function poolTick(dt,t){if(!PL||!PL.built||mode!=='world')return;const near=Math.hypot(player.pos.x-PL.cx,player.pos.z-PL.cz)<80;if(!near)return;const P=pool();
+  if(v>11){const P=pool();const score=Math.round(v*v*.55);const nb=score>(P.best||0);if(nb){P.best=score;save();}let extra='';
+    if(PL.party){const c=addCoins(Math.round(score/8));PL.party.splashes++;extra=' · The guests cheer! +'+c+' coins';PL.party.cheer=1.2;}
+    toast((score>=500?'MEGA CANNONBALL! ':'Cannonball! ')+'Splash score '+score+(nb?' · NEW BEST!':' (best '+P.best+')')+extra,score>=500?'badge':'', '💦');if(score>=500)award('pool_mega');}}
+/* ---------- pool party ---------- */
+const POOL_LINES=['Cannonball!!','This pool is AMAZING!','Best party ever!','Who wants to race to the slide?','Watch me dive!','Pass the beach ball!','Is there more cake?','Splash fight!','I love this song!'];
+function poolPartyStart(){if(!PL||PL.party)return;const P=pool();const p={t:150,guests:[],balls:[],deco:new THREE.Group(),splashes:0,cheer:0,chatT:4,confT:0};PL.party=p;PL.grp.add(p.deco);const {W,y,HU,HT}=PL;
+  const who=NPCS.slice().sort(()=>Math.random()-.5).slice(0,6).map(n=>({name:n.name,look:{color:n.color,secondary:n.sec,pattern:n.pat,hat:n.hat}}));
+  who.push({name:typeof broName==='function'?broName():'Your brother',look:{color:'#3fa7ff',secondary:'sec_white',pattern:'pat_stripes',hat:'hat_cap'},bro:1});
+  who.forEach((g,k)=>{const b=new Ball(g.look,.75);const q=W(-HU-2.2,(k-3)*1.3);b.pos.set(q.x,y+1,q.z);const lab=makeLabel(g.name,{scale:.45});scene.add(lab);
+    p.guests.push({b,lab,name:g.name,st:k%3===0?'lounge':'swim',tt:Math.random()*3,tgt:null,ph:Math.random()*6,chair:k%3===0?(k/3|0)%2:-1});burst(b.pos.clone(),['#ffd23d','#ff5c8a','#ffffff'],12);});
+  const stripe=document.createElement('canvas');stripe.width=64;stripe.height=32;const sg=stripe.getContext('2d');['#ff4f6d','#ffffff','#ffd23d','#ffffff','#2f9bff','#ffffff'].forEach((c,i)=>{sg.fillStyle=c;sg.fillRect(i*64/6,0,64/6+1,32);});const stex=new THREE.CanvasTexture(stripe);
+  for(let k=0;k<3;k++){const m=new THREE.Mesh(new THREE.SphereGeometry(.55,16,12),new THREE.MeshStandardMaterial({map:stex,roughness:.4}));const q=W((Math.random()-.5)*HU,(k-1)*HT*.5);m.position.set(q.x,y+.4,q.z);p.deco.add(m);p.balls.push({m,v:new V3(),air:0});}
+  const bc=[0xff4f6d,0xffd23d,0x39c45f,0x2f9bff,0x9a5cff,0xff8a1f];p.bulbs=[];
+  for(const [s,ax] of [[-1,'u'],[1,'u']])for(let k=0;k<=8;k++){const dt=-HT-1+k*(HT*2+2)/8;const q=W(s*(HU+1.4),dt);const pole=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,2.2,6),std(0xffffff));if(k%2===0){pole.position.set(q.x,y+1.1,q.z);p.deco.add(pole);}
+    const m=new THREE.MeshStandardMaterial({color:bc[k%6],emissive:bc[k%6],emissiveIntensity:1});const bl=new THREE.Mesh(new THREE.SphereGeometry(.16,8,6),m);bl.position.set(q.x,y+2.1-Math.abs(Math.sin(k*Math.PI/2))*.25,q.z);p.deco.add(bl);p.bulbs.push(m);}
+  for(let k=0;k<6;k++){const s=k<3?-1:1;const q=W(s*(HU+1.8),-HT+1+(k%3)*HT*.8);const bal=new THREE.Group();bal.position.set(q.x,y,q.z);const str=new THREE.Mesh(new THREE.CylinderGeometry(.01,.01,2.6,4),std(0xffffff));str.position.y=1.3;bal.add(str);
+    const bb=new THREE.Mesh(new THREE.SphereGeometry(.38,12,10),std(bc[k],{flatShading:false}));bb.scale.y=1.2;bb.position.y=2.8;bal.add(bb);bal.userData.ph=k;p.deco.add(bal);(p.bal=p.bal||[]).push(bal);}
+  {const q=W(-HU-2.4,HT-1);const tb=new THREE.Group();tb.position.set(q.x,y,q.z);tb.rotation.y=PL.yaw;p.deco.add(tb);const top=new THREE.Mesh(new THREE.BoxGeometry(1.4,.1,2.4),std(0xffffff));top.position.y=.9;tb.add(top);for(const lx of[-.6,.6])for(const lz of[-1.1,1.1]){const l=new THREE.Mesh(new THREE.BoxGeometry(.08,.9,.08),std(0xcfd8dc));l.position.set(lx,.45,lz);tb.add(l);}
+    const cake=new THREE.Mesh(new THREE.CylinderGeometry(.35,.35,.35,16),std(0xff9ad5));cake.position.set(0,1.13,-.5);tb.add(cake);const ic=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.08,16),std(0xffffff));ic.position.set(0,1.32,-.5);tb.add(ic);
+    for(let k=0;k<3;k++){const cup=new THREE.Mesh(new THREE.CylinderGeometry(.09,.07,.25,10),std(bc[k+2]));cup.position.set(-.3+k*.3,1.08,.5);tb.add(cup);}}
+  sfx('badge');toast('🎉 POOL PARTY! Your neighbors'+' and your brother came to swim! Do cannonballs and kick the beach balls around!','badge','🎉');award('pool_party');}
+function poolPartyEnd(){const p=PL&&PL.party;if(!p)return;PL.party=null;PL.grp.remove(p.deco);p.guests.forEach(g=>{burst(g.b.pos.clone(),['#ffd23d','#ff5c8a','#ffffff'],10);g.b.dispose();scene.remove(g.lab);});
+  const P=pool(),now=Date.now();let gift=0;if(!P.lastParty||now-P.lastParty>300000){gift=addCoins(p.guests.length*80);P.lastParty=now;}S.stats.poolParties=(S.stats.poolParties||0)+1;save();
+  showResult({title:'What a party!',big:'🎉',line:'Your guests had a blast! You did '+p.splashes+' cannonball'+(p.splashes===1?'':'s')+' for them.'+(gift?' Everyone brought you a thank-you gift!':' (Party gifts come once every 5 minutes.)'),coins:gift||null,buttons:[{label:'Party again!',cls:'gold',fn:()=>{closeSheets();poolPartyStart();}},{label:'Done',fn:()=>closeSheets()}]});}
+function poolPartyTick(dt,t){const p=PL.party;if(!p)return;p.t-=dt;if(p.t<=0){poolPartyEnd();return;}const {W,y,HU,HT}=PL;const surf=y+.12;
+  p.bulbs.forEach((m,k)=>m.emissiveIntensity=.5+Math.abs(Math.sin(t*3+k*.7))*1.2);if(p.bal)p.bal.forEach(b=>{b.children[1].position.y=2.8+Math.sin(t*1.5+b.userData.ph)*.15;b.rotation.z=Math.sin(t+b.userData.ph)*.08;});
+  PL.wm.emissive.setHSL((t*.12)%1,.9,.45);PL.wm.emissiveIntensity=.55;
+  p.confT-=dt;if(p.confT<=0){p.confT=1.4;const q=W((Math.random()-.5)*HU*2,(Math.random()-.5)*HT*2);burst(new V3(q.x,y+4+Math.random()*2,q.z),['#ff4f6d','#ffd23d','#39c45f','#2f9bff','#9a5cff'],14);}
+  if(PL.fount&&Math.random()<dt*8)burst(PL.fount.clone(),['#bfe9ff','#ffffff'],3);
+  p.chatT-=dt;if(p.chatT<=0){p.chatT=9+Math.random()*6;const g=p.guests[Math.floor(Math.random()*p.guests.length)];toast(g.name+': '+POOL_LINES[Math.floor(Math.random()*POOL_LINES.length)],'', '💬');}
+  if(p.cheer>0){p.cheer-=dt;p.guests.forEach((g,k)=>{if(g.st!=='dive')g.b.pos.y+=Math.abs(Math.sin(t*14+k))*.05;});}
+  p.guests.forEach((g,k)=>{const b=g.b;g.tt-=dt;
+    if(g.st==='lounge'){const c=PL.chairs[Math.max(0,g.chair)];b.pos.set(c.x,y+.95+Math.sin(t*2+k)*.03,c.z);b.vel.set(0,0,0);if(g.tt<=0){g.st='swim';g.tt=8+Math.random()*8;}}
+    else if(g.st==='swim'){if(!g.tgt||g.tt<=0||b.pos.distanceTo(g.tgt)<.6){const q=W((Math.random()*2-1)*(HU-.9),(Math.random()*2-1)*(HT-1));g.tgt=new V3(q.x,0,q.z);if(g.tt<=0){g.tt=6+Math.random()*8;const r=Math.random();if(r<.3){g.st='dive';g.dv={t:0,from:b.pos.clone()};}else if(r<.45&&g.chair>=0){g.st='lounge';g.tt=6+Math.random()*6;}}}
+      const dx=g.tgt.x-b.pos.x,dz=g.tgt.z-b.pos.z,d=Math.hypot(dx,dz)||1;b.vel.set(dx/d*2.2,0,dz/d*2.2);b.pos.x+=b.vel.x*dt;b.pos.z+=b.vel.z*dt;b.pos.y=surf-.15+Math.sin(t*2.4+g.ph)*.08;if(Math.random()<dt*2)burst(new V3(b.pos.x,surf+.1,b.pos.z),['#bfe9ff','#ffffff'],2);}
+    else if(g.st==='dive'){const dv=g.dv;dv.t+=dt;const top=W(0,-HT+.6),start=W(0,-HT-2.6);const land=W((Math.random()*.0)+(k%3-1)*1.2,-HT+3);
+      if(dv.t<1.2){const f=dv.t/1.2;b.pos.lerpVectors(dv.from,new V3(start.x,y+1.6,start.z),f);b.pos.y+=Math.sin(f*Math.PI)*1.5;}
+      else if(dv.t<2.4){const f=(dv.t-1.2)/1.2;b.pos.set(start.x+(land.x-start.x)*f,y+2+Math.sin(f*Math.PI)*5-f*2,start.z+(land.z-start.z)*f);if(dv.t-dt<1.2){PL.flexT=.8;sfx('boing');}}
+      else{burst(new V3(b.pos.x,surf+.3,b.pos.z),['#7fd8ff','#bfe9ff','#ffffff','#2f9bff'],30);sfx('splash');g.st='swim';g.tt=5+Math.random()*6;g.tgt=null;}
+      b.vel.set(.5,0,.5);}
+    b.sync(dt);g.lab.position.set(b.pos.x,b.pos.y+(b.hat?2.6:1.9),b.pos.z);});
+  p.balls.forEach(bb=>{const m=bb.m,v=bb.v;const L=PL.loc(m.position.x,m.position.z);
+    const kick=(src,pw)=>{const dx=m.position.x-src.x,dz=m.position.z-src.z,d=Math.hypot(dx,dz)||1;v.set(dx/d*pw,6+Math.random()*3,dz/d*pw);};
+    if(m.position.distanceTo(player.pos)<1.7&&v.y<=1){kick(player.pos,7+Math.hypot(player.vel.x,player.vel.z)*.3);sfx('boing');p.hits=(p.hits||0)+1;}
+    for(const g of p.guests)if(g.st==='swim'&&Math.hypot(m.position.x-g.b.pos.x,m.position.z-g.b.pos.z)<1.2&&v.y<=0&&Math.random()<.5)kick(g.b.pos,5);
+    v.y-=20*dt;m.position.addScaledVector(v,dt);v.x*=Math.exp(-.6*dt);v.z*=Math.exp(-.6*dt);m.rotation.x+=v.z*dt;m.rotation.z-=v.x*dt;
+    const fl=surf+.25+Math.sin(t*2+L.du)*.05;if(m.position.y<fl){m.position.y=fl;v.y=Math.abs(v.y)>3?Math.abs(v.y)*.35:0;}
+    if(Math.abs(L.du)>HU-.5){v.x=-v.x;v.z=-v.z;const q=W(clamp(L.du,-HU+.6,HU-.6),L.dt);m.position.x=q.x;m.position.z=q.z;}
+    if(Math.abs(L.dt)>HT-.5){v.x=-v.x;v.z=-v.z;const q=W(L.du,clamp(L.dt,-HT+.6,HT-.6));m.position.x=q.x;m.position.z=q.z;}});}
+function poolTick(dt,t){if(!PL||!PL.built)return;if(PL.party){const vis=mode==='world';if(PL.party.vis!==vis){PL.party.vis=vis;PL.party.guests.forEach(g=>{g.b.setVisible(vis);g.lab.visible=vis;});}if(vis)poolPartyTick(dt,t);}if(mode!=='world')return;const near=Math.hypot(player.pos.x-PL.cx,player.pos.z-PL.cz)<80;if(!near)return;const P=pool();
   PL.tex.offset.x=(t*.03)%1;PL.tex.offset.y=(Math.sin(t*.4)*.05);const night=dayAmount<.5;
-  if(P.lights){if(night){PL.wm.emissive.setHSL((t*.08)%1,.9,.45);PL.wm.emissiveIntensity=.9;}else{PL.wm.emissive.setHex(0x0277bd);PL.wm.emissiveIntensity=.25;}}else PL.wm.emissiveIntensity=night?.7:.25;
-  if(PL.floats)PL.floats.forEach((f,k)=>{const q=PL.W(Math.sin(t*.25+f.ph)*1.4,Math.cos(t*.2+f.ph*1.7)*2.8);f.m.position.set(q.x,PL.y+.18+Math.sin(t*2+f.ph)*.06,q.z);if(k===0)f.m.rotation.y=t*.3+f.ph;});
-  // slide ride
+  if(!PL.party){if(P.lights){if(night){PL.wm.emissive.setHSL((t*.08)%1,.9,.45);PL.wm.emissiveIntensity=.9;}else{PL.wm.emissive.setHex(0x0277bd);PL.wm.emissiveIntensity=.25;}}else PL.wm.emissiveIntensity=night?.7:.25;}
+  if(PL.floats)PL.floats.forEach((f,k)=>{const q=PL.W(Math.sin(t*.25+f.ph)*(PL.HU-1.3),Math.cos(t*.2+f.ph*1.7)*(PL.HT-1.6));f.m.position.set(q.x,PL.y+.18+Math.sin(t*2+f.ph)*.06,q.z);if(k===0)f.m.rotation.y=t*.3+f.ph;});
+  if(PL.fount&&!PL.party&&Math.random()<dt*4)burst(PL.fount.clone(),['#bfe9ff','#ffffff'],2);
   if(PL.ride){const r=PL.ride;r.t+=dt;const f=Math.min(1,r.t/1.6),pts=PL.slidePts;const i=Math.min(pts.length-2,Math.floor(f*(pts.length-1))),k=f*(pts.length-1)-i;const a=pts[i],b=pts[i+1];const pa=PL.W(a.du,a.dt),pb=PL.W(b.du,b.dt);
     player.pos.set(pa.x+(pb.x-pa.x)*k,PL.y+a.h+(b.h-a.h)*k+1,pa.z+(pb.z-pa.z)*k);player.vel.set((pb.x-pa.x)*8,0,(pb.z-pa.z)*8);if(f>=1){PL.ride=null;player.vel.y=-4;award('pool_slide');toast('Wheeeee!','', '🛝');}return;}
-  // diving board launch
-  PL.boardT=Math.max(0,PL.boardT-dt);if(PL.plank)PL.plank.rotation.x=PL.boardT>0?Math.sin(PL.boardT*30)*.12*PL.boardT:0;
+  PL.boardT=Math.max(0,PL.boardT-dt);PL.flexT=Math.max(0,(PL.flexT||0)-dt);const fx=Math.max(PL.boardT,PL.flexT);if(PL.plank)PL.plank.rotation.x=fx>0?Math.sin(fx*30)*.12*fx:0;
   const bl=PL.loc(player.pos.x,player.pos.z);if(Math.abs(bl.du)<.9&&bl.dt<-PL.HT-.6&&bl.dt>-PL.HT-3.2&&player.pos.y<PL.y+2.6&&PL.boardT<=0){PL.boardT=.8;sfx('boing');
     const sup=!!(keys.Space||jumpQueued);player.pos.y=Math.max(player.pos.y,PL.y+2.4);player.vel.set(PL.t.x*7,sup?34:25,PL.t.z*7);if(sup)toast('SUPER BOUNCE!','', '🤸');award('pool_dive');}
-  // swimming
   const inPool=Math.abs(bl.du)<PL.HU&&Math.abs(bl.dt)<PL.HT;const surf=PL.y+.12;
   if(inPool&&player.pos.y<surf+1.2){if(!PL.inWater){PL.inWater=true;poolSplash(-player.vel.y);}
     const target=surf-.3+Math.sin(t*2.2)*.06;player.vel.y+=(G*gravScale+(target-player.pos.y)*28)*dt;player.vel.y*=Math.exp(-3.5*dt);player.vel.x*=Math.exp(-1.2*dt);player.vel.z*=Math.exp(-1.2*dt);player.coyote=.12;
-    if(Math.random()<dt*Math.min(6,Math.hypot(player.vel.x,player.vel.z)))burst(new V3(player.pos.x,surf+.1,player.pos.z),['#bfe9ff','#ffffff'],3);
-    S.stats.swimT=(S.stats.swimT||0)+dt;}
+    if(Math.random()<dt*Math.min(6,Math.hypot(player.vel.x,player.vel.z)))burst(new V3(player.pos.x,surf+.1,player.pos.z),['#bfe9ff','#ffffff'],3);}
   else if(PL.inWater&&(!inPool||player.pos.y>surf+1.5))PL.inWater=false;}
-BADGES.push({id:'pool_own',icon:'🏊',name:'Pool Owner',desc:'Buy a swimming pool for your house'},{id:'pool_dive',icon:'🤿',name:'High Dive',desc:'Jump off your diving board'},{id:'pool_mega',icon:'💦',name:'Mega Cannonball',desc:'Get a splash score of 500 or more'},{id:'pool_slide',icon:'🛝',name:'Slide Rider',desc:'Ride your pool water slide'});
+BADGES.push({id:'pool_own',icon:'🏊',name:'Pool Owner',desc:'Buy a swimming pool for your house'},{id:'pool_dive',icon:'🤿',name:'High Dive',desc:'Jump off your diving board'},{id:'pool_mega',icon:'💦',name:'Mega Cannonball',desc:'Get a splash score of 500 or more'},{id:'pool_slide',icon:'🛝',name:'Slide Rider',desc:'Ride your pool water slide'},
+  {id:'pool_max',icon:'🏝️',name:'Mega Pool',desc:'Upgrade your pool to Level 5'},{id:'pool_party',icon:'🎉',name:'Pool Party!',desc:'Throw a pool party'});
+JUKE_TRACKS.push({id:'a_poolparty',name:'Splash Bash',icon:'🏖️',bpm:132,wave:'square',drums:'khskkhsh',mel:'E5:.5 G5:.5 C6:.5 G5:.5 A5:1 G5:1 E5:.5 F5:.5 G5:.5 E5:.5 C5:2 D5:.5 E5:.5 F5:.5 A5:.5 G5:1 F5:.5 E5:.5 D5:.5 C5:.5 D5:.5 E5:.5 G4:2 C5:.5 E5:.5 G5:.5 C6:.5 D6:1 C6:.5 A5:.5 G5:.5 A5:.5 G5:.5 E5:.5 F5:2 A5:.5 G5:.5 F5:.5 E5:.5 D5:.5 E5:.5 G5:1 C6:1 G5:.5 E5:.5 C5:2',bass:pulse(['C2','A1','F1','G1','C2','A1','F1','G1'])});
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
