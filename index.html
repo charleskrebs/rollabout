@@ -6941,7 +6941,7 @@ AREA_BUILD.c3boss=a=>{const c=ch3();if(c.bossHp==null||c.bossHp<=0)c.bossHp=PS_H
       if(k>2.2&&!B.l2){B.l2=1;c3line('I AM… THE SUPERNOVA SPHERE!',3000);$('#flashOv').style.background='#ffd8a0';$('#flashOv').style.opacity=.8;setTimeout(()=>$('#flashOv').style.opacity=0,300);spikes.visible=true;ui();}
       if(k>5){B.state='fight';a.locked=false;spawnFrags();start();toast('He turned into the SUPERNOVA SPHERE! Every hit knocks you out! Collect 10 fragments!','bad','💥');}}
     else if(B.state==='dying'){a.locked=true;const L=['…Impressive.','You really are the one.','This was just a test.'];const k=Math.floor(B.t/2.4);if(k<3&&B.ll!==k){B.ll=k;c3line(L[k],2300);}body.scale.setScalar(1.25+Math.sin(B.t*25)*.05+B.t*.06);bm.emissiveIntensity=1.5+Math.sin(B.t*30);if(Math.random()<.8)burst(B.pos.clone(),['#ffb000','#ffffff','#9a5cff'],6);camShake=Math.max(camShake,.2+B.t*.05);
-      if(B.t>7.4&&!B.boom){B.boom=1;sfx('bad');const f=$('#flashOv');f.style.background='#ffffff';f.style.opacity=1;boss.visible=false;burst(B.pos.clone(),['#ffffff','#ffd23d','#ff8a1f','#9a5cff','#2ee6ff'],80);c.bossHp=0;save();
+      if(B.t>7.4&&!B.boom){B.boom=1;sfx('bad');const f=$('#flashOv');f.style.background='#fff3d6';f.style.opacity=.55;setTimeout(()=>f.style.opacity=0,220);boss.visible=false;burst(B.pos.clone(),['#ffffff','#ffd23d','#ff8a1f','#9a5cff','#2ee6ff'],80);c.bossHp=0;save();
         setTimeout(()=>{if(area===a)enterArea('c3end');},1400);}}
     if(B.nova&&spikes.visible){spikes.rotation.y+=dt*1.5;spikes.rotation.x+=dt*.5;}
     boss.position.copy(B.pos);body.rotation.y+=dt*(B.state==='tired'?.2:1);
@@ -6951,7 +6951,7 @@ AREA_BUILD.c3boss=a=>{const c=ch3();if(c.bossHp==null||c.bossHp<=0)c.bossHp=PS_H
 /* ---------- area: the ending ---------- */
 AREA_BUILD.c3end=a=>{const c=ch3();a.name='…';a.busy=true;a.locked=true;a.leaveLabel='Skip';a.onLeave=()=>c3Finish(a);a.music='a_mystic';a.sky={top:0x05030a,bottom:0x0a0612,fog:0x0a0612,near:40,far:200,hemi:.6,sun:.6,amb:.6};
   a.ground=(x,z)=>0;a.spawn=new V3(0,1,8);a.yaw=0;a.camDist=11;const G=a.group;const M=(col,o)=>std(col,Object.assign({flatShading:false},o||{}));
-  const flash=(col,ms)=>{const f=$('#flashOv');f.style.background=col;f.style.opacity=1;setTimeout(()=>f.style.opacity=0,ms||200);};flash('#ffffff',600);
+  const flash=(col,ms)=>{const f=$('#flashOv');f.style.background=col;f.style.opacity=.45;setTimeout(()=>f.style.opacity=0,Math.min(ms||200,250));};flash('#ffffff',600);
   // scene 1: the mirror room
   const s1=new THREE.Group();G.add(s1);const fl=new THREE.Mesh(new THREE.PlaneGeometry(30,30),M(0x1a1426));fl.rotation.x=-Math.PI/2;s1.add(fl);
   const back=new THREE.Mesh(new THREE.PlaneGeometry(30,14),M(0x241b36));back.position.set(0,7,-10.5);s1.add(back);const fmM=M(0xffd23d,{metalness:.7,roughness:.3});[[0,8.8,7,.5],[0,.2,7,.5],[-3.3,4.5,.5,9],[3.3,4.5,.5,9]].forEach(([x,y,w,h])=>{const f=new THREE.Mesh(new THREE.BoxGeometry(w,h,.4),fmM);f.position.set(x,y,-6);s1.add(f);});const mirLight=new THREE.PointLight(0x9fb4ff,1.2,10);mirLight.position.set(0,3,-8.5);s1.add(mirLight);
@@ -7176,7 +7176,7 @@ let BOSS_TP=null,TP_ST=null;
 function tpOwned(id){return !!(S.tp&&S.tp[id]);}
 function tpCdLeft(b){return b.cd?Math.max(0,Math.ceil((((S.tpCd||{})[b.id]||0)-Date.now())/1000)):0;}
 function tpCdTxt(sec){return Math.floor(sec/60)+':'+String(Math.floor(sec%60)).padStart(2,'0');}
-function tpGo(b){if(mode!=='world'||(area&&area.busy)){toast('You can only teleport from the open world','bad','🌀');return;}const cl=tpCdLeft(b);if(cl>0){toast('The '+b.name+' teleporter is recharging! Ready in '+tpCdTxt(cl),'bad','⏳');return;}closeSheets();BOSS_TP={id:b.id};sfx('go');burst(player.pos.clone(),[b.col,'#ffffff'],30);camShake=.3;
+function tpGo(b){if(mode!=='world'||(area&&area.busy)){toast('You can only teleport from the open world','bad','🌀');return;}const cl=tpCdLeft(b);if(cl>0){toast((b.name.startsWith('The ')?'':'The ')+b.name+' teleporter is recharging! Ready in '+tpCdTxt(cl),'bad','⏳');return;}closeSheets();BOSS_TP={id:b.id};sfx('go');burst(player.pos.clone(),[b.col,'#ffffff'],30);camShake=.3;
   areaReturn=player.pos.clone();toast('Teleporting to '+b.name+'…','', '🌀');fadeTo(()=>enterArea(b.id));}
 function tpHome(){BOSS_TP=null;closeSheets();fadeTo(()=>{exitToWorld();sfx('go');burst(player.pos.clone(),['#2ee6ff','#ffffff','#9a5cff'],30);});}
 function tpBuy(b){if(tpOwned(b.id))return;if(S.coins<b.price){toast('You need '+(b.price-S.coins)+' more coins','bad','🪙');return;}
@@ -7187,10 +7187,10 @@ function tpPortal(b){if(!b.beat()){toast('🔒 Beat '+b.name+' first! Hint: '+b.
   if(!tpOwned(b.id)){showResult({title:'Teleporter to '+b.name,big:b.icon,line:'You beat '+b.name+'! Buy this teleporter to rematch it whenever you want. Every rematch you win pays '+b.reward+' coins.',coins:null,
     buttons:[{label:'Buy for '+b.price.toLocaleString()+' 🪙',cls:'gold',fn:()=>{closeSheets();tpBuy(b);}},{label:'Not now',fn:()=>closeSheets()}]});return;}
   tpGo(b);}
-function tpWin(id){const b=TP_BOSSES.find(x=>x.id===id);S.coins+=b.reward;S.earned+=b.reward;S.bossWins=S.bossWins||{};S.bossWins[id]=(S.bossWins[id]||0)+1;
+function tpWin(id){$('#flashOv').style.opacity=0;const b=TP_BOSSES.find(x=>x.id===id);S.coins+=b.reward;S.earned+=b.reward;S.bossWins=S.bossWins||{};S.bossWins[id]=(S.bossWins[id]||0)+1;
   if(id==='c3boss'){const c=ch3();c.bossHp=PS_HP;c.nova=0;}if(b.cd){S.tpCd=S.tpCd||{};S.tpCd[id]=Date.now()+b.cd*1000;}save();updateCoinsUI(true);sfx('badge');award('tp_rematch');
   setTimeout(()=>showResult({title:'Rematch won!',big:b.icon,line:'You beat '+b.name+' again! Rematch wins: '+S.bossWins[id]+'.',coins:b.reward,
-    buttons:(b.cd?[]:[{label:'Fight again ⚔️',fn:()=>{closeSheets();enterArea(id);}}]).concat([{label:'Teleport back 🌀',cls:'gold',fn:()=>tpHome()}])}),id==='c3boss'?200:1500);if(b.cd)setTimeout(()=>toast('The '+b.name+' teleporter needs '+Math.round(b.cd/60)+' minutes to recharge','', '⏳'),2500);}
+    buttons:(b.cd?[]:[{label:'Fight again ⚔️',fn:()=>{closeSheets();enterArea(id);}}]).concat([{label:'Teleport back 🌀',cls:'gold',fn:()=>tpHome()}])}),id==='c3boss'?200:1500);if(b.cd)setTimeout(()=>toast((b.name.startsWith('The ')?'':'The ')+b.name+' teleporter needs '+Math.round(b.cd/60)+' minutes to recharge','', '⏳'),2500);}
 function tpHint(id){const b=TP_BOSSES.find(x=>x.id===id);setTimeout(()=>toast('New! You can buy a teleporter to '+b.name+' at the Boss Teleporter Station 🌀','badge','🌀'),5000);}
 /* rematches: keep the player inside the boss loop and bring them back to the teleporter */
 {const _ea=enterArea;enterArea=function(id){const tb=BOSS_TP&&TP_BOSSES.find(b=>b.id===id);
