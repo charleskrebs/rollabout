@@ -559,6 +559,14 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
     <textarea id="levelCode" rows="3" placeholder="Paste a friend's level code here, or press Share on a level to get its code"></textarea>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn small" id="levelLoad">Load this code</button><span class="sub" id="levelMsg"></span></div>
   </section>
+  <section class="sheet" id="aibSheet" hidden aria-label="Ask AI to build" style="max-width:600px">
+    <header><h2>✨ Ask AI to Build</h2><button class="btn x" data-close aria-label="Close">✕</button></header>
+    <p class="sub">Tell me what to build and I will put it in your level! Try something like "a spiral staircase up to the goal" or "a lava bridge with lots of coins".</p>
+    <textarea id="aibText" style="width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px;border-radius:12px" rows="3" maxlength="300" placeholder="What should I build?"></textarea>
+    <div id="aibIdeas" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    <div id="aibMode" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" data-m="add">➕ Add to my level</button><button class="btn small" data-m="new">🆕 Replace the whole level</button></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn gold" id="aibBuild">✨ Build it!</button><button class="btn small" id="aibUndo" hidden>↩ Undo last AI build</button><span class="sub" id="aibMsg" aria-live="polite"></span></div>
+  </section>
   <section class="sheet" id="chalSheet" hidden aria-label="Weekly challenges" style="max-width:620px">
     <header><h2>🏆 Weekly Challenges</h2><button class="btn x" data-close aria-label="Close">✕</button></header>
     <p class="sub" id="chalSub"></p>
@@ -5788,7 +5796,7 @@ function lbStatusBar(){const bar=$('#lbBar');if(!(mode==='area'&&area&&area.id==
   if(LBS.mode==='play'){mk('✏️ Edit',()=>lbEditMode(area,true));mk('↺ Restart',()=>lbEditMode(area,false));return;}
   LB_TOOLS.forEach(([id,ic,nm],n)=>mk('<span>'+ic+'</span><small>'+nm+'</small>',()=>{LBS.tool=id;lbStatusBar();},LBS.tool===id,nm+' (key '+((n+1)%10)+')'));
   const sw=document.createElement('div');sw.className='lb-sw';LB_COLS.forEach((c,n)=>{const s=document.createElement('button');s.style.background='#'+c.toString(16).padStart(6,'0');s.className=LBS.col===n?'on':'';s.setAttribute('aria-label','Color '+(n+1));s.addEventListener('click',()=>{LBS.col=n;lbStatusBar();});sw.appendChild(s);});bar.appendChild(sw);
-  mk('▶ <small>Play</small>',()=>lbEditMode(area,false),false,'Test your level');mk('📂 <small>Levels</small>',()=>openLevels(),false);}
+  mk('✨ <small>Ask AI</small>',()=>openAIBuild(),false,'Ask AI to build something');if(typeof AIB!=='undefined'&&AIB.undo&&AIB.undo.idx===LBS.idx)mk('↩ <small>Undo AI</small>',()=>aibUndo(),false,'Undo the last AI build');mk('▶ <small>Play</small>',()=>lbEditMode(area,false),false,'Test your level');mk('📂 <small>Levels</small>',()=>openLevels(),false);}
 addEventListener('keydown',e=>{if(!(mode==='area'&&area&&area.id==='builder'&&LBS.mode==='edit')||sheetOpen||e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;const n=parseInt(e.key,10);if(!isNaN(n)){LBS.tool=LB_TOOLS[(n+9)%10][0];lbStatusBar();}});
 /* level list */
 function lbCode(L){return'RLV1:'+btoa(unescape(encodeURIComponent(JSON.stringify({name:L.name,cells:L.cells}))));}
@@ -5927,6 +5935,104 @@ function openCrate(){const golden=(S.goldCrates||0)>0&&!(S.crates>0)?true:false;
     const eq=$('#crateEquip');eq.hidden=false;eq.onclick=()=>{S.equip[p.kind==='hat'?'hat':p.kind==='trail'?'trail':'color']=p.x.id;save();player.setLook(lookOf(S.equip));eq.hidden=true;toast('Equipped '+p.x.name+'!','', '✨');};},1300);}
 $('#hChal').addEventListener('click',()=>{blurBtn();openChal();});$('#crateOpen').addEventListener('click',openCrate);
 
+/* ================= AI LEVEL BUILDER ================= */
+var AIB={busy:false,undo:null,mode:'add',ctl:null};
+const AIB_DIRS={N:[0,-1,0],E:[1,0,1],S:[0,1,2],W:[-1,0,3]};
+const AIB_TYPES=['block','ramp','boost','bounce','ice','lava','air'];
+const AIB_IDEAS=['a spiral staircase up to the goal','a lava bridge with coins','a tall tower with bounce pads','a zigzag ice slide','a speedy boost race track','a big jump over a gap','a castle with a coin treasure','a maze of walls'];
+function aibFocusCell(){const {i,j}=lbCell(LBS.focus.x,LBS.focus.z);return[clamp(i,0,LB.N-1),clamp(j,0,LB.N-1)];}
+function aibSummary(L){const ks=Object.keys(L.cells);if(!ks.length)return'The level is EMPTY.';const rows=ks.slice(0,350).map(k=>{const c=L.cells[k];return k+':'+c.t+(c.h?' h'+c.h:'')+(c.t==='ramp'||c.t==='boost'?' '+'NESW'[c.d||0]:'')+(c.start?' START':'')+(c.goal?' GOAL':'')+(c.coin?' coin':'');});
+  return'The level has '+ks.length+' tiles (format "i,j:type hHeight dir flags"):\n'+rows.join('\n')+(ks.length>350?'\n...(more not shown)':'');}
+function aibPrompt(req,L,mode){const [fi,fj]=aibFocusCell();return `You are the level designer for "Rollabout", a kids' browser game where you roll a ball through obstacle courses. The player is building a level and asked you: "${req.replace(/"/g,"'").slice(0,300)}"
+
+THE GRID: 40x40 tiles. i goes 0..39 (west to east), j goes 0..39 (north to south). N means j-1, S means j+1, E means i+1, W means i-1.
+HEIGHT: h is how many blocks tall a tile is (0..14). A ball rolls on top of tiles. The ball CANNOT roll up onto a taller block; it needs a ramp. A ramp at height h raises the ball from h to h+1 in the direction it faces. Falling off the edge sends the ball back to the start.
+TILE TYPES: block (solid), ramp (slope), boost (speed pad pushing in its dir), bounce (launches the ball up about 3 blocks), ice (slippery), lava (touching it = restart), air (empty, only used to float a coin).
+${mode==='add'?`The player's camera is looking at tile ${fi},${fj}; build the new thing around there unless they say where. Try not to break existing tiles. ${aibSummary(L)}`:`You are making a brand new level from scratch. Put it near the middle (around 20,20).`}
+
+BUILD WITH THESE OPERATIONS (in order; later ones overwrite earlier tiles):
+- {"op":"route","i":20,"j":30,"h":1,"w":1,"t":"block","c":3,"coins":false,"start":false,"goal":false,"segs":[{"dir":"N","len":6,"climb":0}]}
+  A path of tiles. It starts at i,j and walks each segment in its dir for len tiles. climb = how many levels it goes up (positive) or down (negative) during that segment; ramps are added for you. w = path width 1..3. A segment can also have "t" (tile type for that segment only), "gap":true (leave it empty, for a jump; keep gaps 1-2 tiles and put a boost or bounce right before), and "coins":true. "start":true puts the START on the first tile, "goal":true puts the GOAL on the last tile. If you leave out i and j (and h), the route continues right after where the previous route ended at that height - this is the easiest way to chain things.
+- {"op":"platform","i":18,"j":10,"w":4,"l":4,"h":3,"t":"block","c":1} a filled rectangle from i..i+w-1 and j..j+l-1.
+- {"op":"cell","i":5,"j":5,"t":"bounce","h":2,"d":"N","c":2} one tile (d only matters for ramp/boost).
+- {"op":"coins","at":[[20,12],[21,12]]} coins on these tiles (floating if the tile is empty).
+- {"op":"start","i":20,"j":30} / {"op":"goal","i":20,"j":5} move the start or goal flag (only one of each exists).
+- {"op":"erase","i":10,"j":10,"w":3,"l":3} remove tiles.
+Colors c: 0 red, 1 yellow, 2 green, 3 blue, 4 purple, 5 white, 6 brown, 7dark gray.
+
+Each tile is ONE solid column, so a path can never pass over or under another path, and paths right next to each other look like a wall: leave at least one empty tile between parallel paths (for a spiral, make the rings 2 tiles apart).
+RULES: Make it fun and actually playable from start to goal (no climbing without ramps, gaps need a boost or bounce before them). Use up to 40 operations and keep everything inside 0..39. Use several colors. If the level has no start or goal yet, include them.
+
+Return ONLY a JSON object, no other text: {"name":"short fun name for what you built","say":"one short excited sentence to the player about what you built","ops":[ ... ]}`;}
+async function aibAI(req,L,mode){if(!window.claude||!claude.use)return null;if(!ideaSampleP)ideaSampleP=Promise.race([claude.use('sample').catch(()=>null),new Promise(r=>setTimeout(()=>r(null),11000))]);const sample=await ideaSampleP;if(!sample)return null;
+  const ctl=new AbortController();AIB.ctl=ctl;const to=setTimeout(()=>ctl.abort(),60000);try{const out=await sample.json(aibPrompt(req,L,mode),{modelTier:'default',signal:ctl.signal,cache:false});return out&&Array.isArray(out.ops)?out:null;}finally{clearTimeout(to);AIB.ctl=null;}}
+/* -------- run the ops -------- */
+function aibRun(L,ops){const cells=L.cells;const I=v=>Math.round(+v||0);const inG=(i,j)=>i>=0&&j>=0&&i<LB.N&&j<LB.N;let n=0;const touched=[];let cur=null;
+  const T=t=>AIB_TYPES.includes(t)?t:'block';const C=c=>clamp(I(c),0,7);const H=h=>clamp(I(h),0,14);
+  const put=(i,j,o)=>{if(!inG(i,j)||n>1200)return;n++;const k=lbKey(i,j),old=cells[k];const c={t:o.t,h:o.t==='air'?0:(o.t==='ramp'?H(o.h):Math.max(1,H(o.h))),d:o.d||0,c:C(o.c)};if(old&&old.coin)c.coin=1;if(old&&old.start)c.start=1;if(old&&old.goal)c.goal=1;cells[k]=c;touched.push([i,j]);};
+  const flag=(i,j,f)=>{if(!inG(i,j))return;for(const k in cells)delete cells[k][f];const k=lbKey(i,j);let c=cells[k];if(!c||c.t==='air'||c.t==='lava')c=cells[k]=Object.assign(c||{},{t:'block',h:Math.max(1,(c&&c.h)||1),d:0,c:c?c.c||0:3});c[f]=1;touched.push([i,j]);};
+  const coin=(i,j)=>{if(!inG(i,j))return;const k=lbKey(i,j);if(!cells[k])cells[k]={t:'air',h:0,d:0,c:0};cells[k].coin=1;touched.push([i,j]);};
+  for(const op of (ops||[]).slice(0,60)){if(!op||typeof op!=='object')continue;try{
+    if(op.op==='route'){let i=op.i!=null?I(op.i):cur?cur.i:aibFocusCell()[0],j=op.j!=null?I(op.j):cur?cur.j:aibFocusCell()[1],h=op.h!=null?H(op.h):cur?cur.h:1;const w=clamp(I(op.w)||1,1,3);const t0=op.t&&op.t!=='ramp'&&op.t!=='air'?T(op.t):'block';let first=null,last=null,lastDir=null;
+      if(op.i!=null&&op.j!=null){const D0=AIB_DIRS[String(((op.segs||[])[0]||{}).dir||'N').toUpperCase()[0]]||AIB_DIRS.N;for(let q=0;q<w;q++){const o=q-Math.floor((w-1)/2);put(i-D0[1]*o,j+D0[0]*o,{t:t0,h,d:D0[2],c:op.c});}first=[i,j];last=[i,j];}
+      for(const sg of (op.segs||[]).slice(0,20)){const D=AIB_DIRS[String(sg.dir||'N').toUpperCase()[0]]||AIB_DIRS.N;const len=clamp(I(sg.len)||1,1,40);let climb=clamp(I(sg.climb),-14,14);const t=sg.t&&sg.t!=='ramp'&&sg.t!=='air'?T(sg.t):t0;const col=sg.c!=null?sg.c:op.c;
+        const px=-D[1],pz=D[0];const offs=[];for(let q=0;q<w;q++)offs.push(q-Math.floor((w-1)/2));
+        if(lastDir&&lastDir!==D&&last&&!(sg.gap))for(const a of offs)for(const b of offs){const ii=last[0]+a,jj=last[1]+b;const k=lbKey(ii,jj);if(!cells[k]||cells[k].t!=='ramp')put(ii,jj,{t:t0==='lava'?'block':t0,h,c:op.c});}
+        const rampAt=new Set();const nr=Math.min(Math.abs(climb),len);for(let r=0;r<nr;r++)rampAt.add(Math.floor((r+.5)*len/nr));
+        for(let s=0;s<len;s++){i+=D[0];j+=D[1];if(!first&&!sg.gap)first=[i,j];
+          if(sg.gap){last=[i,j];continue;}
+          if(rampAt.has(s)){const up=climb>0;const rh=up?h:h-1;for(const o of offs)put(i+px*o,j+pz*o,{t:'ramp',h:Math.max(0,rh),d:up?D[2]:(D[2]+2)%4,c:col});h=clamp(h+(up?1:-1),0,14);}
+          else for(const o of offs)put(i+px*o,j+pz*o,{t,h,d:D[2],c:col});
+          if(sg.coins||op.coins)if(s%2===0)coin(i,j);last=[i,j];}
+        lastDir=D;}
+      if(first&&op.start){const [a,b]=first;const k=lbKey(a,b);if(!cells[k])put(a,b,{t:'block',h:op.h!=null?H(op.h):1,c:op.c});flag(a,b,'start');}
+      if(last&&op.goal)flag(last[0],last[1],'goal');
+      cur=last?{i:last[0],j:last[1],h}:cur;}
+    else if(op.op==='platform'){const i0=I(op.i),j0=I(op.j),w=clamp(I(op.w)||1,1,20),l=clamp(I(op.l)||1,1,20);for(let a=0;a<w;a++)for(let b=0;b<l;b++)put(i0+a,j0+b,{t:T(op.t),h:op.h==null?1:op.h,c:op.c,d:AIB_DIRS[String(op.d||'N').toUpperCase()[0]]?.[2]||0});cur={i:i0+w-1,j:j0,h:H(op.h==null?1:op.h)};}
+    else if(op.op==='cell'){const d=typeof op.d==='number'?clamp(I(op.d),0,3):(AIB_DIRS[String(op.d||'N').toUpperCase()[0]]||AIB_DIRS.N)[2];put(I(op.i),I(op.j),{t:T(op.t),h:op.h==null?1:op.h,d,c:op.c});}
+    else if(op.op==='coins'){(op.at||[]).slice(0,80).forEach(p=>Array.isArray(p)&&coin(I(p[0]),I(p[1])));}
+    else if(op.op==='start'||op.op==='goal')flag(I(op.i),I(op.j),op.op);
+    else if(op.op==='erase'){const i0=I(op.i),j0=I(op.j),w=clamp(I(op.w)||1,1,40),l=clamp(I(op.l)||1,1,40);for(let a=0;a<w;a++)for(let b=0;b<l;b++)delete cells[lbKey(i0+a,j0+b)];}
+  }catch(e){console.warn('aib op',e);}}
+  return touched;}
+/* -------- offline helper (no AI): understands common words -------- */
+function aibLocal(req){const q=' '+req.toLowerCase()+' ';const has=(...w)=>w.some(x=>q.includes(x));const [fi,fj]=aibFocusCell();const big=has('big','huge','giant','tall','long','mega'),small=has('small','tiny','little','short');const S2=big?1.6:small?.6:1;const L=n=>Math.max(2,Math.round(n*S2));
+  const col=has('red')?0:has('yellow','gold')?1:has('green')?2:has('blue')?3:has('purple')?4:has('white')?5:has('brown','wood')?6:has('black','gray','grey','dark')?7:-1;const cc=k=>col>=0?col:k;
+  const ops=[];let name='Surprise Course',say='Here is a fun course I built for you!';const i=clamp(fi,4,35),j=clamp(fj+8,10,37);
+  if(has('spiral')){name='Spiral Climb';say='Round and round and up we go!';const a=big?12:small?6:8;const i0=clamp(fi-a/2,0,LB.N-1-a),j0=clamp(fj+a/2,a,LB.N-1);const segs=[];const lens=[a,a,a];for(let x=a-2;x>=2;x-=2)lens.push(x,x);lens.forEach((len,k)=>segs.push({dir:'NESW'[k%4],len,climb:1,coins:k%2===1}));ops.push({op:'route',i:i0,j:j0,h:1,w:1,c:cc(4),start:true,goal:true,segs});}
+  else if(has('stair','climb','up to','staircase')){name='Sky Stairs';say='Climb those stairs all the way to the top!';const n=L(6);const segs=[];for(let k=0;k<n;k++)segs.push({dir:'N',len:2,climb:1,coins:k%2===0});ops.push({op:'route',i,j,h:1,w:2,c:cc(3),start:true,segs});ops.push({op:'route',segs:[{dir:'N',len:3,climb:0}],w:2,c:1,goal:true});}
+  else if(has('tower','castle','fort')){name=has('castle')?'Coin Castle':'Bounce Tower';say='Bounce up the tower and grab the treasure!';const n=L(4);ops.push({op:'route',i,j,h:1,w:3,c:cc(5),start:true,segs:[{dir:'N',len:4}]});for(let k=0;k<n;k++){ops.push({op:'cell',i,j:j-5-k*2,t:'bounce',h:1+k*2,c:2});ops.push({op:'platform',i:i-1,j:j-6-k*2,w:3,l:1,h:3+k*2,c:cc(k%2?6:5)});}
+    const top=3+(n-1)*2;ops.push({op:'platform',i:i-2,j:j-7-n*2+2,w:5,l:3,h:top,c:cc(7)});ops.push({op:'goal',i,j:j-6-n*2+2});ops.push({op:'coins',at:[[i-1,j-6-n*2+2],[i+1,j-6-n*2+2]]});if(has('castle'))[[-2,0],[2,0]].forEach(([a])=>ops.push({op:'cell',i:i+a,j:j-7-n*2+2,t:'block',h:top+2,c:7}));}
+  else if(has('maze','wall')){name='Wall Maze';say='Find your way through the maze!';const s=Math.min(9,L(7));const i=clamp(fi,s,LB.N-1-s),j=clamp(fj+s,2*s,LB.N-1);ops.push({op:'platform',i:i-s,j:j-2*s,w:2*s+1,l:2*s+1,h:1,c:cc(2)});for(let a=0;a<=2*s;a+=2)for(let b=1;b<2*s;b+=2){if((a*7+b*3)%5<3)ops.push({op:'cell',i:i-s+a,j:j-2*s+b,t:'block',h:3,c:6});}for(let b=0;b<=2*s;b+=2)for(let a=1;a<2*s;a+=3)ops.push({op:'cell',i:i-s+a,j:j-2*s+b,t:'block',h:3,c:6});ops.push({op:'start',i:i-s,j});ops.push({op:'goal',i:i+s,j:j-2*s});}
+  else if(has('zigzag','slide','ice')){name='Zigzag Ice Slide';say='Wheee! Do not slide off the ice!';ops.push({op:'route',i,j,h:5,w:2,t:'ice',c:cc(5),start:true,segs:[{dir:'N',len:L(5),climb:-1},{dir:'E',len:L(4)},{dir:'N',len:L(5),climb:-1},{dir:'W',len:L(4)},{dir:'N',len:L(5),climb:-1}]});ops.push({op:'route',w:2,c:1,goal:true,coins:true,segs:[{dir:'N',len:3,climb:-1}]});
+    ops.unshift({op:'platform',i:i-1,j:j+1,w:3,l:3,h:5,c:3});ops.push({op:'start',i,j:j+2});}
+  else if(has('race','track','speed','boost','fast','loop')){name='Turbo Track';say='Hit the boost pads and zoom to the finish!';const s=L(8);ops.push({op:'route',i:i-s,j,h:1,w:2,c:cc(7),start:true,segs:[{dir:'N',len:2},{dir:'N',len:1,t:'boost'},{dir:'N',len:s,coins:true},{dir:'E',len:1,t:'boost'},{dir:'E',len:s},{dir:'S',len:1,t:'boost'},{dir:'S',len:s-2,climb:2},{dir:'E',len:3},{dir:'N',len:1,t:'boost'},{dir:'N',len:s}],goal:true});}
+  else if(has('jump','gap','leap')){name='Leap of Faith';say='Hit the boost and fly over the gaps!';ops.push({op:'route',i,j,h:2,w:2,c:cc(0),start:true,segs:[{dir:'N',len:3},{dir:'N',len:1,t:'boost'},{dir:'N',len:2,gap:true},{dir:'N',len:3,coins:true},{dir:'N',len:1,t:'boost'},{dir:'N',len:2,gap:true},{dir:'N',len:3}],goal:true});}
+  else if(has('lava','fire','volcano','bridge')){name=has('bridge')?'Lava Bridge':'Lava Run';say='Stay on the bridge, the floor is lava!';const n=L(10);ops.push({op:'platform',i:i-3,j:j-n,w:7,l:n,h:1,t:'lava',c:0});ops.push({op:'route',i,j:j+2,h:2,w:1,c:cc(6),start:true,segs:[{dir:'N',len:3},{dir:'N',len:Math.floor(n/2),coins:true},{dir:'E',len:2},{dir:'N',len:Math.ceil(n/2)},{dir:'W',len:2},{dir:'N',len:3}],goal:true});}
+  else if(has('bounce','trampoline','jumpy','boing')){name='Boing Islands';say='Boing boing boing to the goal!';const n=L(4);ops.push({op:'platform',i:i-1,j:j-1,w:3,l:3,h:1,c:cc(3)});ops.push({op:'start',i,j});for(let k=1;k<=n;k++){ops.push({op:'cell',i,j:j-1-k*4+3,t:'bounce',h:k,c:2});ops.push({op:'platform',i:i-1,j:j-2-k*4,w:3,l:2,h:k+1,c:cc(k%2?1:4)});ops.push({op:'coins',at:[[i,j-2-k*4]]});}ops.push({op:'goal',i,j:j-2-n*4});}
+  else{const n=L(6);ops.push({op:'route',i,j,h:1,w:2,c:cc(3),start:true,segs:[{dir:'N',len:n,coins:true},{dir:'E',len:3,climb:1},{dir:'N',len:2,t:'bounce'},{dir:'N',len:n,climb:1},{dir:'W',len:3,t:'ice'},{dir:'N',len:3}],goal:true});say='I built you a surprise course! Try asking for a spiral, tower, maze, race track or lava bridge.';}
+  return{name,say,ops};}
+/* -------- UI -------- */
+function openAIBuild(){openSheet('aibSheet');const ta=$('#aibText');$('#aibMsg').textContent='';aibModeUI();const chips=$('#aibIdeas');if(!chips.childElementCount)AIB_IDEAS.forEach(t=>{const b=document.createElement('button');b.className='btn small';b.textContent=t;b.addEventListener('click',()=>{ta.value=t;ta.focus();});chips.appendChild(b);});
+  $('#aibUndo').hidden=!AIB.undo;setTimeout(()=>ta.focus(),60);}
+function aibModeUI(){document.querySelectorAll('#aibMode button').forEach(b=>b.classList.toggle('gold',b.dataset.m===AIB.mode));}
+async function aibGo(){if(AIB.busy)return;const req=$('#aibText').value.trim();if(!req){$('#aibMsg').textContent='Type what you want me to build first!';return;}if(!(area&&area.id==='builder'))return;
+  const L=lbLevel();AIB.busy=true;const btn=$('#aibBuild');btn.disabled=true;let dots=0;const msg=$('#aibMsg');const tk=setInterval(()=>{dots=(dots+1)%4;msg.textContent='🛠️ Building '+'.'.repeat(dots+1);},400);msg.textContent='🛠️ Building…';
+  let plan=null,ai=false;try{plan=await aibAI(req,L,AIB.mode);ai=!!plan;}catch(e){console.warn('aib',e);}if(!plan)plan=aibLocal(req);clearInterval(tk);
+  AIB.undo={idx:LBS.idx,cells:JSON.parse(JSON.stringify(L.cells)),name:L.name};
+  if(AIB.mode==='new')L.cells={};const touched=aibRun(L,plan.ops);
+  if(!touched.length){L.cells=AIB.undo.cells;AIB.undo=null;AIB.busy=false;btn.disabled=false;msg.textContent='Hmm, nothing got built. Try saying it a different way!';return;}
+  if(AIB.mode==='new'&&plan.name)L.name=String(plan.name).slice(0,24);
+  const fixFlag=f=>{if(Object.values(L.cells).some(c=>c[f]))return;const ok=touched.filter(([a,b])=>{const c=L.cells[lbKey(a,b)];return c&&c.t!=='lava'&&c.t!=='air'&&c.t!=='ramp';});const pick=f==='start'?ok[0]:ok[ok.length-1];if(pick&&!(f==='goal'&&L.cells[lbKey(pick[0],pick[1])].start))L.cells[lbKey(pick[0],pick[1])][f]=1;};if(AIB.mode==='new'){fixFlag('start');fixFlag('goal');}
+  let si=0,sj=0;touched.forEach(([a,b])=>{si+=a;sj+=b;});const cc=lbCenter(si/touched.length,sj/touched.length);LBS.focus.set(clamp(cc.x,-80,80),0,clamp(cc.z,-80,80));player.pos.set(LBS.focus.x,1.2,LBS.focus.z);
+  save();lbRebuild(area);snapCamera();AIB.busy=false;btn.disabled=false;closeSheets();sfx('shimmer');
+  const hasS=Object.values(L.cells).some(c=>c.start),hasG=Object.values(L.cells).some(c=>c.goal);
+  toast((plan.say?String(plan.say).slice(0,140):'Built it!')+(hasS&&hasG?' Press ▶ Play to try it.':' (Add a 🚩 start and 🏁 goal to play.)'),'badge',ai?'✨':'🛠️');
+  S.stats.aiBuilds=(S.stats.aiBuilds||0)+1;save();lbStatusBar();}
+function aibUndo(){const u=AIB.undo;if(!u)return;const L=lbLevels()[u.idx];if(!L)return;L.cells=u.cells;L.name=u.name;AIB.undo=null;save();if(area&&area.id==='builder'&&LBS.idx===u.idx)lbRebuild(area);closeSheets();toast('Undid the AI build.','', '↩');}
+$('#aibBuild').addEventListener('click',aibGo);$('#aibUndo').addEventListener('click',aibUndo);
+$('#aibText').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();aibGo();}});
+document.querySelectorAll('#aibMode button').forEach(b=>b.addEventListener('click',()=>{AIB.mode=b.dataset.m;aibModeUI();}));
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
