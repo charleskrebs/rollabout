@@ -7998,12 +7998,30 @@ function eggTick(dt,t){const vis=mode==='world';FUN_BALLS.forEach(F=>{if(F.vis!=
   if(EGG.god)EGG.god.rotation.y=Math.sin(t*.5)*.3;
   if(EGG.wall){const W=EGG.wall;W.cd-=dt;const dx=player.pos.x-W.x,dz=player.pos.z-W.z;const lx=dx*W.cs-dz*W.sn,lz=dx*W.sn+dz*W.cs;const hs=Math.hypot(player.vel.x,player.vel.z);
     if(Math.abs(lx)<4.6&&Math.abs(lz)<1.9&&W.cd<=0&&(hs>4||W.lastHs>8)){W.cd=4;sfx('bump');camShake=.25;award('fun_wall');toast('The wall: "That hurt, man."','badge','🧱');}W.lastHs=hs;}
-  if(EGG.goose){const G=EGG.goose;G.wait-=dt;if(G.wait<=0){G.wait=2+Math.random()*3;G.tgt.set(G.home.x+(Math.random()-.5)*12,0,G.home.z+(Math.random()-.5)*12);}
-    const dx=G.tgt.x-G.pos.x,dz=G.tgt.z-G.pos.z,d=Math.hypot(dx,dz);const pd=Math.hypot(player.pos.x-G.pos.x,player.pos.z-G.pos.z);let sp=pd<10?3.2:1.4;let vx=d>.3?dx/d:0,vz=d>.3?dz/d:0;
-    if(pd<10&&pd>1.6){vx=(player.pos.x-G.pos.x)/pd;vz=(player.pos.z-G.pos.z)/pd;}if(d>.3||pd<10){G.pos.x+=vx*sp*dt;G.pos.z+=vz*sp*dt;G.g.rotation.y=Math.atan2(vx,vz);}
-    G.pos.y=heightAt(G.pos.x,G.pos.z);G.inter.pos.set(G.pos.x,G.pos.y+1,G.pos.z);G.g.position.set(G.pos.x,G.pos.y+Math.abs(Math.sin(t*8))*.06,G.pos.z);
-    if(pd<16){if(!G.shown){G.shown=true;const b=$('#boss');b.hidden=false;b.querySelector('.nm').textContent='🪿 THE GOOSE';$('#bossBar i').style.width='100%';const h=$('#hearts');h.textContent='HP 9,999,999,999 / 9,999,999,999';h.style.fontSize='16px';h.style.letterSpacing='0';h.style.fontWeight='800';h.style.color='#fff';h.style.textShadow='0 2px 0 #14213d';sfx('beep');}
-      if(Math.random()<dt*.6)toast('HONK!','', '🪿');if(pd<8)award('fun_goose');}else gooseHide();}}
+  if(EGG.goose)gooseTick(dt,t);}
+function gooseUI(){const G=EGG.goose;const b=$('#boss');b.hidden=false;b.querySelector('.nm').textContent='🪿 THE GOOSE';$('#bossBar i').style.width='100%';const h=$('#hearts');h.style.cssText='font-size:16px;letter-spacing:0;font-weight:800;color:#fff;text-shadow:0 2px 0 #14213d';
+  h.textContent='❤️'.repeat(Math.max(0,G.hearts))+'🖤'.repeat(Math.max(0,5-G.hearts))+'  ·  HP 9,999,999,999  ·  Lead it to the 🌋 volcano!';G.shown=true;}
+function gooseTick(dt,t){const G=EGG.goose,f=funS();G.state=G.state||'wander';G.inv=Math.max(0,(G.inv||0)-dt);
+  if(G.state==='gone'){G.g.visible=false;if(Date.now()>(f.gooseBack||0)){G.state='wander';G.g.visible=true;G.g.scale.setScalar(1);G.pos.set(G.home.x,0,G.home.z);}gooseHide();return;}
+  const pd=Math.hypot(player.pos.x-G.pos.x,player.pos.z-G.pos.z);let vx=0,vz=0,sp=0;
+  if(G.state==='burn'){G.bt+=dt;G.g.position.y+=dt*2;G.g.rotation.y+=dt*12;G.g.scale.setScalar(Math.max(.05,1-G.bt*.3));if(Math.random()<.7)burst(G.g.position.clone().add(new V3(0,1,0)),['#ff3b00','#ff8a1f','#ffd23d','#333333'],2);if(G.bt>3.2)gooseDefeated();return;}
+  if(G.state==='wander'){G.wait-=dt;if(G.wait<=0){G.wait=2+Math.random()*3;G.tgt.set(G.home.x+(Math.random()-.5)*12,0,G.home.z+(Math.random()-.5)*12);}const dx=G.tgt.x-G.pos.x,dz=G.tgt.z-G.pos.z,d=Math.hypot(dx,dz);if(d>.3){vx=dx/d;vz=dz/d;sp=2;}
+    if(pd<16&&mode==='world'){G.state='chase';G.hearts=5;G.dashCd=1.5;G.dash=0;sfx('beep');camShake=.2;award('fun_goose');toast('🪿 HONK!! The goose is coming for you! Lead it to the 🌋 volcano to defeat it!','bad','🪿');gooseUI();}}
+  else if(G.state==='chase'){if(pd>90){G.state='return';gooseHide();toast('The goose lost you… it waddles back to the desert.','', '🪿');return;}
+    G.dashCd-=dt;sp=18;if(G.dash>0){G.dash-=dt;sp=32;}else if(G.dashCd<=0){G.dashCd=2+Math.random()*1.4;G.dash=.6;sfx('beep');if(Math.random()<.4)toast('HONK!','', '🪿');}
+    if(pd>.5){vx=(player.pos.x-G.pos.x)/pd;vz=(player.pos.z-G.pos.z)/pd;}
+    if(pd<2.6&&G.inv<=0&&Math.abs(player.pos.y-G.pos.y-1)<3){G.hearts--;G.inv=1.4;sfx('bad');camShake=.45;player.vel.x=vx*24;player.vel.z=vz*24;player.vel.y=10;burst(player.pos.clone(),['#ffffff','#ff4f6d'],14);gooseUI();
+      if(G.hearts<=0){G.state='return';gooseHide();G.pos.set(G.home.x,0,G.home.z);fadeTo(()=>{player.pos.set(SPAWN.x,heightAt(SPAWN.x,SPAWN.z)+1,SPAWN.z);player.vel.set(0,0,0);snapCamera();});
+        setTimeout(()=>funMsg('HONKED!','🪿','The goose got you! You woke up back at spawn. Tip: dash (Q) away when it charges, and lead it north to the 🌋 volcano.'),900);return;}}
+    if(dominant(biomeWeights(G.pos.x,G.pos.z))==='volcano'||Math.hypot(G.pos.x-VC.x,G.pos.z-VC.z)<70){G.state='burn';G.bt=0;sfx('boom');camShake=.6;gooseHide();toast('🔥 HONK?!?! The goose stepped on the hot volcano rocks!','badge','🌋');return;}
+    if(!G.shown)gooseUI();}
+  else if(G.state==='return'){const dx=G.home.x-G.pos.x,dz=G.home.z-G.pos.z,d=Math.hypot(dx,dz);if(d>1){vx=dx/d;vz=dz/d;sp=9;}else G.state='wander';if(pd<12&&mode==='world'&&d<40){G.state='chase';G.hearts=5;gooseUI();}}
+  if(sp){G.pos.x+=vx*sp*dt;G.pos.z+=vz*sp*dt;G.g.rotation.y=Math.atan2(vx,vz);}
+  G.pos.y=heightAt(G.pos.x,G.pos.z);G.inter.pos.set(G.pos.x,G.pos.y+1,G.pos.z);G.g.position.set(G.pos.x,G.pos.y+Math.abs(Math.sin(t*(sp>10?16:8)))*.08,G.pos.z);}
+function gooseDefeated(){const G=EGG.goose,f=funS();G.state='gone';G.g.visible=false;G.g.scale.setScalar(1);f.gooseBack=Date.now()+5*60*1000;const first=!f.gooseWins;f.gooseWins=(f.gooseWins||0)+1;
+  const coins=1000000;S.coins+=coins;S.earned+=coins;if(first)S.owned.pet_goose=1;save();updateCoinsUI(true);award('goose_slayer');sfx('badge');
+  showResult({title:'THE GOOSE IS DEFEATED!',big:'🌋',line:first?'You led the goose into the volcano and it got toasted! Nobody has ever done that. You got the GOOSE pet! It will waddle back to the desert in 5 minutes…':'Toasted again! The goose will be back in the desert in 5 minutes.',coins,
+    buttons:first?[{label:'Bring the Goose pet 🪿',cls:'gold',fn:()=>{S.equip.pet='pet_goose';setPet('pet_goose');save();closeSheets();}},{label:'Awesome!',fn:()=>closeSheets()}]:[{label:'Awesome!',cls:'gold',fn:()=>closeSheets()}]});}
 function gooseHide(){const G=EGG.goose;if(G&&G.shown){G.shown=false;if(!(mode==='area'&&area&&area.boss)){$('#boss').hidden=true;const h=$('#hearts');h.textContent='';h.style.cssText='';}}}
 /* 1 in 10: flashbang when entering your house */
 {const _ea=enterArea;enterArea=function(id){const fromWorld=mode==='world';const r=_ea.apply(this,arguments);if(id==='house'&&fromWorld&&Math.random()<.1){const o=document.createElement('div');o.id='rareFlash';o.textContent='This is rare';document.body.appendChild(o);sfx('boom');
@@ -8014,8 +8032,10 @@ function funKeysTick(){const k=!!keys.KeyP;if(k&&!funKeysTick.p)takePhoto();funK
   mk('dashBtn','💨','Dash (Q or Shift)',()=>DASH.tap=true);mk('photoBtn','📷','Take a photo (P)',()=>takePhoto());}
 /* ================= THE GOOSE (boss teleporter) ================= */
 const GOOSE_LINE='I was the one who made The God of Shapes poo.';
-TP_BOSSES.push({id:'gooseboss',name:'The Goose',icon:'🪿',price:1000000,reward:100000,cd:600,col:'#ffffff',hint:'Find the goose in the desert first',beat:()=>!!(S.badges&&S.badges.fun_goose)});
-BADGES.push({id:'fun_goose_boss',icon:'🪿',name:'Goose Survivor',desc:'Survive a full minute against The Goose',fun:1});
+TP_BOSSES.push({id:'gooseboss',name:'The Goose',icon:'🪿',price:1000000,reward:1000000,cd:600,col:'#ffffff',hint:'Find the goose in the desert first',beat:()=>!!(S.badges&&S.badges.fun_goose)});
+BADGES.push({id:'fun_goose_boss',icon:'🪿',name:'Goose Roaster',desc:'Lure The Goose into the lava in its arena',fun:1},{id:'goose_slayer',icon:'🌋',name:'Cooked Goose',desc:'Lead the goose all the way to the volcano'});
+PETS.push({id:'pet_goose',name:'The Goose',rar:'legendary',special:1});PERKS.pet_goose={coins:1,txt:'🪿 HONK: +100% extra coins. Everyone is scared of you now.'};
+{const _mp=makePet;makePet=function(id){if(id!=='pet_goose')return _mp(id);const g=makeGoose();g.scale.setScalar(.55);return g;};}
 JUKE_TRACKS.push({id:'boss_goose',name:'HONK (The Goose)',icon:'🪿',bpm:150,wave:'square',drums:'k.s.kks.',mel:'C5:.5 C5:.5 R:.5 G4:.5 C5:1 R:.5 D#5:.5 D5:.5 C5:.5 G4:1 R:1 C5:.5 C5:.5 R:.5 G4:.5 C5:1 F5:.5 D#5:.5 D5:.5 C5:.5 G5:2',bass:'C2:1 C2:1 G1:1 G1:1 F1:1 F1:1 G1:1 G1:1'});
 function makeGoose(){const g=new THREE.Group();const wh=FM(0xffffff);const body=new THREE.Mesh(new THREE.SphereGeometry(.8,14,12),wh);body.scale.set(1,.8,1.4);body.position.y=.9;g.add(body);
   const neck=new THREE.Mesh(new THREE.CylinderGeometry(.16,.2,1.3,8),wh);neck.position.set(0,1.7,.8);neck.rotation.x=-.3;g.add(neck);const head=new THREE.Mesh(new THREE.SphereGeometry(.28,10,8),wh);head.position.set(0,2.35,1);g.add(head);
@@ -8024,27 +8044,29 @@ function makeGoose(){const g=new THREE.Group();const wh=FM(0xffffff);const body=
   for(const x of[-.3,.3]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.5,6),FM(0xff8a1f));l.position.set(x,.25,0);g.add(l);}for(const s of[-1,1]){const w=new THREE.Mesh(new THREE.SphereGeometry(.5,10,8),wh);w.scale.set(.3,.6,1.1);w.position.set(s*.75,1.05,-.1);g.add(w);g.userData[s<0?'wl':'wr']=w;}return g;}
 AREA_BUILD.gooseboss=a=>{a.name='The Goose';a.busy=true;a.leaveLabel='Flee';a.onLeave=()=>exitToWorld();a.music='boss_goose';
   a.sky={top:0x5cb8ff,bottom:0xcdeeff,fog:0xcdeeff,near:140,far:320,hemi:.8,sun:.9,amb:.45,showSun:true};const R0=28;a.ground=(x,z)=>Math.hypot(x,z)<R0+1?0:null;a.spawn=new V3(0,0,20);a.yaw=0;a.killY=-30;
-  const fl=new THREE.Mesh(new THREE.CircleGeometry(R0+1,48),FM(0x8fd36a));fl.rotation.x=-Math.PI/2;a.group.add(fl);const pond=new THREE.Mesh(new THREE.CircleGeometry(6,32),new THREE.MeshStandardMaterial({color:0x2a9df4,emissive:0x0a3a6a,emissiveIntensity:.3}));pond.rotation.x=-Math.PI/2;pond.position.set(0,.03,-14);a.group.add(pond);
+  const fl=new THREE.Mesh(new THREE.CircleGeometry(R0+1,48),FM(0x4fa83a));fl.rotation.x=-Math.PI/2;a.group.add(fl);const LAVA={x:0,z:-12,r:4.5};const mound=new THREE.Mesh(new THREE.CylinderGeometry(LAVA.r+.6,LAVA.r+2.2,.8,32,1,true),std(0x4a3030,{side:THREE.DoubleSide}));mound.position.set(LAVA.x,.4,LAVA.z);a.group.add(mound);const lava=new THREE.Mesh(new THREE.CircleGeometry(LAVA.r,32),new THREE.MeshStandardMaterial({color:0xff5a1f,emissive:0xff3b00,emissiveIntensity:.9}));lava.rotation.x=-Math.PI/2;lava.position.set(LAVA.x,.05,LAVA.z);a.group.add(lava);a.lava=lava;const ll=makeLabel('🌋 LAVA (lure the goose in!)',{scale:.6,bg:'rgba(255,138,31,.95)'});ll.position.set(LAVA.x,3.4,LAVA.z);a.group.add(ll);const lt=new THREE.PointLight(0xff5a1f,1.4,18);lt.position.set(LAVA.x,2,LAVA.z);a.group.add(lt);
   for(let k=0;k<24;k++){const an=k/24*Math.PI*2;const f=new THREE.Mesh(new THREE.BoxGeometry(.25,1.4,2.4),FM(0xf1e4cc));f.position.set(Math.cos(an)*(R0+.5),.7,Math.sin(an)*(R0+.5));f.rotation.y=-an;a.group.add(f);}
   for(let k=0;k<6;k++){const r=new THREE.Mesh(new THREE.DodecahedronGeometry(.9,0),std(0x8d8a85));r.position.set(Math.cos(k)*18,.5,Math.sin(k*1.7)*14);a.group.add(r);}
   const gz=makeGoose();gz.scale.setScalar(2.6);a.group.add(gz);
-  const HP=9999999999;const B={hp:HP,pos:new V3(0,0,-12),hearts:3,inv:0,t:0,state:'intro',dash:0,dashCd:3,ended:false,dmg:0};a.boss=B;
+  const HP=9999999999;const B={hp:HP,pos:new V3(0,0,6),hearts:3,inv:0,t:0,state:'intro',dash:0,dashCd:3,ended:false,dmg:0};a.boss=B;
   $('#boss').hidden=false;$('#boss .nm').textContent='🪿 THE GOOSE';const ui=()=>{$('#bossBar i').style.width=(B.hp/HP*100)+'%';const h=$('#hearts');h.style.cssText='';h.textContent='❤️'.repeat(Math.max(0,B.hearts))+'🖤'.repeat(Math.max(0,3-B.hearts))+'   ·   HP '+B.hp.toLocaleString();h.style.fontSize='18px';};ui();
   const line=(t,ms)=>{const l=$('#bossLine');l.textContent=t;l.hidden=false;clearTimeout(line.t);line.t=setTimeout(()=>l.hidden=true,ms||2600);};
-  a.status=()=>B.state==='fight'?'Survive! '+Math.max(0,Math.ceil(60-B.t))+'s left · damage dealt: '+B.dmg.toLocaleString():'…';
+  a.status=()=>B.state==='fight'?'Lure the goose into the 🌋 lava! (don\'t fall in yourself)':'…';
   a.tick=dt=>{const t=a.t;gz.position.set(B.pos.x,0,B.pos.z);gz.userData.wl.rotation.z=Math.sin(t*14)*.4;gz.userData.wr.rotation.z=-Math.sin(t*14)*.4;
-    if(B.state==='intro'){if(t>.4&&!B.l1){B.l1=1;line('HONK.',1600);sfx('beep');}if(t>2.2&&!B.l2){B.l2=1;line('"'+GOOSE_LINE+'"',3400);}if(t>6){B.state='fight';B.t=0;line('SURVIVE 60 SECONDS!',1800);sfx('go');}
+    if(B.state==='intro'){if(t>.4&&!B.l1){B.l1=1;line('HONK.',1600);sfx('beep');}if(t>2.2&&!B.l2){B.l2=1;line('"'+GOOSE_LINE+'"',3400);}if(t>6){B.state='fight';B.t=0;line('LURE IT INTO THE LAVA!',1800);sfx('go');}
       gz.rotation.y=Math.atan2(player.pos.x-B.pos.x,player.pos.z-B.pos.z);return;}
-    if(B.state==='won'){B.pos.y=(B.pos.y||0)+dt*14;gz.position.y=B.pos.y;gz.rotation.y+=dt*6;return;}if(B.ended)return;
+    if(B.state==='won'){B.pos.y=(B.pos.y||0)+dt*6;gz.position.y=B.pos.y;gz.rotation.y+=dt*10;gz.scale.setScalar(Math.max(.1,gz.scale.x-dt*.6));if(Math.random()<.6)burst(gz.position.clone().add(new V3(0,2,0)),['#ff3b00','#ff8a1f','#333333'],2);return;}if(B.ended)return;
     B.t+=dt;B.inv=Math.max(0,B.inv-dt);B.dashCd-=dt;const dx=player.pos.x-B.pos.x,dz=player.pos.z-B.pos.z,d=Math.hypot(dx,dz)||1;
-    let sp=7+B.t*.06;if(B.dash>0){B.dash-=dt;sp=24;}else if(B.dashCd<=0){B.dashCd=2.6+Math.random()*1.5;B.dash=.55;sfx('beep');if(Math.random()<.5)line(['HONK!','HONK HONK!','*aggressive honking*','HOOOONK'][Math.floor(Math.random()*4)],900);}
+    let sp=15+B.t*.05;if(B.dash>0){B.dash-=dt;sp=30;}else if(B.dashCd<=0){B.dashCd=2.6+Math.random()*1.5;B.dash=.55;sfx('beep');if(Math.random()<.5)line(['HONK!','HONK HONK!','*aggressive honking*','HOOOONK'][Math.floor(Math.random()*4)],900);}
     B.pos.x+=dx/d*sp*dt;B.pos.z+=dz/d*sp*dt;const r=Math.hypot(B.pos.x,B.pos.z);if(r>R0-2){B.pos.x*=(R0-2)/r;B.pos.z*=(R0-2)/r;}gz.rotation.y=Math.atan2(dx,dz);
     if(d<3.4){const ps=Math.hypot(player.vel.x,player.vel.z);if(ps>9&&B.dash<=0){const dm=1+Math.floor(Math.random()*9);B.hp-=dm;B.dmg+=dm;ui();sfx('hoop');burst(gz.position.clone().add(new V3(0,3,0)),['#ffffff','#ffd23d'],10);player.vel.x=-dx/d*14;player.vel.z=-dz/d*14;
         if(Math.random()<.3)line(['That tickled.','-'+dm+'. Wow.','Is that all?','*unbothered honk*'][Math.floor(Math.random()*4)],1200);}
       else if(B.inv<=0){B.hearts--;B.inv=1.6;ui();sfx('bad');camShake=.4;player.vel.x=dx/d*22;player.vel.z=dz/d*22;player.vel.y=9;
-        if(B.hearts<=0){B.ended=true;line('HONK. (You lost.)',2600);setTimeout(()=>{if(area!==a)return;showResult({title:'Honked!',big:'🪿',line:'The Goose was too much. Nobody beats the goose… but maybe you can survive it. Last 60 seconds to win!',coins:null,buttons:[{label:'Try again',cls:'gold',fn:()=>{closeSheets();enterArea('gooseboss');}},{label:'Leave',fn:()=>{closeSheets();a.onLeave();}}]});},2400);}}}
-    if(B.t>=60&&!B.ended){B.ended=true;B.state='won';line('"…honk. Fine. You\'re alright, kid."',3000);sfx('badge');award('fun_goose_boss');
-      setTimeout(()=>{if(area!==a)return;if(BOSS_TP)tpWin('gooseboss');else showResult({title:'You survived The Goose!',big:'🪿',line:'The Goose got bored and flew away. Nobody has ever done that before!',coins:null,buttons:[{label:'Leave',cls:'gold',fn:()=>{closeSheets();a.onLeave();}}]});},2600);}};
+        if(B.hearts<=0){B.ended=true;line('HONK. (You lost.)',2600);setTimeout(()=>{if(area!==a)return;showResult({title:'Honked!',big:'🪿',line:'The Goose was too much! Lure it into the lava pit to win. Dash (Q) away when it charges!',coins:null,buttons:[{label:'Try again',cls:'gold',fn:()=>{closeSheets();enterArea('gooseboss');}},{label:'Leave',fn:()=>{closeSheets();a.onLeave();}}]});},2400);}}}
+    a.lava.material.emissiveIntensity=.7+Math.sin(t*4)*.25;if(Math.random()<dt*4)burst(new V3(LAVA.x+(Math.random()-.5)*6,.4,LAVA.z+(Math.random()-.5)*6),['#ff3b00','#ffd23d'],1);
+    if(Math.hypot(player.pos.x-LAVA.x,player.pos.z-LAVA.z)<LAVA.r&&player.pos.y<2.5&&B.inv<=0&&!B.ended){B.hearts--;B.inv=1.4;ui();sfx('bad');player.vel.y=16;player.vel.x*=-.5;player.vel.z*=-.5;line('Ouch! Hot hot hot!',1200);if(B.hearts<=0){B.ended=true;setTimeout(()=>{if(area!==a)return;showResult({title:'Toasted!',big:'🔥',line:'You fell in your own trap! Lure the GOOSE into the lava, not yourself.',coins:null,buttons:[{label:'Try again',cls:'gold',fn:()=>{closeSheets();enterArea('gooseboss');}},{label:'Leave',fn:()=>{closeSheets();a.onLeave();}}]});},1500);}}
+    if(Math.hypot(B.pos.x-LAVA.x,B.pos.z-LAVA.z)<LAVA.r-.5&&!B.ended){B.ended=true;B.state='won';sfx('boom');camShake=.6;line('"HONK?!?! IT BURNS!"',3000);sfx('badge');award('fun_goose_boss');
+      setTimeout(()=>{if(area!==a)return;if(BOSS_TP)tpWin('gooseboss');else{S.coins+=1000000;S.earned+=1000000;save();updateCoinsUI(true);showResult({title:'You roasted The Goose!',big:'🌋',line:'The Goose went into the lava! Nobody has ever done that before!',coins:1000000,buttons:[{label:'Leave',cls:'gold',fn:()=>{closeSheets();a.onLeave();}}]});}},2600);}};
   a.cleanup=()=>{$('#boss').hidden=true;$('#bossLine').hidden=true;const h=$('#hearts');h.textContent='';h.style.cssText='';};};
 
 /* --- help finding the goose: minimap marker + signpost near spawn --- */
