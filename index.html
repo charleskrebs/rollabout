@@ -309,6 +309,7 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
 .pb-dmg{position:absolute;top:-6px;left:50%;font-family:var(--display);font-size:28px;color:#ff4f6d;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;animation:pbdmg .9s ease-out forwards;pointer-events:none}@keyframes pbdmg{to{transform:translateY(-30px);opacity:0}}
 .pb-log{background:#14213d;color:#fff;border-radius:14px;padding:8px 12px;margin:10px 0;font-weight:700;font-size:14px;min-height:70px;display:flex;flex-direction:column;gap:2px}.pb-log div:last-child{color:#ffd23d}
 .pb-moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}.pb-mv{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;font-size:17px}.pb-mv small{font-family:var(--body);font-size:12px;font-weight:700;color:var(--muted)}
+#balUI{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#2a1a4a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(380px,calc(100% - 32px));box-shadow:0 6px 0 var(--ink);box-sizing:border-box;text-align:center}#balUI b{font-size:18px;font-variant-numeric:tabular-nums}#balUI small{opacity:.85;font-weight:700}#balBurn{touch-action:none;user-select:none;-webkit-user-select:none}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
 #c3holdBtn{touch-action:none;user-select:none;-webkit-user-select:none}
@@ -6531,7 +6532,7 @@ function poolSign(){const P=pool();if(!P.own){showResult({title:'Swimming Pool',
   btns.push({label:'Close',fn:()=>closeSheets()});
   showResult({title:'Pool Shop · '+POOL_LV[lv-1].name+' (Lv '+lv+')',big:'🏊',line:(nx?'Upgrade your pool to make it BIGGER and unlock new decorations! ':'Your pool is MAX level! ')+(P.best?'Best cannonball splash: '+P.best+'. ':'')+'Tip: hold Space as you roll onto the diving board for a SUPER bounce!',coins:null,buttons:btns});}
 function poolLevelUp(){const P=pool();buildPoolBody();sfx('badge');const c=PL.W(0,0);burst(new V3(c.x,PL.y+1.5,c.z),['#7fd8ff','#2f9bff','#ffffff','#ffd23d'],70);
-  if(P.lv>=5){award('pool_max');setTimeout(()=>showResult({title:'MEGA POOL!',big:'🏝️',line:'Your pool is MAX level! It is huge, it has palm trees and a fountain, and you can now throw POOL PARTIES from the Pool Shop. Invite the whole neighborhood!',coins:null,buttons:[{label:'Throw a party now! 🎉',cls:'gold',fn:()=>{closeSheets();poolPartyStart();}},{label:'Later',fn:()=>closeSheets()}]}),400);}
+  if(P.lv>=5){award('pool_max');setTimeout(()=>showResult({title:'MEGA POOL!',big:'🏝️',line:'Your pool hit Level 5! It is huge, it has palm trees and a fountain, and you can now throw POOL PARTIES from the Pool Shop. Invite the whole neighborhood!',coins:null,buttons:[{label:'Throw a party now! 🎉',cls:'gold',fn:()=>{closeSheets();poolPartyStart();}},{label:'Later',fn:()=>closeSheets()}]}),400);}
   else toast('Your pool grew into a '+POOL_LV[P.lv-1].name+'! (Level '+P.lv+')','badge','🏊');}
 const POOL_SLIDES=[{id:'slide',name:'Twisty Slide',ic:'🛝',col:0x9a5cff,h:4.1,len:3.4,wig:1.6,turns:1.4,dur:1.6,at:P=>({du:P.HU+2.2,dt:0,dx:-1,dz:0})},
   {id:'slide2',name:'Speedy Tube Slide',ic:'🌀',col:0x2f9bff,h:5.2,len:4.6,wig:.5,turns:2,dur:1.1,tube:1,at:P=>({du:P.HU-1.3,dt:-(P.HT+2.4),dx:0,dz:1})},
@@ -7134,7 +7135,7 @@ function equippedAura(){const id=S.equip.aura;return id&&id!=='aura_none'&&S.own
 function auraTick(dt,t){const def=equippedAura();if(AURA&&(!def||AURA.id!==def.id)){scene.remove(AURA.g);AURA.dispose();AURA=null;}
   const vis=!!def&&mode!=='title'&&player.mesh.visible;if(!vis){if(AURA)AURA.g.visible=false;}else{if(!AURA){AURA=buildAura(def,false);scene.add(AURA.g);}
     AURA.g.visible=true;AURA.g.position.copy(player.pos);AURA.g.scale.setScalar(player.r||1);AURA.tick(t,dt,Math.atan2(camera.position.x-player.pos.x,camera.position.z-player.pos.z));}
-  auraShopTick(dt,t);tpTick(dt,t);fishWorldTick(dt,t);arenaTick(dt,t);}
+  auraShopTick(dt,t);tpTick(dt,t);fishWorldTick(dt,t);arenaTick(dt,t);balloonTick(dt,t);}
 /* --- shop tab: swatches, rarity, live preview --- */
 {const _rsh=renderShop;renderShop=function(){S.owned.aura_none=1;_rsh();if(shopTab!=='auras')return;
   $$('#shopGrid .item').forEach((b,i)=>{const list=AURAS.filter(it=>(!it.special&&(!it.city||inCity()))||S.owned[it.id]);const it=list[i];if(!it)return;const sw=b.querySelector('.sw');sw.style.background=auraSwatch(it);sw.textContent=it.icon;sw.style.cssText+=';display:flex;align-items:center;justify-content:center;font-size:26px';
@@ -7501,6 +7502,133 @@ function buildArena(){const x=27,z=-2,y=heightAt(x,z);const g=new THREE.Group();
   PBA={g,coach,y,p1,p2};}
 function arenaTick(dt,t){if(!PBA)return;const vis=mode==='world';if(PBA.vis!==vis){PBA.vis=vis;PBA.coach.setVisible(vis);}if(!vis)return;PBA.coach.pos.y=PBA.y+.85+Math.abs(Math.sin(t*2.4))*.15;PBA.coach.sync(dt);
   const k=Math.sin(t*2);PBA.p1.position.x=-4.8+Math.max(0,k)*1.2;PBA.p2.position.x=4.8-Math.max(0,-k)*1.2;PBA.p1.position.y=.9+Math.abs(Math.sin(t*4))*.2;PBA.p2.position.y=.9+Math.abs(Math.cos(t*4))*.2;}
+/* ================= POOL LEVELS 6-8 + NEW POOL DECOR ================= */
+POOL_LV.push({hu:7.2,ht:6.5,off:1.2,name:'Resort Pool',price:12000},{hu:8.4,ht:6.6,off:2.4,name:'Water Park Pool',price:18000},{hu:9.6,ht:6.8,off:3.6,name:'OCEAN Pool',price:25000});
+POOL_UPS.push(
+ {id:'shark',lv:5,name:'Shark Float',ic:'🦈',price:1500,desc:'A giant inflatable shark that circles your pool. Dun dun… dun dun…'},
+ {id:'bubbles',lv:5,name:'Bubble Jets',ic:'🫧',price:1200,desc:'Bubble jets on the pool floor. Swim over one and it bounces you up!'},
+ {id:'icecream',lv:5,name:'Ice Cream Cart',ic:'🍦',price:900,desc:'Grab a Bouncy Ice Cream for a super jump boost!'},
+ {id:'waterfall',lv:6,name:'Rock Waterfall',ic:'🏞️',price:2500,desc:'A rocky waterfall pouring into the corner of your pool.'},
+ {id:'lifeguard',lv:6,name:'Lifeguard Tower',ic:'🛟',price:2000,desc:'A tall lifeguard chair with Lifeguard Lou keeping watch.'},
+ {id:'pirate',lv:7,name:'Pirate Ship',ic:'🏴‍☠️',price:4000,desc:'A little pirate ship floating in your pool. Arrr!'},
+ {id:'aquarium',lv:7,name:'Glass Aquarium',ic:'🐠',price:3500,desc:'A glass fish tank next to your pool, full of swimming fish.'},
+ {id:'zipline',lv:8,name:'Zip Line',ic:'🪂',price:5000,desc:'Zoom down a zip line from a tall tower and drop into the pool!'},
+ {id:'lasers',lv:8,name:'Laser Show',ic:'🔦',price:3000,desc:'Colorful laser beams sweep the sky over your pool every night.'});
+{const _b=buildPoolBody;buildPoolBody=function(){const L=POOL_LV[(pool().lv||1)-1];const off=L.off||0;if(!PL.W0){PL.W0=PL.W;PL.loc0=PL.loc;}
+  PL.W=(du,dt)=>PL.W0(du+off,dt);PL.loc=(x,z)=>{const r=PL.loc0(x,z);return{du:r.du-off,dt:r.dt};};PL.p2=null;return _b.apply(this,arguments);};}
+{const _lu=poolLevelUp;poolLevelUp=function(){const P=pool();if(P.lv<=5)return _lu.apply(this,arguments);buildPoolBody();sfx('badge');const c=PL.W(0,0);burst(new V3(c.x,PL.y+1.5,c.z),['#7fd8ff','#2f9bff','#ffffff','#ffd23d'],90);camShake=.2;
+  if(P.lv>=POOL_LV.length){award('pool_ocean');setTimeout(()=>showResult({title:'OCEAN POOL!',big:'🌊',line:'Your pool is now the biggest pool on the whole island! It is truly MAX level. Check the Pool Shop for the Zip Line and the Laser Show!',coins:null,buttons:[{label:'Awesome!',cls:'gold',fn:()=>closeSheets()}]}),400);}
+  else toast('Your pool grew into a '+POOL_LV[P.lv-1].name+'! (Level '+P.lv+') New decorations unlocked!','badge','🏊');};}
+BADGES.push({id:'pool_ocean',icon:'🌊',name:'Ocean Pool',desc:'Upgrade your pool to Level 8'},{id:'pool_zip',icon:'🪂',name:'Zip Splash',desc:'Ride your zip line into the pool'});
+{const _pe=poolExtras;poolExtras=function(){_pe.apply(this,arguments);if(!PL||!PL.built)return;const P=pool(),{y,W,yaw,HU,HT,body}=PL;PL.p2=PL.p2||{};const X=PL.p2;
+  const M=(c,o)=>std(c,Object.assign({flatShading:false},o||{}));const at=(du,dt,rot)=>{const q=W(du,dt);const g=new THREE.Group();g.position.set(q.x,y,q.z);g.rotation.y=yaw+(rot||0);body.add(g);return g;};
+  const put=(g,geo,m,x,yy,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x||0,yy||0,z||0);g.add(o);return o;};const once=(id,fn)=>{if(P[id]&&!PL.extras[id]){PL.extras[id]=1;fn();}};
+  once('shark',()=>{const g=new THREE.Group();body.add(g);const gr=M(0x8a9bb0);put(g,new THREE.SphereGeometry(1,16,12),gr,0,.25,0).scale.set(.7,.45,1.9);const fin=put(g,new THREE.ConeGeometry(.35,.9,4),gr,0,.95,-.1);fin.scale.z=.4;
+    const tail=put(g,new THREE.ConeGeometry(.4,.8,4),gr,0,.35,-2);tail.rotation.x=-Math.PI/2;tail.scale.x=.3;put(g,new THREE.SphereGeometry(.5,12,8),M(0xffffff),0,.12,.6).scale.set(1,.5,1.6);
+    for(const s of[-1,1])put(g,new THREE.SphereGeometry(.09,8,6),M(0x111111),s*.45,.45,1.2);X.shark=g;});
+  once('bubbles',()=>{X.jets=[];X.bub=[];const bm=new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.55,roughness:.1});for(const a of[-.55,.55])for(const b of[-.5,0,.5]){const q=W(a*HU,b*HT);
+      const r=new THREE.Mesh(new THREE.RingGeometry(.25,.4,16),new THREE.MeshBasicMaterial({color:0xbfefff,side:THREE.DoubleSide}));r.rotation.x=-Math.PI/2;r.position.set(q.x,y+.16,q.z);body.add(r);X.jets.push(new V3(q.x,y,q.z));}
+    for(let k=0;k<36;k++){const m=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),bm);m.visible=false;body.add(m);X.bub.push({m,life:0});}});
+  once('icecream',()=>{const g=at(-HU-3.3,HT-.4);put(g,new THREE.BoxGeometry(1.8,1,1),M(0xffffff),0,.75,0);put(g,new THREE.BoxGeometry(1.82,.25,1.02),M(0xff9ad5),0,1.05,0);
+    for(const s of[-1,1]){const w=put(g,new THREE.CylinderGeometry(.3,.3,.12,14),M(0x333333),s*.7,.3,.55);w.rotation.x=Math.PI/2;}const pole=put(g,new THREE.CylinderGeometry(.04,.04,1.6,6),M(0xffffff),0,2,0);
+    const um=put(g,new THREE.ConeGeometry(1.1,.5,10),M(0x7fd3ff),0,2.9,0);for(const [c,x] of[[0xff9ad5,-.45],[0xfff3c4,0],[0x8a5a35,.45]]){put(g,new THREE.ConeGeometry(.12,.3,8),M(0xe8b765),x,1.4,0).rotation.x=Math.PI;put(g,new THREE.SphereGeometry(.15,10,8),M(c),x,1.62,0);}
+    const lab=makeLabel('🍦 Ice Cream',{scale:.42});lab.position.set(0,3.6,0);g.add(lab);X.icePos=new V3(g.position.x,y+1,g.position.z);});
+  once('waterfall',()=>{const g=at(HU-1.3,-HT+1.3);const rm=M(0x8d8a85,{flatShading:true});[[0,.6,0,1.3],[.9,.4,.6,.9],[-.8,.5,.7,.8],[.2,1.5,-.2,.9],[-.4,2.2,-.4,.7],[.5,2.4,-.6,.6]].forEach(([x,yy,z,r])=>put(g,new THREE.DodecahedronGeometry(r,0),rm,x,yy,z));
+    const wm=new THREE.MeshStandardMaterial({color:0xbfefff,transparent:true,opacity:.65,emissive:0x4fc3f7,emissiveIntensity:.3});const fall=put(g,new THREE.PlaneGeometry(1,2.6),wm,-.2,1.4,.75);fall.rotation.y=-.6;X.fall=fall;
+    const foam=put(g,new THREE.TorusGeometry(.7,.15,6,16),M(0xffffff),-.4,.2,1.1);foam.rotation.x=Math.PI/2;X.foam=foam;for(const [x,z] of[[1.3,.2],[-1.2,-.4]]){const pl=put(g,new THREE.ConeGeometry(.3,.9,6),M(0x39c45f),x,1.1,z);}});
+  once('lifeguard',()=>{const g=at(-HU-1.6,-HT+2.2,Math.PI/2);const wd=M(0xffffff);for(const x of[-.5,.5])for(const z of[-.5,.5]){const l=put(g,new THREE.BoxGeometry(.12,3,.12),wd,x,1.5,z);}
+    put(g,new THREE.BoxGeometry(1.3,.15,1.3),M(0xe8413c),0,3,0);put(g,new THREE.BoxGeometry(1.3,1,.12),M(0xe8413c),0,3.55,-.6);for(let k=0;k<5;k++)put(g,new THREE.BoxGeometry(.9,.06,.12),wd,0,.4+k*.55,.62);
+    const ring=put(g,new THREE.TorusGeometry(.35,.1,8,18),M(0xff8a1f),0,2.2,.7);const sign=makeLabel('🛟 Lifeguard Lou',{scale:.4});sign.position.set(0,5.4,0);g.add(sign);
+    const lou=new THREE.Group();lou.position.set(0,3.7,0);g.add(lou);put(lou,new THREE.SphereGeometry(.55,16,12),M(0xffcf99),0,0,0);put(lou,new THREE.BoxGeometry(.7,.14,.12),M(0x111111),0,.1,.5);put(lou,new THREE.CylinderGeometry(.6,.6,.12,16),M(0xffd23d),0,.45,0);X.lou=lou;});
+  once('pirate',()=>{const g=new THREE.Group();body.add(g);const wd=M(0x8a5a35),dk=M(0x6b4226);put(g,new THREE.BoxGeometry(1.4,.7,3),wd,0,.2,0);const bow=put(g,new THREE.ConeGeometry(.7,1.2,4),wd,0,.2,2);bow.rotation.x=Math.PI/2;bow.rotation.y=Math.PI/4;bow.scale.set(1,1,.5);
+    put(g,new THREE.BoxGeometry(1.3,.08,2.9),dk,0,.57,0);put(g,new THREE.CylinderGeometry(.07,.07,3,6),dk,0,2,0);const sail=put(g,new THREE.PlaneGeometry(1.6,1.4),new THREE.MeshStandardMaterial({color:0xffffff,side:THREE.DoubleSide}),0,2.2,.05);
+    const flag=put(g,new THREE.PlaneGeometry(.6,.4),new THREE.MeshStandardMaterial({color:0x111111,side:THREE.DoubleSide}),.3,3.4,0);const sk=makeLabel('☠️',{scale:.35,bg:'rgba(0,0,0,0)'});sk.position.set(0,2.3,.1);g.add(sk);
+    const can=put(g,new THREE.CylinderGeometry(.12,.15,.7,10),M(0x333333),.6,.75,.4);can.rotation.z=Math.PI/2;X.ship=g;X.flag=flag;});
+  once('aquarium',()=>{const g=at(HU*.45,HT+2.3,Math.PI/2);put(g,new THREE.BoxGeometry(3.2,.5,1.2),M(0x263238),0,.25,0);const gl=put(g,new THREE.BoxGeometry(3.2,1.8,1.2),new THREE.MeshStandardMaterial({color:0x7fd8ff,transparent:true,opacity:.35,roughness:.05}),0,1.4,0);
+    put(g,new THREE.BoxGeometry(3.2,.12,1.2),M(0x263238),0,2.35,0);put(g,new THREE.BoxGeometry(3,.15,1),M(0xf3d9a4),0,.6,0);for(const x of[-1,.2,1.1])put(g,new THREE.ConeGeometry(.12,.7,5),M(0x39c45f),x,1,-.2);
+    X.fish=[];for(let k=0;k<6;k++){const f=new THREE.Group();const c=[0xff8a1f,0x2f9bff,0xffd23d,0xff4f6d,0x9a5cff,0x39c45f][k];put(f,new THREE.SphereGeometry(.13,10,8),M(c),0,0,0).scale.set(1.5,1,.7);const t=put(f,new THREE.ConeGeometry(.1,.16,4),M(c),-.24,0,0);t.rotation.z=Math.PI/2;f.position.set(0,1+k*.15,0);g.add(f);X.fish.push({f,ph:k*1.3,sp:.5+k*.12});}});
+  once('zipline',()=>{const st=W(HU+5,-2.5),en=W(-HU*.25,-1);const h=8.5;const g=new THREE.Group();g.position.set(st.x,y,st.z);body.add(g);const wd=M(0x8a5a35);for(const x of[-.7,.7])for(const z of[-.7,.7])put(g,new THREE.BoxGeometry(.2,h,.2),wd,x,h/2,z);
+    put(g,new THREE.BoxGeometry(1.8,.2,1.8),M(0x6b4226),0,h,0);put(g,new THREE.ConeGeometry(1.5,1,4),M(0x2f9bff),0,h+1.6,0).rotation.y=Math.PI/4;for(let k=0;k<8;k++)put(g,new THREE.BoxGeometry(1,.08,.14),wd,0,.6+k*1,.8);
+    const a=new V3(st.x,y+h+1.3,st.z),b=new V3(en.x,y+3.2,en.z);const len=a.distanceTo(b);const cable=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,len,6),M(0x333333,{metalness:.6}));cable.position.copy(a).add(b).multiplyScalar(.5);cable.lookAt(b);cable.rotateX(Math.PI/2);body.add(cable);
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,3.2,6),M(0x8a5a35));post.position.set(en.x,y+1.6,en.z);body.add(post);
+    const lab=makeLabel('🪂 Zip Line',{scale:.45});lab.position.set(st.x,y+h+3,st.z);body.add(lab);X.zipA=a;X.zipB=b;X.zipBase=new V3(st.x,y+1,st.z);
+    const handle=new THREE.Mesh(new THREE.TorusGeometry(.25,.05,6,14),M(0xffd23d));handle.position.copy(a);body.add(handle);X.handle=handle;});
+  once('lasers',()=>{X.lasers=[];const c=W(0,0);for(let k=0;k<6;k++){const m=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,60,6),new THREE.MeshBasicMaterial({color:[0xff3fd1,0x2ee6ff,0x39ff6a,0xffd23d,0x9a5cff,0xff4f6d][k],transparent:true,opacity:.6,blending:THREE.AdditiveBlending,depthWrite:false}));
+      m.geometry.translate(0,30,0);m.position.set(c.x,y+.3,c.z);m.visible=false;body.add(m);X.lasers.push(m);}});};}
+let ZIP=null;
+function zipRide(){PL.p2=PL.p2||{};const X=PL.p2;if(!X.zipA||ZIP)return;ZIP={t:0};sfx('go');}
+{const _pt=poolDecorTick;poolDecorTick=function(dt,t){_pt.apply(this,arguments);if(!PL||!PL.built||!PL.p2)return;const P=pool(),X=PL.p2,{y,W,HU,HT}=PL,night=dayAmount<.5;
+  if(X.shark){const a=t*.35;const q=W(Math.cos(a)*HU*.55,Math.sin(a)*HT*.55);X.shark.position.set(q.x,y+.15+Math.sin(t*2)*.08,q.z);const q2=W(Math.cos(a+.05)*HU*.55,Math.sin(a+.05)*HT*.55);X.shark.lookAt(q2.x,X.shark.position.y,q2.z);}
+  if(X.jets){X.jets.forEach((j,k)=>{if(Math.random()<dt*5){const b=X.bub.find(q=>q.life<=0);if(b){b.life=1.2;b.m.visible=true;b.m.position.set(j.x+(Math.random()-.5)*.4,y-1.6,j.z+(Math.random()-.5)*.4);b.s=.5+Math.random()*.8;}}
+      if(PL.inWater&&Math.hypot(player.pos.x-j.x,player.pos.z-j.z)<.9&&(!X.jetCd||t>X.jetCd)){X.jetCd=t+.8;player.vel.y=Math.max(player.vel.y,14);sfx('jump');burst(player.pos.clone(),['#ffffff','#bfefff'],10);}});
+    X.bub.forEach(b=>{if(b.life<=0)return;b.life-=dt;b.m.position.y+=dt*2.2;b.m.scale.setScalar(b.s*(1+(1.2-b.life)*.4));if(b.life<=0||b.m.position.y>y+.3)b.m.visible=false,b.life=0;});}
+  if(X.icePos&&!sheetOpen&&player.pos.distanceTo(X.icePos)<2.4&&(!X.iceCd||performance.now()>X.iceCd)){X.iceCd=performance.now()+45000;applyBuff('jump',45);sfx('coin');toast('You grabbed a Bouncy Ice Cream! Super jumps for 45 seconds! 🍦','badge','🍦');}
+  if(X.fall){X.fall.material.opacity=.55+Math.sin(t*9)*.12;X.foam.scale.setScalar(1+Math.sin(t*5)*.12);if(Math.random()<dt*6){const q=X.foam.getWorldPosition(new V3());burst(q,['#ffffff','#bfefff'],1);}}
+  if(X.lou){X.lou.rotation.y=Math.sin(t*.7)*1.1;X.lou.position.y=3.7+Math.abs(Math.sin(t*1.3))*.05;}
+  if(X.ship){const a=-t*.22+2;const q=W(Math.cos(a)*HU*.45,Math.sin(a)*HT*.4);X.ship.position.set(q.x,y+.1+Math.sin(t*1.6)*.1,q.z);const q2=W(Math.cos(a-.05)*HU*.45,Math.sin(a-.05)*HT*.4);X.ship.lookAt(q2.x,X.ship.position.y,q2.z);X.ship.rotation.z=Math.sin(t*1.3)*.06;X.flag.rotation.y=Math.sin(t*4)*.3;}
+  if(X.fish)X.fish.forEach(F=>{const a=t*F.sp+F.ph;F.f.position.x=Math.sin(a)*1.2;F.f.position.z=Math.cos(a*1.3)*.3;F.f.rotation.y=Math.cos(a)>0?0:Math.PI;});
+  if(X.lasers){const on=night||!!PL.party;X.lasers.forEach((m,k)=>{m.visible=on;if(on){m.rotation.z=Math.sin(t*.8+k)*.7;m.rotation.x=Math.cos(t*.6+k*1.7)*.7;}});}
+  if(X.zipBase&&!ZIP&&mode==='world'&&!sheetOpen&&player.pos.distanceTo(X.zipBase)<2.2&&player.vel.length()<4&&(!X.zipHint||t>X.zipHint)){X.zipHint=t+6;toast('Press E at the Zip Line tower to ride it!','', '🪂');}
+  if(ZIP){ZIP.t+=dt;const f=Math.min(1,ZIP.t/2.6);const e=f*f;const p=new V3().lerpVectors(X.zipA,X.zipB,e);X.handle.position.copy(p);player.pos.set(p.x,p.y-1.4,p.z);player.vel.set(0,0,0);
+    if(f>=1){const d=new V3().subVectors(X.zipB,X.zipA).normalize();player.vel.set(d.x*9,4,d.z*9);ZIP=null;X.handle.position.copy(X.zipA);award('pool_zip');sfx('splash');}}};}
+/* zip line interaction (positioned after the pool builds) */
+{const zi=addInter({pos:new V3(0,-999,0),r:2.6,on:()=>!!(PL&&PL.built&&PL.p2&&PL.p2.zipBase)&&!ZIP,label:'🪂 Ride the Zip Line!',act:()=>zipRide()});
+  const _pe2=poolExtras;poolExtras=function(){_pe2.apply(this,arguments);if(PL&&PL.p2&&PL.p2.zipBase)zi.pos.copy(PL.p2.zipBase);};}
+/* ================= HOT AIR BALLOON (yard decor) ================= */
+const YARD=[{id:'balloon',name:'Hot Air Balloon',icon:'🎈',price:6000,desc:'Tied up in your yard. Hop in and fly anywhere over the island!'}];
+const yard=()=>{S.yard=S.yard||{};return S.yard;};
+let BAL=null;
+function balloonSpot(){const hd=houseDoor||{x:SPAWN.x,z:SPAWN.z};const obs=[];obGrid.forEach(a=>a.forEach(o=>obs.push(o)));let best=null;
+  for(let r=10;r<=30&&!best;r+=2)for(let k=0;k<24&&!best;k++){const a=k/24*Math.PI*2,x=hd.x+Math.cos(a)*r,z=hd.z+Math.sin(a)*r;const y=heightAt(x,z);if(y<WATER_Y+1.5)continue;
+    if(PL){const l=PL.loc0?PL.loc0(x,z):PL.loc(x,z);if(l.du>-14&&l.du<24&&Math.abs(l.dt)<12)continue;}
+    let ok=true;for(const [dx,dz] of[[3,0],[-3,0],[0,3],[0,-3]])if(Math.abs(heightAt(x+dx,z+dz)-y)>.8)ok=false;if(!ok)continue;
+    if(obs.some(o=>Math.hypot(o.x-x,o.z-z)<o.r+4))continue;if(INTER.some(o=>o.pos&&o.pos.y>-100&&Math.hypot(o.pos.x-x,o.pos.z-z)<6))continue;best={x,z,y};}
+  return best||{x:hd.x+12,z:hd.z+12,y:heightAt(hd.x+12,hd.z+12)};}
+function makeBalloon(){const g=new THREE.Group();const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');const cols=['#ff4f6d','#ffd23d','#2f9bff','#39c45f','#ff8a1f','#9a5cff','#ffffff','#ff9ad5'];for(let i=0;i<16;i++){x.fillStyle=cols[i%8];x.fillRect(i*16,0,16,64);}
+  const env=new THREE.Mesh(new THREE.SphereGeometry(4,24,18),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),roughness:.6}));env.scale.set(1,1.18,1);env.position.y=9.2;env.castShadow=true;g.add(env);
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.8,1.6,16,1,true),new THREE.MeshStandardMaterial({color:0xff4f6d,side:THREE.DoubleSide}));neck.position.y=4.6;g.add(neck);
+  const wick=std(0xa0703c);const basket=new THREE.Mesh(new THREE.BoxGeometry(2.2,1.3,2.2),wick);basket.position.y=.65;basket.castShadow=true;g.add(basket);const rim=new THREE.Mesh(new THREE.BoxGeometry(2.35,.18,2.35),std(0x6b4226));rim.position.y=1.32;g.add(rim);
+  for(const sx of[-1,1])for(const sz of[-1,1]){const r=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,3.4,4),std(0x5a3b22));r.position.set(sx*.95,2.9,sz*.95);r.rotation.z=-sx*.12;r.rotation.x=sz*.12;g.add(r);}
+  const burner=new THREE.Mesh(new THREE.CylinderGeometry(.25,.3,.4,10),std(0x555a66,{metalness:.7}));burner.position.y=3.6;g.add(burner);
+  const flame=new THREE.Mesh(new THREE.ConeGeometry(.35,1.2,10),new THREE.MeshBasicMaterial({color:0xffa53d,transparent:true,opacity:.9}));flame.position.y=4.3;flame.visible=false;g.add(flame);
+  const light=new THREE.PointLight(0xffa53d,0,12);light.position.y=4.5;g.add(light);
+  const sand=[];for(const s of[-1,1]){const b=new THREE.Mesh(new THREE.SphereGeometry(.22,8,6),std(0xd9c9a3));b.position.set(s*1.25,.7,0);g.add(b);sand.push(b);}
+  return{g,env,flame,light};}
+function buildBalloon(){if(BAL||!yard().balloon)return;const sp=balloonSpot();const m=makeBalloon();m.g.position.set(sp.x,sp.y,sp.z);worldGroup.add(m.g);
+  const peg=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.8,6),std(0x8a5a35));peg.position.set(sp.x+2.2,sp.y+.4,sp.z);worldGroup.add(peg);
+  const rope=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,1.4,4),std(0xd9c9a3));rope.position.set(sp.x+1.6,sp.y+.7,sp.z);rope.rotation.z=Math.PI/2.4;worldGroup.add(rope);
+  const lab=makeLabel('🎈 Your Hot Air Balloon',{scale:.5});lab.position.set(sp.x,sp.y+15.6,sp.z);worldGroup.add(lab);
+  BAL=Object.assign(m,{home:new V3(sp.x,sp.y,sp.z),pos:new V3(sp.x,sp.y,sp.z),vel:new V3(),ride:false,state:'home',peg,rope,lab,maxAlt:0});
+  BAL.inter=addInter({pos:new V3(sp.x,sp.y+1,sp.z),r:3.6,on:()=>!!BAL&&!BAL.ride&&BAL.state==='home',label:'🎈 Ride your Hot Air Balloon',act:()=>balloonStart()});}
+function balUI(){let u=$('#balUI');if(u)return u;u=document.createElement('div');u.id='balUI';u.hidden=true;
+  u.innerHTML='<b id="balAlt">Altitude 0 m</b><small>WASD to steer · hold Space (or 🔥) to go up · let go to drift down</small><div class="fr-row"><button class="btn gold" id="balBurn">🔥 Burner</button><button class="btn" id="balLand">🛬 Land (E)</button></div>';document.body.appendChild(u);
+  const b=u.querySelector('#balBurn');b.addEventListener('pointerdown',e=>{e.preventDefault();BAL&&(BAL.btn=true);});['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>{if(BAL)BAL.btn=false;}));
+  u.querySelector('#balLand').addEventListener('click',()=>balloonLand());return u;}
+function balloonStart(){if(!BAL||mode!=='world')return;if(typeof fishStop==='function'&&FH&&FH.on)fishStop();BAL.ride=true;BAL.state='up';BAL.vel.set(0,0,0);BAL.ePrev=true;BAL.peg.visible=false;BAL.rope.visible=false;BAL.lab.visible=false;
+  balUI().hidden=false;sfx('go');award('balloon_ride');toast('Up, up and away! 🎈','', '🎈');}
+function balloonLand(){if(!BAL||!BAL.ride)return;BAL.state='land';}
+function balloonHome(){if(!BAL)return;BAL.ride=false;BAL.state='home';BAL.pos.copy(BAL.home);BAL.vel.set(0,0,0);BAL.g.position.copy(BAL.home);BAL.g.rotation.set(0,0,0);BAL.peg.visible=true;BAL.rope.visible=true;BAL.lab.visible=true;BAL.flame.visible=false;BAL.light.intensity=0;const u=$('#balUI');if(u)u.hidden=true;}
+function balloonTick(dt,t){if(!BAL)return;BAL.g.visible=mode==='world';if(mode!=='world'){if(BAL.ride)balloonHome();return;}
+  if(!BAL.ride){if(BAL.state==='home'){BAL.g.position.copy(BAL.home);BAL.g.rotation.z=Math.sin(t*.8)*.02;BAL.env.rotation.y+=dt*.05;}return;}
+  const B=BAL;const press=keys.KeyE&&!B.ePrev;B.ePrev=!!keys.KeyE;if(press&&B.state!=='land')balloonLand();
+  const gy=Math.max(groundAt(B.pos.x,B.pos.z),WATER_Y);const alt=B.pos.y-gy;
+  let burn=(keys.Space||B.btn)&&B.state==='fly';if(B.state==='up'){burn=true;if(alt>22)B.state='fly';}
+  // steering
+  let ix=0,iz=0;if(B.state==='fly'){if(keys.KeyW||keys.ArrowUp)iz-=1;if(keys.KeyS||keys.ArrowDown)iz+=1;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;}
+  const cs=Math.cos(camYaw),sn=Math.sin(camYaw);const tx=(ix*cs+iz*sn)*13+.8,tz=(-ix*sn+iz*cs)*13+.5;B.vel.x+=(tx-B.vel.x)*Math.min(1,dt*.9);B.vel.z+=(tz-B.vel.z)*Math.min(1,dt*.9);
+  if(B.state==='land'){B.vel.x*=Math.pow(.3,dt);B.vel.z*=Math.pow(.3,dt);B.vel.y+=(-5-B.vel.y)*Math.min(1,dt*1.5);}
+  else B.vel.y+=((burn?6:-1.6)-B.vel.y)*Math.min(1,dt*(burn?1.2:.6));
+  B.pos.addScaledVector(B.vel,dt);const R=Math.hypot(B.pos.x,B.pos.z);if(R>720){B.pos.x*=720/R;B.pos.z*=720/R;}if(B.pos.y>gy+170)B.pos.y=gy+170,B.vel.y=Math.min(0,B.vel.y);
+  if(B.state!=='land'&&B.pos.y<gy+(B.state==='up'?0:6)){B.pos.y=Math.max(B.pos.y,gy+(B.state==='up'?0:6));B.vel.y=Math.max(0,B.vel.y);}
+  B.g.position.copy(B.pos);B.g.rotation.z=-B.vel.x*.01;B.g.rotation.x=B.vel.z*.01;B.flame.visible=burn;B.light.intensity=burn?2:0;if(burn){B.flame.scale.set(1,.8+Math.random()*.5,1);if(Math.random()<dt*3)sfx('bump');}
+  player.pos.set(B.pos.x,B.pos.y+1.4,B.pos.z);player.vel.set(0,0,0);B.maxAlt=Math.max(B.maxAlt,alt);if(alt>120)award('balloon_high');
+  const a=$('#balAlt');if(a)a.textContent=(B.state==='land'?'Landing… ':'')+'Altitude '+Math.round(alt)+' m';
+  if(B.state==='land'&&B.pos.y<=gy+.05){const drop=new V3(B.pos.x+2.4,0,B.pos.z);B.ride=false;B.state='parked';const u=$('#balUI');if(u)u.hidden=true;B.flame.visible=false;B.light.intensity=0;
+    player.pos.set(drop.x,groundAt(drop.x,drop.z)+player.r+.2,drop.z);player.vel.set(4,3,0);sfx('bump');toast('Landed! Your balloon will float back home.','', '🎈');
+    setTimeout(()=>{if(BAL&&BAL.state==='parked'){burst(BAL.pos.clone().add(new V3(0,6,0)),['#ffffff','#ffd23d','#ff4f6d'],24);balloonHome();}},3500);}}
+BADGES.push({id:'balloon_ride',icon:'🎈',name:'Up, Up and Away',desc:'Ride your hot air balloon'},{id:'balloon_high',icon:'☁️',name:'Touch the Clouds',desc:'Fly your balloon higher than 120 m'});
+{const _rd=renderDecor;renderDecor=function(){_rd();const body=$('#decorBody');const Y=yard();body.appendChild(el('div','sec-h','🌳 Yard (goes outside next to your house)'));const l=el('div','list');
+  YARD.forEach(d=>l.appendChild(rowItem(d.icon,d.name,Y[d.id]?'In your yard! '+d.desc:d.price.toLocaleString()+' coins · '+d.desc,Y[d.id]?null:'Buy',Y[d.id]?null:()=>{if(S.coins<d.price){toast('You need '+(d.price-S.coins)+' more coins','bad','🪙');return;}S.coins-=d.price;Y[d.id]=1;save();updateCoinsUI();sfx('buy');buildBalloon();toast('Your Hot Air Balloon is waiting in your yard, next to your house! 🎈','badge','🎈');renderDecor();},!Y[d.id]&&S.coins<d.price)));body.appendChild(l);};}
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
@@ -7569,7 +7697,7 @@ function frame(now){
 
 /* ================= BOOT ================= */
 envTex=makeEnv(renderer);
-buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();buildTeleporters();buildFishing();buildArena();
+buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();buildTeleporters();buildFishing();buildArena();buildBalloon();
 player=new Ball(lookOf(S.equip));
 player.pos.set(SPAWN.x+14,0,SPAWN.z);snapToGround(player,heightAt);
 titleAng=0;camPos.set(player.pos.x,player.pos.y+12,player.pos.z+26);
