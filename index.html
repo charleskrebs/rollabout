@@ -302,6 +302,13 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
 .fr-zone{position:absolute;top:0;bottom:0;background:rgba(126,224,143,.45);border:2px solid #7ee08f;border-radius:8px;box-sizing:border-box}.fr-zone.on{background:rgba(126,224,143,.8)}.fr-fish{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:22px}
 .fr-prog{height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.fr-prog i{display:block;height:100%;background:linear-gradient(90deg,#ffd23d,#39c45f)}.fr-row{display:flex;gap:8px;align-items:center}#fishBtn{touch-action:none;user-select:none;-webkit-user-select:none}
 .fish-dex{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.fd{background:#fff;border:3px solid var(--ink);border-radius:14px;padding:8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}.fd .fi{font-size:30px}.fd b{font-size:14px}.fd small{font-size:11px;color:var(--muted);font-weight:700;line-height:1.25}.fd.unknown{opacity:.55;border-color:#9aa7bb}
+.pb-card{display:flex;gap:12px;align-items:center;background:#fff;border:2.5px solid var(--ink);border-radius:16px;padding:10px;margin-bottom:8px}.pb-pic{width:84px;height:84px;flex:none;border-radius:50%;background:radial-gradient(circle,#fff,#e4f0fb);border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:38px;overflow:hidden}.pb-pic img{width:100%;height:100%;object-fit:cover}
+.pb-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.pb-info small{font-weight:700;color:var(--muted);font-size:12px}.pb-el{display:inline-block;color:#fff;border-radius:99px;padding:0 8px;font-weight:800;text-shadow:0 1px 1px rgba(0,0,0,.4);margin-right:4px}
+.pb-arena{display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#bfe6ff,#e9f7d8);border:2.5px solid var(--ink);border-radius:18px;padding:12px}.pb-side{position:relative;display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.85);border:2.5px solid var(--ink);border-radius:16px;padding:8px 10px;width:min(360px,100%)}.pb-side.foe{align-self:flex-end;flex-direction:row-reverse;text-align:right}.pb-side.me{align-self:flex-start}
+.pb-hp{height:12px;border:2px solid var(--ink);border-radius:99px;background:#fff;overflow:hidden}.pb-hp i{display:block;height:100%;transition:width .4s}.pb-side.hit{animation:pbhit .4s}@keyframes pbhit{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+.pb-dmg{position:absolute;top:-6px;left:50%;font-family:var(--display);font-size:28px;color:#ff4f6d;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;animation:pbdmg .9s ease-out forwards;pointer-events:none}@keyframes pbdmg{to{transform:translateY(-30px);opacity:0}}
+.pb-log{background:#14213d;color:#fff;border-radius:14px;padding:8px 12px;margin:10px 0;font-weight:700;font-size:14px;min-height:70px;display:flex;flex-direction:column;gap:2px}.pb-log div:last-child{color:#ffd23d}
+.pb-moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}.pb-mv{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;font-size:17px}.pb-mv small{font-family:var(--body);font-size:12px;font-weight:700;color:var(--muted)}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
 #c3holdBtn{touch-action:none;user-select:none;-webkit-user-select:none}
@@ -588,6 +595,10 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
   <section class="sheet" id="fishSheet" hidden aria-label="Fisher Finn" style="max-width:760px">
     <header><h2>🎣 Fisher Finn</h2><div style="display:flex;gap:10px;align-items:center"><div class="pill"><span class="coin-dot"></span><span class="coinNum">0</span></div><button class="btn x" data-close aria-label="Close">✕</button></div></header>
     <div id="fishBody"></div>
+  </section>
+  <section class="sheet" id="pbSheet" hidden aria-label="Pet Battle Arena" style="max-width:640px">
+    <header><h2 id="pbTitle">⚔️ Pet Battle Arena</h2><div style="display:flex;gap:10px;align-items:center"><div class="pill"><span class="coin-dot"></span><span class="coinNum">0</span></div><button class="btn x" data-close aria-label="Close">✕</button></div></header>
+    <div id="pbBody"></div>
   </section>
   <section class="sheet" id="gardenSheet" hidden aria-label="Your garden" style="max-width:720px">
     <header><h2>🌻 <span id="gTitle">Your Garden</span></h2><button class="btn x" data-close aria-label="Close">✕</button></header>
@@ -7123,7 +7134,7 @@ function equippedAura(){const id=S.equip.aura;return id&&id!=='aura_none'&&S.own
 function auraTick(dt,t){const def=equippedAura();if(AURA&&(!def||AURA.id!==def.id)){scene.remove(AURA.g);AURA.dispose();AURA=null;}
   const vis=!!def&&mode!=='title'&&player.mesh.visible;if(!vis){if(AURA)AURA.g.visible=false;}else{if(!AURA){AURA=buildAura(def,false);scene.add(AURA.g);}
     AURA.g.visible=true;AURA.g.position.copy(player.pos);AURA.g.scale.setScalar(player.r||1);AURA.tick(t,dt,Math.atan2(camera.position.x-player.pos.x,camera.position.z-player.pos.z));}
-  auraShopTick(dt,t);tpTick(dt,t);fishWorldTick(dt,t);}
+  auraShopTick(dt,t);tpTick(dt,t);fishWorldTick(dt,t);arenaTick(dt,t);}
 /* --- shop tab: swatches, rarity, live preview --- */
 {const _rsh=renderShop;renderShop=function(){S.owned.aura_none=1;_rsh();if(shopTab!=='auras')return;
   $$('#shopGrid .item').forEach((b,i)=>{const list=AURAS.filter(it=>(!it.special&&(!it.city||inCity()))||S.owned[it.id]);const it=list[i];if(!it)return;const sw=b.querySelector('.sw');sw.style.background=auraSwatch(it);sw.textContent=it.icon;sw.style.cssText+=';display:flex;align-items:center;justify-content:center;font-size:26px';
@@ -7399,6 +7410,97 @@ function buildFishing(){const P=PIER,perp={x:-P.dz,z:P.dx},top=P.top;const at=(u
   addInter({pos:new V3(FISH_SPOT.x,top+1,FISH_SPOT.z),r:2.6,on:()=>!FH.on,label:()=>'🎣 Go fishing ('+curRod().name+')',act:()=>fishStart()});
   FINN={b:finn,y:top+.85,spotM};}
 function fishWorldTick(dt,t){if(!FINN)return;const vis=mode==='world';if(FINN.vis!==vis){FINN.vis=vis;FINN.b.setVisible(vis);}if(!vis)return;FINN.b.pos.y=FINN.y+Math.abs(Math.sin(t*1.6))*.06;FINN.b.sync(dt);FINN.spotM.material.opacity=.5+Math.sin(t*3)*.3;fishTick(dt,t);}
+/* ================= PET BATTLES ================= */
+const PB_EL={fire:{name:'Fire',icon:'🔥',col:'#ff7a2b',move:'Flame Dash',beats:'leaf'},water:{name:'Water',icon:'💧',col:'#2f9bff',move:'Bubble Blast',beats:'fire'},leaf:{name:'Leaf',icon:'🌿',col:'#39c45f',move:'Leaf Storm',beats:'water'},
+  spark:{name:'Spark',icon:'⚡',col:'#ffd23d',move:'Zap Zap',beats:'shadow'},shadow:{name:'Shadow',icon:'🌑',col:'#7a4fc4',move:'Shadow Pounce',beats:'star'},star:{name:'Star',icon:'⭐',col:'#ff9ad5',move:'Star Shower',beats:'spark'}};
+const PB_RIDX={common:1,wild:1.06,uncommon:1.1,rare:1.17,epic:1.25,legendary:1.34,mythic:1.44};
+function pbHash(s){let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h;}
+function pbElem(id){const k=id.toLowerCase();const map=[[/fire|dragon|phoenix|lava|pepper|ember|sun|fox/,'fire'],[/fish|duck|whale|octo|frog|turtle|penguin|seal|crab|shark|jelly|otter/,'water'],[/sprout|leaf|bunny|deer|bee|bug|snail|panda|koala|tree|cat/,'leaf'],
+  [/spark|zap|bolt|robot|tesseract|cube|electric|bat/,'spark'],[/black|ghost|shadow|void|spook|owl|raven|night/,'shadow'],[/star|moon|shape|unicorn|angel|cosmic|rect|crystal/,'star']];for(const [re,e] of map)if(re.test(k))return e;return Object.keys(PB_EL)[pbHash(id)%6];}
+function pbS(){S.pb=S.pb||{};const b=S.pb;b.lv=b.lv||{};b.xp=b.xp||{};b.beat=b.beat||0;b.wins=b.wins||0;return b;}
+function pbLv(id){return pbS().lv[id]||1;}
+function pbStats(id,lv,stage){const def=PETS.find(p=>p.id===id)||PETS[0];const r=PB_RIDX[def.rar]||1;const L=(1+.09*(lv-1))*(1+.1*(stage||0));const h=pbHash(id);
+  return{hp:Math.round(60*r*L),atk:Math.round(11*r*L*(.92+(h%17)/100)),spd:Math.round(10*r*L*(.9+(h%23)/100))};}
+function pbMoves(id){const e=PB_EL[pbElem(id)];const pk=PERKS[id];let sp='Mega Roll',spP=2.2;if(pk&&pk.txt){const m=pk.txt.replace(/^[^A-Za-z]+/,'').split(':')[0].trim();if(m&&m.length<22){sp=m;spP=2.6;}}
+  return[{k:'tackle',name:'Tackle',icon:'💥',pow:1,acc:1,txt:'Always hits'},{k:'elem',name:e.move,icon:e.icon,pow:1.5,acc:.85,txt:'Strong · element power'},{k:'guard',name:'Guard',icon:'🛡️',txt:'Block most of the next hit and heal a little'},{k:'special',name:sp,icon:'🌟',pow:spP,acc:.95,txt:'Huge hit · needs to charge'}];}
+function pbFighter(id,lv,stage,owner,weak){const def=PETS.find(p=>p.id===id);const st=pbStats(id,lv,stage);if(weak){st.hp=Math.round(st.hp*weak);st.atk=Math.round(st.atk*weak);st.spd=Math.round(st.spd*weak);}return{id,def,name:owner==='you'&&typeof petLabel==='function'?petLabel(def):def.name,lv,el:pbElem(id),max:st.hp,hp:st.hp,atk:st.atk,spd:st.spd,moves:pbMoves(id),guard:0,lastGuard:false,cd:2,owner};}
+const PB_TRAINERS=[{name:'Rookie Rae',lv:1,rar:'common',icon:'🧢'},{name:'Bubbly Bo',lv:2,rar:'uncommon',icon:'🫧'},{name:'Sir Pounce',lv:3,rar:'uncommon',icon:'🎩'},{name:'Lightning Liv',lv:4,rar:'rare',icon:'⚡'},
+  {name:'Shadow Sam',lv:6,rar:'epic',icon:'🌑'},{name:'Duchess Dot',lv:8,rar:'epic',icon:'👑'},{name:'Blaze Baron',lv:10,rar:'legendary',icon:'🔥'},{name:'Champion Nova',lv:12,rar:'mythic',icon:'🏆'}];
+function pbTrainerPet(i){const T=PB_TRAINERS[i];let pool=PETS.filter(p=>p.rar===T.rar&&!p.special);if(!pool.length)pool=PETS.filter(p=>!p.special);return pool[pbHash(T.name)%pool.length].id;}
+let PB=null;
+function openArena(){ensurePetPreview();PB=null;openSheet('pbSheet');renderArena();}
+function pbPortrait(id){return petThumbs[id]?'<img src="'+petThumbs[id]+'" alt="">':'🐾';}
+function renderArena(){const b=pbS(),body=$('#pbBody');body.innerHTML='';$('#pbTitle').textContent='⚔️ Pet Battle Arena';
+  const id=S.equip.pet;if(!id){body.appendChild(el('p','sub','"You need a pet to battle! Pick one in the Pet Shop, then come back." — Coach Pawla'));const bt=el('button','btn gold','🐾 Open Pet Shop');bt.addEventListener('click',()=>openSheet('petSheet'));body.appendChild(bt);return;}
+  const me=pbFighter(id,pbLv(id),petStage(id));const e=PB_EL[me.el];const need=pbLv(id)*50;
+  const card=el('div','pb-card');card.innerHTML='<div class="pb-pic">'+pbPortrait(id)+'</div><div class="pb-info"><b>'+me.name+' · Lv '+me.lv+'</b><small><span class="pb-el" style="background:'+e.col+'">'+e.icon+' '+e.name+'</span> ❤️ '+me.max+' · ⚔️ '+me.atk+' · 💨 '+me.spd+'</small><div class="ch-bar"><i style="width:'+Math.min(100,(b.xp[id]||0)/need*100)+'%"></i></div><small>XP '+(b.xp[id]||0)+'/'+need+(me.lv>=20?' · MAX LEVEL':'')+' · Wins: '+b.wins+'</small><small>Moves: '+me.moves.map(m=>m.icon+' '+m.name).join(' · ')+'</small></div>';body.appendChild(card);
+  body.appendChild(el('p','sub','Type chart: 🔥 beats 🌿 · 🌿 beats 💧 · 💧 beats 🔥 · ⚡ beats 🌑 · 🌑 beats ⭐ · ⭐ beats ⚡ (1.5x damage). Pets level up as they win, and evolved pets are stronger!'));
+  const q=el('button','btn gold','🎲 Quick battle (random opponent)');q.addEventListener('click',()=>pbStart(-1));body.appendChild(q);
+  body.appendChild(el('div','sec-h','🏟️ Arena ladder · '+Math.min(b.beat,8)+'/8 beaten'));const l=el('div','list');
+  PB_TRAINERS.forEach((T,i)=>{const pid=pbTrainerPet(i),pd=PETS.find(p=>p.id===pid),done=i<b.beat,open=i<=b.beat;
+    l.appendChild(rowItem(done?'✅':open?T.icon:'🔒',T.name+(i===7?' (Champion)':''),open?pd.name+' · Lv '+T.lv+' · '+PB_EL[pbElem(pid)].icon+' '+PB_EL[pbElem(pid)].name+(done?' · rematch':' · '+150*(i+1)+' coins'):'Beat the trainer before to unlock',open?'Battle':null,open?()=>pbStart(i):null));});body.appendChild(l);}
+function pbStart(i){const id=S.equip.pet;if(!id)return;const me=pbFighter(id,pbLv(id),petStage(id),'you');let foe,T;
+  if(i<0){const pool=PETS.filter(p=>!p.special);const pid=pool[Math.floor(Math.random()*pool.length)].id;const lv=Math.max(1,Math.min(20,me.lv+Math.floor(Math.random()*3)-1));foe=pbFighter(pid,lv,lv>=8?1:0,'foe',.88);T={name:'Wild Challenger',icon:'🎲',lv};}
+  else{T=PB_TRAINERS[i];foe=pbFighter(pbTrainerPet(i),T.lv,T.lv>=8?1:0,'foe',i===7?.9:.82+i*.02);}
+  PB={me,foe,T,i,turn:1,busy:false,log:[T.name+' sends out '+foe.name+'!'],over:false};sfx('go');renderBattle();}
+function pbLog(t){PB.log.push(t);if(PB.log.length>4)PB.log.shift();const L=$('#pbLog');if(L)L.innerHTML=PB.log.map(x=>'<div>'+x+'</div>').join('');}
+function renderBattle(){const body=$('#pbBody');body.innerHTML='';$('#pbTitle').textContent=PB.T.icon+' vs '+PB.T.name;
+  const side=(F,cls)=>{const e=PB_EL[F.el];const d=el('div','pb-side '+cls);d.id='pb_'+F.owner;d.innerHTML='<div class="pb-pic">'+pbPortrait(F.id)+'</div><div class="pb-info"><b>'+(F.owner==='you'?'Your ':'')+F.name+' · Lv '+F.lv+'</b><small><span class="pb-el" style="background:'+e.col+'">'+e.icon+' '+e.name+'</span>'+(F.guard?' 🛡️':'')+'</small><div class="pb-hp"><i style="width:'+(F.hp/F.max*100)+'%;background:'+(F.hp/F.max>.5?'#39c45f':F.hp/F.max>.2?'#ffc23d':'#ff4f6d')+'"></i></div><small>'+Math.max(0,F.hp)+' / '+F.max+' HP</small></div>';return d;};
+  const arena=el('div','pb-arena');arena.appendChild(side(PB.foe,'foe'));arena.appendChild(side(PB.me,'me'));body.appendChild(arena);
+  const log=el('div','pb-log');log.id='pbLog';log.innerHTML=PB.log.map(x=>'<div>'+x+'</div>').join('');body.appendChild(log);
+  const mv=el('div','pb-moves');if(PB.over){const r=el('div','pb-moves');const a=el('button','btn gold','🏟️ Back to the arena');a.addEventListener('click',()=>{PB=null;renderArena();});r.appendChild(a);body.appendChild(r);return;}
+  PB.me.moves.forEach(m=>{const dis=PB.busy||(m.k==='special'&&PB.me.cd>0)||(m.k==='guard'&&PB.me.lastGuard);const b=el('button','btn pb-mv'+(m.k==='special'?' gold':''));b.disabled=dis;
+    b.innerHTML='<span>'+m.icon+' '+m.name+'</span><small>'+(m.k==='special'&&PB.me.cd>0?'Charging… '+PB.me.cd+' turn'+(PB.me.cd>1?'s':''):m.k==='guard'&&PB.me.lastGuard?'Can\'t guard twice in a row':m.txt)+'</small>';b.addEventListener('click',()=>pbTurn(m));mv.appendChild(b);});body.appendChild(mv);
+  const run=el('button','btn small','🏳️ Give up');run.addEventListener('click',()=>{if(PB.busy)return;PB.over=true;pbLog('You gave up. '+PB.me.name+' needs some practice!');renderBattle();});body.appendChild(run);}
+function pbAI(){const F=PB.foe,mv=F.moves;if(F.cd<=0&&Math.random()<.6)return mv[3];if(F.hp<F.max*.3&&!F.lastGuard&&Math.random()<.35)return mv[2];return Math.random()<.55?mv[1]:mv[0];}
+function pbDo(A,D,m){if(m.k==='guard'){A.guard=1;A.lastGuard=true;const h=Math.round(A.max*.08);A.hp=Math.min(A.max,A.hp+h);pbLog((A.owner==='you'?'':'Foe ')+A.name+' guards! (+'+h+' HP)');sfx('bump');return;}
+  A.lastGuard=false;if(m.k==='special')A.cd=3;
+  if(Math.random()>m.acc){pbLog((A.owner==='you'?'':'Foe ')+A.name+' used '+m.name+'… but missed!');sfx('bad');return;}
+  let mult=1;if(m.k!=='tackle'){if(PB_EL[A.el].beats===D.el)mult=1.5;else if(PB_EL[D.el].beats===A.el)mult=.67;}
+  const crit=Math.random()<.08;let dmg=Math.max(1,Math.round(A.atk*m.pow*mult*(.85+Math.random()*.3)*(crit?1.5:1)*(D.guard?.45:1)));const blocked=D.guard;D.guard=0;D.hp=Math.max(0,D.hp-dmg);
+  pbLog((A.owner==='you'?'':'Foe ')+A.name+' used '+m.name+'! '+dmg+' damage'+(crit?' · CRIT!':'')+(mult>1?' · Super effective!':mult<1?' · Not very effective…':'')+(blocked?' · Blocked!':''));
+  sfx(crit||mult>1?'boom':'hoop');const s=$('#pb_'+D.owner);if(s){s.classList.remove('hit');void s.offsetWidth;s.classList.add('hit');const f=el('div','pb-dmg','-'+dmg);s.appendChild(f);setTimeout(()=>f.remove(),900);}}
+function pbTurn(m){if(!PB||PB.busy||PB.over)return;PB.busy=true;const me=PB.me,foe=PB.foe,fm=pbAI();
+  const order=me.spd>foe.spd||(me.spd===foe.spd&&Math.random()<.5)?[[me,foe,m],[foe,me,fm]]:[[foe,me,fm],[me,foe,m]];
+  const step=k=>{if(k>=2||PB.over){me.cd=Math.max(0,me.cd-1);foe.cd=Math.max(0,foe.cd-1);PB.turn++;PB.busy=false;renderBattle();return;}const [A,D,mv]=order[k];if(A.hp<=0){step(k+1);return;}
+    pbDo(A,D,mv);updateHp();if(D.hp<=0){setTimeout(()=>pbEnd(D===foe),700);return;}setTimeout(()=>step(k+1),750);};
+  renderBattle();step(0);}
+function updateHp(){[PB.me,PB.foe].forEach(F=>{const s=$('#pb_'+F.owner);if(!s)return;const i=s.querySelector('.pb-hp i');i.style.width=(F.hp/F.max*100)+'%';i.style.background=F.hp/F.max>.5?'#39c45f':F.hp/F.max>.2?'#ffc23d':'#ff4f6d';s.querySelectorAll('small')[1].textContent=F.hp+' / '+F.max+' HP';});}
+function pbEnd(won){const b=pbS(),id=PB.me.id;PB.over=true;PB.busy=false;let coins=0,xp=won?40+PB.foe.lv*12:15;
+  if(won){b.wins++;award('pb_first');if(b.wins>=25)award('pb_25');
+    if(PB.i>=0){const first=PB.i>=b.beat;coins=first?150*(PB.i+1):40*(PB.i+1);if(first){b.beat=PB.i+1;if(b.beat>=5)award('pb_5');if(PB.i===7){award('pb_champ');S.owned.hat_champion=1;}}}
+    else coins=60+PB.foe.lv*20;}
+  const got=coins?addCoins(coins):0;
+  b.xp[id]=(b.xp[id]||0)+xp;let lvUp=false;while(pbLv(id)<20&&b.xp[id]>=pbLv(id)*50){b.xp[id]-=pbLv(id)*50;b.lv[id]=pbLv(id)+1;lvUp=true;}if(pbLv(id)>=10)award('pb_lv10');
+  save();updateCoinsUI(true);sfx(won?'badge':'bad');
+  pbLog(won?'🏆 '+PB.foe.name+' fainted! You win'+(got?' '+got+' coins':'')+' and '+xp+' XP!':'💫 '+PB.me.name+' fainted… +'+xp+' XP. Try again!');
+  if(lvUp)setTimeout(()=>toast(PB?PB.me.name+' grew to Lv '+pbLv(id)+'!':'Your pet leveled up!','badge','⬆️'),400);
+  if(won&&PB.i===7&&b.beat===8)setTimeout(()=>showResult({title:'PET CHAMPION!',big:'🏆',line:'You beat Champion Nova! You are the new Pet Battle Champion and won the Champion Laurel hat!',coins:null,buttons:[{label:'Wear the Laurel',cls:'gold',fn:()=>{S.equip.hat='hat_champion';save();player.setLook(lookOf(S.equip));closeSheets();}},{label:'Awesome!',fn:()=>{openArena();}}]}),1200);
+  renderBattle();}
+HATS.push({id:'hat_champion',name:'Champion Laurel',price:0,special:1});
+BADGES.push({id:'pb_first',icon:'⚔️',name:'First Victory',desc:'Win a pet battle'},{id:'pb_5',icon:'🥈',name:'Rising Star',desc:'Beat 5 arena trainers'},{id:'pb_champ',icon:'🏆',name:'Pet Champion',desc:'Beat Champion Nova'},
+  {id:'pb_25',icon:'🎖️',name:'Battle Hardened',desc:'Win 25 pet battles'},{id:'pb_lv10',icon:'⬆️',name:'Power Pet',desc:'Get a pet to battle level 10'});
+{const _mh=makeHat;makeHat=function(id){if(id!=='hat_champion')return _mh(id);const g=new THREE.Group();const M=c=>std(c,{flatShading:false,metalness:.6,roughness:.3});
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.6,.05,8,32),M(0xffd23d));ring.rotation.x=Math.PI/2;ring.position.y=.08;g.add(ring);
+  for(let k=0;k<16;k++){if(k===4||k===12)continue;const a=k/16*Math.PI*2;const lf=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),M(0xffc23d));lf.scale.set(.06,.04,.15);lf.position.set(Math.cos(a)*.6,.14,Math.sin(a)*.6);lf.rotation.y=-a;lf.rotation.x=.5;g.add(lf);}
+  const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.1,0),new THREE.MeshStandardMaterial({color:0xff4f6d,emissive:0x991133}));gem.position.set(0,.16,.6);g.add(gem);return g;};}
+/* --- the arena near spawn --- */
+let PBA=null;
+function buildArena(){const x=27,z=-2,y=heightAt(x,z);const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=Math.atan2(13.9-x,24.5-z);worldGroup.add(g);const M=(c,o)=>std(c,Object.assign({flatShading:false},o||{}));
+  const fl=new THREE.Mesh(new THREE.CylinderGeometry(7.5,7.8,.3,40),M(0xd9c9a3));fl.position.y=.15;fl.receiveShadow=true;g.add(fl);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(3.2,3.45,40),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.32;g.add(ring);
+  const line=new THREE.Mesh(new THREE.PlaneGeometry(.25,14),new THREE.MeshBasicMaterial({color:0xffffff}));line.rotation.x=-Math.PI/2;line.rotation.z=Math.PI/2;line.position.y=.32;g.add(line);
+  for(let k=0;k<14;k++){const a=k/14*Math.PI*2;if(Math.abs(Math.sin(a/2))<.2)continue;const w=new THREE.Mesh(new THREE.BoxGeometry(3,1.4,.6),M(k%2?0xe8413c:0x2f7bff));w.position.set(Math.sin(a)*7.6,.7,Math.cos(a)*7.6);w.rotation.y=a;g.add(w);{const wp=new V3(Math.sin(a)*7.6,0,Math.cos(a)*7.6).applyAxisAngle(new V3(0,1,0),g.rotation.y).add(g.position);addObstacle(wp.x,wp.z,1.3,y+1.4);}
+    if(k%2===0){const p=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,4,6),M(0xffffff));p.position.set(Math.sin(a)*7.6,2,Math.cos(a)*7.6);g.add(p);const f=new THREE.Mesh(new THREE.PlaneGeometry(1.1,.7),new THREE.MeshStandardMaterial({color:[0xffd23d,0xff4f6d,0x39c45f,0x9a5cff][k/2%4],side:THREE.DoubleSide}));f.position.set(Math.sin(a)*7.6+.55,3.6,Math.cos(a)*7.6);g.add(f);}}
+  [-1,1].forEach(s=>{const ped=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.3,.6,20),M(s<0?0xe8413c:0x2f7bff));ped.position.set(s*4.8,.6,0);g.add(ped);});
+  const sign=makeLabel('⚔️ PET BATTLE ARENA ⚔️',{scale:.9,bg:'rgba(255,210,61,.97)'});sign.position.set(0,6.4,-6);g.add(sign);
+  const coach=new Ball({color:'#ff8a3d',secondary:'sec_white',pattern:'pat_bands',hat:'hat_cap'},.85);const fr=new V3(0,0,6.2).applyAxisAngle(new V3(0,1,0),g.rotation.y).add(g.position);coach.pos.set(fr.x,y+.85,fr.z);
+  const cl=makeLabel('Coach Pawla',{scale:.5});cl.position.set(0,2.6,6.2);g.add(cl);
+  const p1=makePet(PETS[0].id),p2=makePet(PETS[Math.min(5,PETS.length-1)].id);[p1,p2].forEach((p,k)=>{p.position.set(k?4.8:-4.8,.9,0);p.rotation.y=k?-Math.PI/2:Math.PI/2;p.scale.setScalar(1.3);g.add(p);});
+  addInter({pos:new V3(fr.x,y+1,fr.z),r:3.2,label:'⚔️ Talk to Coach Pawla (Pet Battles)',act:()=>openArena()});
+  PBA={g,coach,y,p1,p2};}
+function arenaTick(dt,t){if(!PBA)return;const vis=mode==='world';if(PBA.vis!==vis){PBA.vis=vis;PBA.coach.setVisible(vis);}if(!vis)return;PBA.coach.pos.y=PBA.y+.85+Math.abs(Math.sin(t*2.4))*.15;PBA.coach.sync(dt);
+  const k=Math.sin(t*2);PBA.p1.position.x=-4.8+Math.max(0,k)*1.2;PBA.p2.position.x=4.8-Math.max(0,-k)*1.2;PBA.p1.position.y=.9+Math.abs(Math.sin(t*4))*.2;PBA.p2.position.y=.9+Math.abs(Math.cos(t*4))*.2;}
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
@@ -7467,7 +7569,7 @@ function frame(now){
 
 /* ================= BOOT ================= */
 envTex=makeEnv(renderer);
-buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();buildTeleporters();buildFishing();
+buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();buildTeleporters();buildFishing();buildArena();
 player=new Ball(lookOf(S.equip));
 player.pos.set(SPAWN.x+14,0,SPAWN.z);snapToGround(player,heightAt);
 titleAng=0;camPos.set(player.pos.x,player.pos.y+12,player.pos.z+26);
