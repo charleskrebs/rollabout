@@ -297,6 +297,11 @@ button{font-family:inherit}
 .logo span.flk{color:#d8c26a!important;animation:none;filter:blur(.5px)}
 body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contrast(1.4)}
 #gardenSheet .sub{margin:10px 0}.g-ev{background:#2a0a5c;color:#fff;border:2px solid var(--ink);border-radius:14px;padding:10px 12px;font-weight:800}.g-dexl{display:flex;flex-direction:column;gap:5px}.g-dex{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:6px 10px;flex-wrap:wrap}.g-dex.unknown{opacity:.55}.g-dex span{display:flex;gap:4px}.g-dex i{font-style:normal;font-size:18px;filter:grayscale(1);opacity:.3}.g-dex i.on{filter:none;opacity:1}#gEvChip{background:#2a0a5c;color:#fff}.g-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:8px}.g-card{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}.g-card .ic{font-size:30px;line-height:1}.g-card small{color:var(--muted);font-size:13px}.g-card .g-meta{color:var(--ink);font-weight:700}.g-card button{margin-top:auto}.g-card.locked{opacity:.6}.g-plots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.g-plot{background:#6b4226;color:#fff;border:2px solid var(--ink);border-radius:12px;padding:6px;font-size:13px;font-weight:700;text-align:center}.g-plot b{font-size:24px;display:block}.g-plot.locked{background:#8d8f94}.g-plot.ready{background:#39c45f;box-shadow:0 0 0 3px #ffd23d}
+#fishUI{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#0f2a4a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;width:min(380px,calc(100% - 32px));box-shadow:0 6px 0 var(--ink);box-sizing:border-box}
+#fishUI b{font-size:17px;text-align:center}#fishReel{width:100%;display:flex;flex-direction:column;gap:6px}.fr-track{position:relative;height:34px;background:linear-gradient(90deg,#1d5b8f,#2a7fc8,#1d5b8f);border:2px solid #9fdcff;border-radius:10px;overflow:hidden}
+.fr-zone{position:absolute;top:0;bottom:0;background:rgba(126,224,143,.45);border:2px solid #7ee08f;border-radius:8px;box-sizing:border-box}.fr-zone.on{background:rgba(126,224,143,.8)}.fr-fish{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:22px}
+.fr-prog{height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.fr-prog i{display:block;height:100%;background:linear-gradient(90deg,#ffd23d,#39c45f)}.fr-row{display:flex;gap:8px;align-items:center}#fishBtn{touch-action:none;user-select:none;-webkit-user-select:none}
+.fish-dex{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.fd{background:#fff;border:3px solid var(--ink);border-radius:14px;padding:8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}.fd .fi{font-size:30px}.fd b{font-size:14px}.fd small{font-size:11px;color:var(--muted);font-weight:700;line-height:1.25}.fd.unknown{opacity:.55;border-color:#9aa7bb}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
 #c3holdBtn{touch-action:none;user-select:none;-webkit-user-select:none}
@@ -579,6 +584,10 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
     <div id="aibIdeas" style="display:flex;gap:6px;flex-wrap:wrap"></div>
     <div id="aibMode" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" data-m="add">➕ Add to my level</button><button class="btn small" data-m="new">🆕 Replace the whole level</button></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn gold" id="aibBuild">✨ Build it!</button><button class="btn small" id="aibUndo" hidden>↩ Undo last AI build</button><span class="sub" id="aibMsg" aria-live="polite"></span></div>
+  </section>
+  <section class="sheet" id="fishSheet" hidden aria-label="Fisher Finn" style="max-width:760px">
+    <header><h2>🎣 Fisher Finn</h2><div style="display:flex;gap:10px;align-items:center"><div class="pill"><span class="coin-dot"></span><span class="coinNum">0</span></div><button class="btn x" data-close aria-label="Close">✕</button></div></header>
+    <div id="fishBody"></div>
   </section>
   <section class="sheet" id="gardenSheet" hidden aria-label="Your garden" style="max-width:720px">
     <header><h2>🌻 <span id="gTitle">Your Garden</span></h2><button class="btn x" data-close aria-label="Close">✕</button></header>
@@ -7114,7 +7123,7 @@ function equippedAura(){const id=S.equip.aura;return id&&id!=='aura_none'&&S.own
 function auraTick(dt,t){const def=equippedAura();if(AURA&&(!def||AURA.id!==def.id)){scene.remove(AURA.g);AURA.dispose();AURA=null;}
   const vis=!!def&&mode!=='title'&&player.mesh.visible;if(!vis){if(AURA)AURA.g.visible=false;}else{if(!AURA){AURA=buildAura(def,false);scene.add(AURA.g);}
     AURA.g.visible=true;AURA.g.position.copy(player.pos);AURA.g.scale.setScalar(player.r||1);AURA.tick(t,dt,Math.atan2(camera.position.x-player.pos.x,camera.position.z-player.pos.z));}
-  auraShopTick(dt,t);tpTick(dt,t);}
+  auraShopTick(dt,t);tpTick(dt,t);fishWorldTick(dt,t);}
 /* --- shop tab: swatches, rarity, live preview --- */
 {const _rsh=renderShop;renderShop=function(){S.owned.aura_none=1;_rsh();if(shopTab!=='auras')return;
   $$('#shopGrid .item').forEach((b,i)=>{const list=AURAS.filter(it=>(!it.special&&(!it.city||inCity()))||S.owned[it.id]);const it=list[i];if(!it)return;const sw=b.querySelector('.sw');sw.style.background=auraSwatch(it);sw.textContent=it.icon;sw.style.cssText+=';display:flex;align-items:center;justify-content:center;font-size:26px';
@@ -7233,6 +7242,163 @@ function tpTick(dt,t){if(!TP_ST||mode!=='world')return;TP_ST.core.rotation.y-=dt
 {const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const own=TP_BOSSES.filter(b=>tpOwned(b.id));const body=$('#bagBody');body.appendChild(el('div','sec-h','Boss teleporters'));const l=el('div','list');
   if(!own.length)body.appendChild(el('p','sub','Beat a boss, then buy its teleporter at the Boss Teleporter Station near spawn.'));
   own.forEach(b=>l.appendChild(rowItem(b.icon,b.name,'Rematch wins: '+((S.bossWins||{})[b.id]||0)+' · +'+b.reward+' coins per win'+(tpCdLeft(b)>0?' · ⏳ recharging '+tpCdTxt(tpCdLeft(b)):''),'Teleport',()=>tpGo(b),mode!=='world'||(area&&area.busy)||tpCdLeft(b)>0)));body.appendChild(l);};}
+/* ================= FISHING ================= */
+const FISH=[
+ {id:'f_boot',name:'Old Boot',icon:'🥾',rar:'junk',min:20,max:30,price:2},
+ {id:'f_can',name:'Tin Can',icon:'🥫',rar:'junk',min:8,max:12,price:1},
+ {id:'f_weed',name:'Seaweed',icon:'🌿',rar:'junk',min:10,max:60,price:1},
+ {id:'f_duck',name:'Rubber Duck',icon:'🦆',rar:'junk',min:8,max:10,price:25},
+ {id:'f_sardine',name:'Sardine',icon:'🐟',rar:'common',min:10,max:20,price:8},
+ {id:'f_anchovy',name:'Anchovy',icon:'🐟',rar:'common',min:8,max:15,price:8},
+ {id:'f_mackerel',name:'Mackerel',icon:'🐟',rar:'common',min:25,max:45,price:12},
+ {id:'f_tang',name:'Blue Tang',icon:'🐠',rar:'common',min:15,max:30,price:15},
+ {id:'f_clown',name:'Clownfish',icon:'🐠',rar:'uncommon',min:7,max:11,price:25},
+ {id:'f_puffer',name:'Pufferfish',icon:'🐡',rar:'uncommon',min:15,max:40,price:30},
+ {id:'f_crab',name:'Crab',icon:'🦀',rar:'uncommon',min:10,max:25,price:30},
+ {id:'f_squid',name:'Squid',icon:'🦑',rar:'uncommon',min:20,max:60,price:35},
+ {id:'f_sword',name:'Swordfish',icon:'🗡️',rar:'rare',min:120,max:300,price:80},
+ {id:'f_octo',name:'Octopus',icon:'🐙',rar:'rare',min:40,max:120,price:90},
+ {id:'f_lobster',name:'Lobster',icon:'🦞',rar:'rare',min:25,max:60,price:100},
+ {id:'f_moon',name:'Moonfish',icon:'🌙',rar:'rare',min:30,max:80,price:120,night:1},
+ {id:'f_shark',name:'Shark',icon:'🦈',rar:'epic',min:150,max:500,price:250},
+ {id:'f_turtle',name:'Sea Turtle',icon:'🐢',rar:'epic',min:60,max:150,price:300},
+ {id:'f_jelly',name:'Glow Jellyfish',icon:'🪼',rar:'epic',min:20,max:80,price:220,night:1},
+ {id:'f_storm',name:'Stormfish',icon:'⚡',rar:'epic',min:40,max:110,price:350,rain:1},
+ {id:'f_whale',name:'Baby Whale',icon:'🐋',rar:'legendary',min:300,max:600,price:800},
+ {id:'f_koi',name:'Golden Koi',icon:'✨',rar:'legendary',min:40,max:90,price:1000,day:1},
+ {id:'f_rainbow',name:'Rainbow Trout',icon:'🌈',rar:'legendary',min:40,max:100,price:900,rain:1},
+ {id:'f_kraken',name:'Kraken',icon:'🦑',rar:'mythic',min:800,max:2000,price:3000,tint:'#9a5cff'},
+ {id:'f_cosmic',name:'Cosmic Fish',icon:'🌌',rar:'mythic',min:100,max:300,price:5000,night:1,rod:'rod_cosmic'}];
+const FISH_RAR={junk:{name:'Junk',col:'#cfd8e3',w:22,spd:.25},common:{name:'Common',col:'#dfe6ee',w:40,spd:.35},uncommon:{name:'Uncommon',col:'#9ee6a9',w:22,spd:.5},rare:{name:'Rare',col:'#8cc8ff',w:10,spd:.65},
+  epic:{name:'Epic',col:'#d1b0ff',w:4.5,spd:.8},legendary:{name:'Legendary',col:'#ffc23d',w:1.3,spd:1},mythic:{name:'Mythic',col:'#ff9ad5',w:.3,spd:1.25}};
+const RODS=[{id:'rod_twig',name:'Twig Rod',icon:'🪵',price:0,luck:0,col:0x8a5a35,txt:'A stick with some string. It works… kind of.'},
+ {id:'rod_sturdy',name:'Sturdy Rod',icon:'🎣',price:500,luck:1,col:0x2f7bff,txt:'Bigger reel zone, slightly better luck.'},
+ {id:'rod_pro',name:'Pro Rod',icon:'🎣',price:2500,luck:2,col:0xe8413c,txt:'Faster bites and better luck.'},
+ {id:'rod_gold',name:'Golden Rod',icon:'🏆',price:10000,luck:3,col:0xffd23d,sell:1.25,txt:'Great luck. Fish sell for 25% more.'},
+ {id:'rod_cosmic',name:'Cosmic Rod',icon:'🌌',price:50000,luck:5,col:0x9a5cff,sell:1.5,txt:'Amazing luck, fish sell for 50% more, and it can catch the Cosmic Fish at night!'}];
+function fishS(){S.fish=S.fish||{};const f=S.fish;f.rod=f.rod||'rod_twig';f.rods=f.rods||{rod_twig:1};f.inv=f.inv||{};f.dex=f.dex||{};f.total=f.total||0;return f;}
+const fishById=id=>FISH.find(f=>f.id===id),rodById=id=>RODS.find(r=>r.id===id);
+const curRod=()=>rodById(fishS().rod)||RODS[0];
+function fishNight(){return dayAmount<.5;}function fishRain(){return weather&&(weather.type==='rain'||weather.type==='storm');}
+function fishOk(f){if(f.night&&!fishNight())return false;if(f.day&&fishNight())return false;if(f.rain&&!fishRain())return false;if(f.rod&&fishS().rod!==f.rod)return false;return true;}
+function fishPick(){const luck=curRod().luck;const W={};for(const k in FISH_RAR){let w=FISH_RAR[k].w;if(k==='junk')w*=Math.max(.3,1-luck*.13);else if(!['common','uncommon'].includes(k))w*=1+luck*.4;if(FISH.every(f=>f.rar!==k||!fishOk(f)))w=0;W[k]=w;}
+  W.treasure=3+luck*.6;let tot=0;for(const k in W)tot+=W[k];let r=Math.random()*tot;let rar='common';for(const k in W){r-=W[k];if(r<=0){rar=k;break;}}
+  if(rar==='treasure')return{treasure:1};const pool=FISH.filter(f=>f.rar===rar&&fishOk(f));return pool[Math.floor(Math.random()*pool.length)];}
+/* --- state + visuals --- */
+const FH={on:false,state:'idle',t:0,bite:0,fish:null,zone:.2,zv:0,fp:.5,ft:.5,prog:.3,btn:false,tap:false,ePrev:false,meshes:null,spot:null,dir:null,pop:null};
+function fishMeshes(){if(FH.meshes)return FH.meshes;const rod=new THREE.Group();const stick=new THREE.Mesh(new THREE.CylinderGeometry(.04,.07,3.2,6),std(0x8a5a35));stick.position.y=1.6;rod.add(stick);
+  const reel=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.14,12),std(0x333a44,{metalness:.6}));reel.rotation.z=Math.PI/2;reel.position.y=.6;rod.add(reel);scene.add(rod);
+  const bob=new THREE.Group();const b1=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xe8413c}));const b2=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10,0,Math.PI*2,Math.PI/2,Math.PI/2),new THREE.MeshStandardMaterial({color:0xffffff}));bob.add(b1,b2);scene.add(bob);
+  const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(9*3),3));const line=new THREE.Line(lg,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.8}));line.frustumCulled=false;scene.add(line);
+  const pop=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthWrite:false}));pop.scale.setScalar(1.6);pop.visible=false;scene.add(pop);
+  FH.meshes={rod,stick,bob,line,pop};[rod,bob,line].forEach(m=>m.visible=false);return FH.meshes;}
+function fishUI(){let u=$('#fishUI');if(u)return u;u=document.createElement('div');u.id='fishUI';u.hidden=true;
+  u.innerHTML='<b id="fishMsg">Casting…</b><div id="fishReel" hidden><div class="fr-track"><i class="fr-zone"></i><span class="fr-fish">🐟</span></div><div class="fr-prog"><i></i></div></div><div class="fr-row"><button class="btn gold" id="fishBtn">🎣 Reel! (E)</button><button class="btn small" id="fishStop">Stop</button></div>';
+  document.body.appendChild(u);const b=u.querySelector('#fishBtn');b.addEventListener('pointerdown',e=>{e.preventDefault();FH.btn=true;FH.tap=true;});['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>FH.btn=false));
+  u.querySelector('#fishStop').addEventListener('click',()=>fishStop());return u;}
+function fishStart(){if(mode!=='world'||(area&&area.busy))return;const m=fishMeshes();fishS();FH.on=true;FH.state='cast';FH.t=0;FH.fish=null;
+  const P=PIER,perp={x:-P.dz,z:P.dx};FH.dir=perp;FH.spot=new V3(FISH_SPOT.x,0,FISH_SPOT.z);FH.target=new V3(FISH_SPOT.x+perp.x*8,WATER_Y+.05,FISH_SPOT.z+perp.z*8);
+  m.stick.material.color.set(curRod().col);[m.rod,m.bob,m.line].forEach(x=>x.visible=true);const u=fishUI();u.hidden=false;$('#fishReel').hidden=true;$('#fishMsg').textContent='Casting…';sfx('jump');}
+function fishStop(){FH.on=false;FH.state='idle';const u=$('#fishUI');if(u)u.hidden=true;if(FH.meshes)[FH.meshes.rod,FH.meshes.bob,FH.meshes.line].forEach(x=>x.visible=false);}
+function fishMsg(t){const m=$('#fishMsg');if(m&&m.textContent!==t)m.textContent=t;}
+function fishWaitTime(){let w=2.5+Math.random()*4.5-curRod().luck*.35;if(S.equip.pet==='pet_goldfish')w*=.7;return Math.max(1.2,w);}
+function fishTick(dt,t){if(!FH.on){if(FH.meshes&&FH.meshes.pop.visible)fishPopTick(dt);return;}
+  if(mode!=='world'||sheetOpen&&sheetOpen!=='resultSheet'){if(mode!=='world')fishStop();return;}
+  const m=FH.meshes;const moving=keys.KeyW||keys.KeyA||keys.KeyS||keys.KeyD;if(moving&&FH.state!=='reel'){fishStop();toast('You put your rod away','', '🎣');return;}
+  const gy=groundAt(FH.spot.x,FH.spot.z,player.pos.y+2);player.pos.set(FH.spot.x,gy+player.r,FH.spot.z);player.vel.set(0,0,0);
+  const press=(keys.KeyE&&!FH.ePrev)||FH.tap;FH.ePrev=!!keys.KeyE;FH.tap=false;const hold=!!keys.KeyE||FH.btn;
+  // rod + line
+  const d=FH.dir;m.rod.position.set(player.pos.x+d.x*.6,player.pos.y-.3,player.pos.z+d.z*.6);m.rod.rotation.set(0,0,0);m.rod.lookAt(m.rod.position.x+d.x,m.rod.position.y,m.rod.position.z+d.z);m.rod.rotateX(Math.PI/2-.5-(FH.state==='reel'?Math.sin(t*20)*.08+.25:0));
+  m.rod.updateMatrixWorld();const tipW=new V3(0,1.6,0);m.stick.localToWorld(tipW);
+  FH.t+=dt;
+  if(FH.state==='cast'){const f=Math.min(1,FH.t/.6);m.bob.position.lerpVectors(tipW,FH.target,f);m.bob.position.y+=Math.sin(f*Math.PI)*3;if(f>=1){FH.state='wait';FH.t=0;FH.bite=fishWaitTime();sfx('bump');burst(FH.target.clone(),['#ffffff','#9fdcff'],8);}}
+  else if(FH.state==='wait'){m.bob.position.copy(FH.target);m.bob.position.y+=Math.sin(t*3)*.05;fishMsg('Waiting for a bite…'+(Math.random()<.002?' 🫧':''));if(FH.t>=FH.bite){FH.state='bite';FH.t=0;sfx('coin');burst(FH.target.clone(),['#ffffff','#9fdcff'],14);camShake=Math.max(camShake,.08);}}
+  else if(FH.state==='bite'){m.bob.position.copy(FH.target);m.bob.position.y-=.25+Math.sin(t*30)*.08;fishMsg('❗ BITE! Press E (or Reel!) now!');
+    if(press){FH.fish=fishPick();FH.state='reel';FH.t=0;FH.prog=.3;FH.zone=.4;FH.zv=0;FH.fp=.5;FH.ft=Math.random();$('#fishReel').hidden=false;$('.fr-fish').textContent=FH.fish.treasure?'🧰':'❓';sfx('go');}
+    else if(FH.t>1.1){FH.state='wait';FH.t=0;FH.bite=fishWaitTime();fishMsg('Too slow… it got away!');sfx('bad');}}
+  else if(FH.state==='reel'){const F=FH.fish;const spd=F.treasure?.45:FISH_RAR[F.rar].spd;const luck=curRod().luck;const zw=.2+luck*.025;
+    if(Math.random()<dt*(1+spd*1.5))FH.ft=Math.random();FH.fp+=(FH.ft-FH.fp)*Math.min(1,dt*spd*3);
+    FH.zv+=(hold?2.6:-2.2)*dt;FH.zv*=Math.pow(.25,dt);FH.zone+=FH.zv*dt;if(FH.zone<0){FH.zone=0;FH.zv=Math.max(0,FH.zv)*-.3;}if(FH.zone>1-zw){FH.zone=1-zw;FH.zv=Math.min(0,FH.zv)*-.3;}
+    const inZ=FH.fp>=FH.zone&&FH.fp<=FH.zone+zw;FH.prog+=dt*(inZ?.3+luck*.03:-.2);
+    const tr=$('.fr-track');const zEl=tr.querySelector('.fr-zone');zEl.style.left=(FH.zone*100)+'%';zEl.style.width=(zw*100)+'%';zEl.classList.toggle('on',inZ);tr.querySelector('.fr-fish').style.left=(FH.fp*100)+'%';$('.fr-prog i').style.width=Math.max(0,Math.min(100,FH.prog*100))+'%';
+    fishMsg(inZ?'Reeling it in!':'Keep the green zone on the fish! Hold E');m.bob.position.copy(FH.target);m.bob.position.y-=.2;m.bob.position.x+=Math.sin(t*9)*.15;
+    if(FH.prog>=1)fishCaught(F);else if(FH.prog<=0){FH.state='wait';FH.t=0;FH.bite=fishWaitTime();$('#fishReel').hidden=true;fishMsg('The line snapped… it got away!');sfx('bad');}}
+  else if(FH.state==='done'){m.bob.position.copy(tipW);if(FH.t>1.4){FH.state='cast';FH.t=0;fishMsg('Casting…');}}
+  const p=m.line.geometry.attributes.position;const a=tipW,b=m.bob.position;for(let i=0;i<9;i++){const f=i/8;p.setXYZ(i,a.x+(b.x-a.x)*f,a.y+(b.y-a.y)*f-Math.sin(f*Math.PI)*(FH.state==='reel'?.1:.6),a.z+(b.z-a.z)*f);}p.needsUpdate=true;
+  if(m.pop.visible)fishPopTick(dt);}
+function fishPopTick(dt){const m=FH.meshes,P=FH.pop;if(!P)return;P.t+=dt;const f=Math.min(1,P.t/.8);m.pop.position.lerpVectors(P.a,P.b,f);m.pop.position.y+=Math.sin(f*Math.PI)*3;m.pop.material.rotation=Math.sin(P.t*12)*.3;if(P.t>1.6)m.pop.visible=false;}
+function fishCaught(F){const fs=fishS();FH.state='done';FH.t=0;$('#fishReel').hidden=true;const m=FH.meshes;
+  m.pop.material.map=emojiTex(F.treasure?'🧰':F.icon);m.pop.material.color.set(F.tint||'#ffffff');m.pop.material.needsUpdate=true;m.pop.visible=true;FH.pop={t:0,a:FH.target.clone(),b:player.pos.clone().add(new V3(0,2.2,0))};
+  burst(FH.target.clone(),['#ffffff','#9fdcff','#2ee6ff'],20);
+  if(F.treasure){const c=Math.round((150+Math.random()*450)*(1+curRod().luck*.2));const got=addCoins(c);sfx('badge');fishMsg('🧰 Treasure chest! +'+got+' coins');toast('Treasure chest! +'+got+' coins','coin','🧰');save();updateCoinsUI(true);return;}
+  const size=Math.round(F.min+Math.random()*(F.max-F.min));const isNew=!fs.dex[F.id];const d=fs.dex[F.id]=fs.dex[F.id]||{n:0,best:0};d.n++;const rec=size>d.best;d.best=Math.max(d.best,size);fs.inv[F.id]=(fs.inv[F.id]||0)+1;fs.total++;
+  if(fs.req&&fs.req.id===F.id&&fs.req.got<fs.req.n)fs.req.got++;
+  const big=['epic','legendary','mythic'].includes(F.rar);sfx(big||isNew?'badge':'coin');if(big)camShake=Math.max(camShake,.2);
+  fishMsg('You caught a '+F.name+'! '+F.icon+' '+fishSize(size)+(isNew?' · NEW!':rec?' · New record!':''));
+  toast((isNew?'NEW! ':'')+F.name+' ('+FISH_RAR[F.rar].name+') · '+fishSize(size),isNew||big?'badge':'',F.icon);
+  award('fish_first');if(F.id==='f_boot')award('fish_boot');if(F.rar==='mythic')award('fish_mythic');
+  const species=Object.keys(fs.dex).length;if(species>=10)award('fish_10');if(species>=FISH.length)award('fish_all');
+  if(!S.owned.hat_fishing){S.owned.hat_fishing=1;setTimeout(()=>toast('Finn gave you a Fishing Hat for your first catch! (Shop → Hats)','badge','👒'),1600);}
+  if(species>=12&&!S.owned.pet_goldfish){S.owned.pet_goldfish=1;setTimeout(()=>toast('12 kinds of fish! You unlocked the Goldfish pet! 🐠','badge','🐠'),1800);}
+  if(species>=FISH.length&&!S.owned.trail_bubbles){S.owned.trail_bubbles=1;setTimeout(()=>toast('Every fish caught! You unlocked the Ocean Bubbles trail!','badge','🫧'),2000);}
+  save();}
+function fishSize(cm){return cm>=100?(cm/100).toFixed(1)+' m':cm+' cm';}
+/* --- Finn's shop: sell, rods, Fishdex, requests --- */
+function fishSellPrice(f){return Math.round(f.price*(curRod().sell||1));}
+function fishNewReq(){const pool=FISH.filter(f=>['common','uncommon','rare'].includes(f.rar)&&!f.night&&!f.rain&&!f.day&&!f.rod);const f=pool[Math.floor(Math.random()*pool.length)];const n=f.rar==='rare'?1:f.rar==='uncommon'?2:3;fishS().req={id:f.id,n,got:0};}
+function openFinn(){fishS();if(!fishS().req)fishNewReq();openSheet('fishSheet');renderFinn();}
+function renderFinn(){const fs=fishS(),body=$('#fishBody');body.innerHTML='';
+  const inv=FISH.filter(f=>fs.inv[f.id]);const worth=inv.reduce((s,f)=>s+fishSellPrice(f)*fs.inv[f.id],0);
+  body.appendChild(el('p','sub','"Ahoy! Cast a line at the fishing spot on my pier and bring \'em here. Different fish bite at night, in the rain, and some only for the best rods!" — Finn'));
+  // request
+  const R=fs.req,rf=R&&fishById(R.id);if(rf){body.appendChild(el('div','sec-h','📜 Finn\'s request'));const l=el('div','list');const done=R.got>=R.n;const reward=rf.price*R.n*3;
+    l.appendChild(rowItem(rf.icon,'Catch '+R.n+' '+rf.name+(R.n>1?'s':''),'Progress: '+Math.min(R.got,R.n)+'/'+R.n+' · Reward: '+reward+' coins',done?'Claim':null,done?()=>{const got=addCoins(reward);sfx('badge');toast('Finn paid you '+got+' coins!','coin','📜');fishNewReq();save();updateCoinsUI(true);renderFinn();}:null));body.appendChild(l);}
+  // catch
+  body.appendChild(el('div','sec-h','🪣 Your catch'));if(!inv.length)body.appendChild(el('p','sub','Your bucket is empty. Go cast a line at the fishing spot!'));
+  else{const r=el('div');r.style.cssText='display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px';const sb=el('button','btn gold small','💰 Sell everything ('+worth+')');sb.addEventListener('click',()=>{const got=addCoins(worth);fs.inv={};sfx('buy');toast('Sold your catch for '+got+' coins!','coin','🐟');save();updateCoinsUI(true);renderFinn();});r.appendChild(sb);body.appendChild(r);
+    const l=el('div','list');inv.forEach(f=>l.appendChild(rowItem(f.icon,f.name+' ×'+fs.inv[f.id],FISH_RAR[f.rar].name+' · '+fishSellPrice(f)+' coins each','Sell',()=>{const got=addCoins(fishSellPrice(f)*fs.inv[f.id]);delete fs.inv[f.id];sfx('coin');toast('+'+got+' coins','coin',f.icon);save();updateCoinsUI(true);renderFinn();})));body.appendChild(l);}
+  // rods
+  body.appendChild(el('div','sec-h','🎣 Rods'));const rl=el('div','list');rl.style.gridTemplateColumns='minmax(0,1fr)';RODS.forEach(r=>{const own=fs.rods[r.id],on=fs.rod===r.id;
+    rl.appendChild(rowItem(r.icon,r.name+(on?' (using)':''),r.txt+' · Luck '+r.luck,on?null:own?'Use':'Buy '+r.price.toLocaleString(),on?null:()=>{if(!own){if(S.coins<r.price){toast('You need '+(r.price-S.coins)+' more coins','bad','🪙');return;}S.coins-=r.price;fs.rods[r.id]=1;sfx('buy');award('fish_rod');if(r.id==='rod_cosmic')award('fish_cosmicrod');}fs.rod=r.id;if(FH.meshes)FH.meshes.stick.material.color.set(r.col);save();updateCoinsUI(true);renderFinn();}));});body.appendChild(rl);
+  // dex
+  const n=Object.keys(fs.dex).length;body.appendChild(el('div','sec-h','📖 Fishdex · '+n+'/'+FISH.length+' · '+fs.total+' caught'));const g=el('div','fish-dex');
+  FISH.forEach(f=>{const d=fs.dex[f.id];const c=el('div','fd'+(d?'':' unknown'));c.style.borderColor=d?FISH_RAR[f.rar].col:'';const hint=[f.night?'🌙 night':'',f.day?'☀️ day':'',f.rain?'🌧️ rain':'',f.rod?'🌌 Cosmic Rod':''].filter(Boolean).join(' · ');
+    c.innerHTML='<span class="fi" style="'+(f.tint&&d?'filter:hue-rotate(250deg) saturate(2)':'')+'">'+(d?f.icon:'❓')+'</span><b>'+(d?f.name:'???')+'</b><small>'+FISH_RAR[f.rar].name+(d?' · ×'+d.n+' · best '+fishSize(d.best):'')+(hint?'<br>'+hint:'')+'</small>';g.appendChild(c);});body.appendChild(g);
+  body.appendChild(el('p','sub','Rewards: Fishing Hat (first catch) · Goldfish pet (12 kinds) · Ocean Bubbles trail (every fish)'));}
+/* --- cosmetics + badges --- */
+HATS.push({id:'hat_fishing',name:'Fishing Hat',price:0,special:1});
+PETS.push({id:'pet_goldfish',name:'Goldfish',rar:'legendary',special:1,fly:true});
+PERKS.pet_goldfish={coins:.3,txt:'🐠 Lucky Bubbles: +30% extra coins, and fish bite 30% faster'};
+TRAILS.push({id:'trail_bubbles',name:'Ocean Bubbles',price:0,special:1,cols:['#9fdcff','#ffffff','#2ee6ff','#7fe0ff'],sz:.28,life:1.6,grav:-1.2});
+BADGES.push({id:'fish_first',icon:'🎣',name:'First Catch',desc:'Catch something while fishing'},{id:'fish_boot',icon:'🥾',name:'One Ball\'s Trash',desc:'Fish up an Old Boot'},{id:'fish_rod',icon:'🛒',name:'Upgrade!',desc:'Buy a better fishing rod'},
+  {id:'fish_10',icon:'🐠',name:'Angler',desc:'Catch 10 different kinds of fish'},{id:'fish_mythic',icon:'🦑',name:'Release the Kraken',desc:'Catch a Mythic fish'},{id:'fish_cosmicrod',icon:'🌌',name:'Cosmic Caster',desc:'Buy the Cosmic Rod'},{id:'fish_all',icon:'🏆',name:'Master Angler',desc:'Complete the whole Fishdex'});
+{const _mh=makeHat;makeHat=function(id){if(id!=='hat_fishing')return _mh(id);const g=new THREE.Group();const M=c=>std(c,{flatShading:false});
+  const brim=new THREE.Mesh(new THREE.CylinderGeometry(.78,.82,.06,24),M(0x8a9a5b));brim.position.y=.05;g.add(brim);const top=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,.38,20),M(0x8a9a5b));top.position.y=.25;g.add(top);
+  const band=new THREE.Mesh(new THREE.CylinderGeometry(.505,.505,.09,20),M(0x5a3b22));band.position.y=.13;g.add(band);
+  const lure=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),M(0xe8413c));lure.position.set(.45,.2,.2);g.add(lure);const hook=new THREE.Mesh(new THREE.TorusGeometry(.06,.015,6,12,Math.PI*1.4),M(0xcfd8dc));hook.position.set(.45,.1,.2);g.add(hook);return g;};}
+{const _mp=makePet;makePet=function(id){if(id!=='pet_goldfish')return _mp(id);const g=new THREE.Group();
+  const bowl=new THREE.Mesh(new THREE.SphereGeometry(.5,18,14),new THREE.MeshStandardMaterial({color:0xbfefff,transparent:true,opacity:.35,roughness:.05,metalness:.1}));bowl.position.y=1;g.add(bowl);
+  const water=new THREE.Mesh(new THREE.SphereGeometry(.46,16,12,0,Math.PI*2,Math.PI*.35,Math.PI*.65),new THREE.MeshStandardMaterial({color:0x3aa0ff,transparent:true,opacity:.45}));water.position.y=1;g.add(water);
+  const fish=new THREE.Group();fish.position.y=.98;g.add(fish);const body=new THREE.Mesh(new THREE.SphereGeometry(.17,12,10),std(0xff8a1f,{flatShading:false}));body.scale.set(1.3,1,.8);fish.add(body);
+  const tail=new THREE.Mesh(new THREE.ConeGeometry(.12,.2,4),std(0xffb347));tail.rotation.z=Math.PI/2;tail.position.x=-.27;fish.add(tail);for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(.03,6,5),new THREE.MeshBasicMaterial({color:0x111111}));e.position.set(.17,.05,s*.1);fish.add(e);}
+  g.userData.spin=fish;return g;};}
+JUKE_TRACKS.push({id:'a_fishing',name:'Gone Fishin\'',icon:'🎣',bpm:92,wave:'triangle',drums:'k..hk.h.',mel:'G4:1 B4:1 D5:2 B4:1 G4:1 A4:2 R:1 B4:1 C5:1 D5:1 E5:2 D5:2 B4:1 A4:1 G4:2 R:2 D5:1 E5:1 G5:2 E5:1 D5:1 B4:2 A4:1 G4:1 A4:2 G4:4',bass:'G2:4 C3:4 D3:4 G2:4 E2:4 C3:4 D3:4 G2:4'});
+/* --- Finn's corner on the pier --- */
+let FISH_SPOT=null,FINN=null;
+function buildFishing(){const P=PIER,perp={x:-P.dz,z:P.dx},top=P.top;const at=(u,v)=>({x:P.sx+P.dx*u+perp.x*v,z:P.sz+P.dz*u+perp.z*v});
+  FISH_SPOT=at(P.L*.58,1.7);const fp=at(P.L*.45,-1.4);const yaw=Math.atan2(perp.x,perp.z);
+  const g=new THREE.Group();g.position.set(fp.x,top,fp.z);g.rotation.y=yaw;worldGroup.add(g);
+  const crate=(x,z,s,c)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(s,s,s),std(c));m.position.set(x,s/2,z);g.add(m);return m;};crate(-1.2,-.6,.9,0x9a6b3f);crate(-1.2,.5,.7,0x8a5a35);crate(1.3,-.5,.8,0x9a6b3f);
+  const bucket=new THREE.Mesh(new THREE.CylinderGeometry(.35,.28,.55,12,1,true),std(0x7fa7c9,{metalness:.5}));bucket.position.set(1.3,1.08,-.5);g.add(bucket);
+  const umb=new THREE.Mesh(new THREE.ConeGeometry(2,1,10),std(0x2f7bff));umb.position.set(0,3.6,-.3);g.add(umb);const pole=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,3.4,6),std(0xffffff));pole.position.set(0,1.7,-.3);g.add(pole);
+  const sign=makeLabel('🎣 Finn\'s Bait & Tackle',{scale:.6,bg:'rgba(255,231,140,.97)'});sign.position.set(0,4.8,-.3);g.add(sign);
+  const finn=new Ball({color:'#ffcf99',secondary:'sec_white',pattern:'pat_solid',hat:'hat_fishing'},.85);finn.pos.set(fp.x,top+.85,fp.z);const fl=makeLabel('Fisher Finn',{scale:.5});fl.position.set(0,2.6,0);g.add(fl);
+  const spotM=new THREE.Mesh(new THREE.RingGeometry(.7,.95,24),new THREE.MeshBasicMaterial({color:0xffd23d,transparent:true,opacity:.8,side:THREE.DoubleSide}));spotM.rotation.x=-Math.PI/2;spotM.position.set(FISH_SPOT.x,top+.03,FISH_SPOT.z);worldGroup.add(spotM);
+  const sl=makeLabel('🎣 Fishing spot',{scale:.45});sl.position.set(FISH_SPOT.x,top+2.6,FISH_SPOT.z);worldGroup.add(sl);
+  addInter({pos:new V3(fp.x,top+1,fp.z),r:3,label:'🐟 Talk to Fisher Finn (sell fish, rods, Fishdex)',act:()=>openFinn()});
+  addInter({pos:new V3(FISH_SPOT.x,top+1,FISH_SPOT.z),r:2.6,on:()=>!FH.on,label:()=>'🎣 Go fishing ('+curRod().name+')',act:()=>fishStart()});
+  FINN={b:finn,y:top+.85,spotM};}
+function fishWorldTick(dt,t){if(!FINN)return;const vis=mode==='world';if(FINN.vis!==vis){FINN.vis=vis;FINN.b.setVisible(vis);}if(!vis)return;FINN.b.pos.y=FINN.y+Math.abs(Math.sin(t*1.6))*.06;FINN.b.sync(dt);FINN.spotM.material.opacity=.5+Math.sin(t*3)*.3;fishTick(dt,t);}
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
@@ -7301,7 +7467,7 @@ function frame(now){
 
 /* ================= BOOT ================= */
 envTex=makeEnv(renderer);
-buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();buildTeleporters();
+buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();buildTeleporters();buildFishing();
 player=new Ball(lookOf(S.equip));
 player.pos.set(SPAWN.x+14,0,SPAWN.z);snapToGround(player,heightAt);
 titleAng=0;camPos.set(player.pos.x,player.pos.y+12,player.pos.z+26);
