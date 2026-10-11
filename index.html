@@ -310,6 +310,9 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
 .pb-log{background:#14213d;color:#fff;border-radius:14px;padding:8px 12px;margin:10px 0;font-weight:700;font-size:14px;min-height:70px;display:flex;flex-direction:column;gap:2px}.pb-log div:last-child{color:#ffd23d}
 .pb-moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}.pb-mv{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;font-size:17px}.pb-mv small{font-family:var(--body);font-size:12px;font-weight:700;color:var(--muted)}
 #balUI{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#2a1a4a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(380px,calc(100% - 32px));box-shadow:0 6px 0 var(--ink);box-sizing:border-box;text-align:center}#balUI b{font-size:18px;font-variant-numeric:tabular-nums}#balUI small{opacity:.85;font-weight:700}#balBurn{touch-action:none;user-select:none;-webkit-user-select:none}
+#boomBtn{position:fixed;right:16px;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:12;font-size:30px;width:64px;height:64px;border-radius:50%;padding:0;touch-action:none}
+#rangeUI{position:fixed;left:50%;top:calc(120px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:14;background:#14213d;color:#fff;border:3px solid var(--ink);border-radius:999px;padding:6px 18px;font-family:var(--display);font-size:22px;box-shadow:0 5px 0 var(--ink);white-space:nowrap}
+@media (max-width:700px){#boomBtn{right:132px;bottom:calc(48px + env(safe-area-inset-bottom,0px))}}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
 #c3holdBtn{touch-action:none;user-select:none;-webkit-user-select:none}
@@ -7135,7 +7138,7 @@ function equippedAura(){const id=S.equip.aura;return id&&id!=='aura_none'&&S.own
 function auraTick(dt,t){const def=equippedAura();if(AURA&&(!def||AURA.id!==def.id)){scene.remove(AURA.g);AURA.dispose();AURA=null;}
   const vis=!!def&&mode!=='title'&&player.mesh.visible;if(!vis){if(AURA)AURA.g.visible=false;}else{if(!AURA){AURA=buildAura(def,false);scene.add(AURA.g);}
     AURA.g.visible=true;AURA.g.position.copy(player.pos);AURA.g.scale.setScalar(player.r||1);AURA.tick(t,dt,Math.atan2(camera.position.x-player.pos.x,camera.position.z-player.pos.z));}
-  auraShopTick(dt,t);tpTick(dt,t);fishWorldTick(dt,t);arenaTick(dt,t);balloonTick(dt,t);}
+  auraShopTick(dt,t);tpTick(dt,t);fishWorldTick(dt,t);arenaTick(dt,t);balloonTick(dt,t);rangTick(dt,t);rangeTick(dt,t);}
 /* --- shop tab: swatches, rarity, live preview --- */
 {const _rsh=renderShop;renderShop=function(){S.owned.aura_none=1;_rsh();if(shopTab!=='auras')return;
   $$('#shopGrid .item').forEach((b,i)=>{const list=AURAS.filter(it=>(!it.special&&(!it.city||inCity()))||S.owned[it.id]);const it=list[i];if(!it)return;const sw=b.querySelector('.sw');sw.style.background=auraSwatch(it);sw.textContent=it.icon;sw.style.cssText+=';display:flex;align-items:center;justify-content:center;font-size:26px';
@@ -7629,6 +7632,71 @@ function balloonTick(dt,t){if(!BAL)return;BAL.g.visible=mode==='world';if(mode!=
 BADGES.push({id:'balloon_ride',icon:'🎈',name:'Up, Up and Away',desc:'Ride your hot air balloon'},{id:'balloon_high',icon:'☁️',name:'Touch the Clouds',desc:'Fly your balloon higher than 120 m'});
 {const _rd=renderDecor;renderDecor=function(){_rd();const body=$('#decorBody');const Y=yard();body.appendChild(el('div','sec-h','🌳 Yard (goes outside next to your house)'));const l=el('div','list');
   YARD.forEach(d=>l.appendChild(rowItem(d.icon,d.name,Y[d.id]?'In your yard! '+d.desc:d.price.toLocaleString()+' coins · '+d.desc,Y[d.id]?null:'Buy',Y[d.id]?null:()=>{if(S.coins<d.price){toast('You need '+(d.price-S.coins)+' more coins','bad','🪙');return;}S.coins-=d.price;Y[d.id]=1;save();updateCoinsUI();sfx('buy');buildBalloon();toast('Your Hot Air Balloon is waiting in your yard, next to your house! 🎈','badge','🎈');renderDecor();},!Y[d.id]&&S.coins<d.price)));body.appendChild(l);};}
+/* ================= BOOMERANG ================= */
+const RANGS=[{id:'rang_wood',name:'Wooden Boomerang',icon:'🪃',price:300,out:22,dur:1.6,col:0xb5793f,coin:1,txt:'A classic! Flies out and comes right back.'},
+ {id:'rang_gold',name:'Golden Boomerang',icon:'✨',price:2500,out:30,dur:1.5,col:0xffd23d,coin:2,metal:1,txt:'Flies farther and faster. Animals toss you 2x coins.'},
+ {id:'rang_rainbow',name:'Rainbow Boomerang',icon:'🌈',price:9000,out:40,dur:1.4,col:0xff4f6d,coin:3,rainbow:1,txt:'The farthest, fastest boomerang, with a rainbow trail. 3x coins and double target points!'}];
+const rangS=()=>{S.rang=S.rang||{};const r=S.rang;r.owned=r.owned||{};r.best=r.best||0;r.catches=r.catches||0;return r;};
+const curRang=()=>RANGS.find(r=>r.id===rangS().eq&&rangS().owned[r.id])||null;
+const BR={state:'held',t:0,mesh:null,mat:null,o:new V3(),dir:new V3(),side:new V3(),hits:new Set(),fPrev:false,tap:false};
+function rangMesh(){if(BR.mesh)return BR.mesh;const g=new THREE.Group();const m=new THREE.MeshStandardMaterial({color:0xb5793f,roughness:.5});BR.mat=m;
+  for(const s of[-1,1]){const arm=new THREE.Mesh(new THREE.BoxGeometry(1.1,.08,.26),m);arm.position.set(s*.42,0,.22);arm.rotation.y=s*.6;g.add(arm);}
+  const tip=new THREE.Mesh(new THREE.SphereGeometry(.15,8,6),m);tip.scale.y=.4;tip.position.z=-.05;g.add(tip);g.visible=false;scene.add(g);BR.mesh=g;return g;}
+function rangThrow(){const R=curRang();if(!R||BR.state!=='held'||mode!=='world'||sheetOpen||(area&&area.busy))return;if(typeof FH!=='undefined'&&FH.on)return;if(typeof BAL!=='undefined'&&BAL&&BAL.ride)return;
+  const m=rangMesh();BR.mat.color.set(R.col);BR.mat.metalness=R.metal?.8:0;BR.mat.emissive=new THREE.Color(R.rainbow?0x331133:0x000000);
+  BR.state='fly';BR.t=0;BR.R=R;BR.hits=new Set();BR.o.copy(player.pos);BR.dir.set(-Math.sin(camYaw),0,-Math.cos(camYaw)).normalize();BR.side.set(-BR.dir.z,0,BR.dir.x);m.visible=true;m.position.copy(player.pos);
+  sfx('jump');award('rang_first');}
+function rangTick(dt,t){const btn=$('#boomBtn');const R=curRang();const show=!!R&&mode==='world'&&!(area&&area.busy)&&!sheetOpen;if(btn&&btn.hidden===show)btn.hidden=!show;
+  const press=(keys.KeyF&&!BR.fPrev)||BR.tap;BR.fPrev=!!keys.KeyF;BR.tap=false;if(press)rangThrow();
+  if(BR.state!=='fly')return;if(mode!=='world'){BR.state='held';BR.mesh.visible=false;return;}
+  const Rg=BR.R;BR.t+=dt;const f=Math.min(1,BR.t/Rg.dur);const out=Math.sin(Math.PI*f)*Rg.out,sideA=Math.sin(Math.PI*f)*Math.max(0,f-.4)*Rg.out*.4;
+  const p=BR.o.clone().addScaledVector(BR.dir,out).addScaledVector(BR.side,sideA);p.y=BR.o.y+.8+Math.sin(Math.PI*f)*1.6;
+  const back=Math.max(0,(f-.55)/.45);if(back>0){const k=back*back;p.lerp(player.pos.clone().add(new V3(0,.6,0)),k);}
+  const m=BR.mesh;m.position.copy(p);m.rotation.y+=dt*24;m.rotation.z=.25;
+  if(Rg.rainbow&&Math.random()<dt*40)burst(p.clone(),['#ff3b3b','#ff9a2e','#ffe14d','#33c26b','#2f7bff','#9a5cff'],1);else if(Math.random()<dt*6)burst(p.clone(),['#ffffff'],1);
+  // hit wild critters
+  for(const c of critters){if(BR.hits.has(c)||!c.g.visible)continue;if(Math.hypot(c.pos.x-p.x,c.pos.z-p.z)<2.2&&Math.abs(c.pos.y-p.y)<3){BR.hits.add(c);const now=performance.now();if(c.rangCd&&now<c.rangCd)continue;c.rangCd=now+10000;
+      const got=addCoins(3*Rg.coin);c.tgt.set(c.pos.x+(c.pos.x-player.pos.x)*.4,0,c.pos.z+(c.pos.z-player.pos.z)*.4);sfx('coin');burst(c.pos.clone().add(new V3(0,1.5,0)),['#ffd23d','#ffffff'],10);
+      toast('Bonk! The wild '+c.def.name+' tossed you '+got+' coins!','coin','🪃');award('rang_bonk');updateCoinsUI(true);}}
+  // hit range targets
+  if(BRANGE)BRANGE.targets.forEach((T,i)=>{if(!T.up||BR.hits.has(T))return;if(T.hit.distanceTo(p)<2.1){BR.hits.add(T);rangeHit(T,Rg);}});
+  if(f>=1){BR.state='held';m.visible=false;const r=rangS();r.catches++;sfx('hoop');if(r.catches>=25)award('rang_catch');}}
+/* --- Boomerang Barry's stand + target range --- */
+let BRANGE=null;
+function buildBoomRange(){const x=32,z=50,y=heightAt(x,z);const dir=new V3(32-13.9,0,50-24.5).normalize();const yaw=Math.atan2(dir.x,dir.z);const M=(c,o)=>std(c,Object.assign({flatShading:false},o||{}));
+  const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=yaw;worldGroup.add(g);
+  const counter=new THREE.Mesh(new THREE.BoxGeometry(3.2,1.1,1),M(0xb5793f));counter.position.set(0,.55,-1.2);g.add(counter);const roof=new THREE.Mesh(new THREE.BoxGeometry(3.8,.2,2.4),M(0x39c45f));roof.position.set(0,3,-1.2);roof.rotation.x=.12;g.add(roof);
+  for(const s of[-1,1]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,3,6),M(0x8a5a35));p.position.set(s*1.6,1.5,-1.6);g.add(p);}
+  for(let k=0;k<3;k++){const b=new THREE.Group();for(const s of[-1,1]){const arm=new THREE.Mesh(new THREE.BoxGeometry(.6,.05,.15),M([0xb5793f,0xffd23d,0xff4f6d][k]));arm.position.set(s*.22,0,.12);arm.rotation.y=s*.6;b.add(arm);}b.position.set(-1+k,1.25,-1.2);b.rotation.x=-1.2;g.add(b);}
+  const sign=makeLabel('🪃 Boomerang Barry',{scale:.6,bg:'rgba(57,196,95,.95)'});sign.position.set(0,4.2,-1.2);g.add(sign);
+  g.children.forEach(ch=>ch.position.x-=5.5);const barry=new Ball({color:'#ffb347',secondary:'sec_white',pattern:'pat_dots',hat:'hat_cap'},.85);const bp=new V3(-5.5,0,-2.2).applyAxisAngle(new V3(0,1,0),yaw).add(g.position);barry.pos.set(bp.x,y+.85,bp.z);
+  const line=new THREE.Mesh(new THREE.PlaneGeometry(4,.3),new THREE.MeshBasicMaterial({color:0xffffff}));line.rotation.x=-Math.PI/2;line.position.set(0,.05,1.2);g.add(line);
+  const targets=[];for(let k=0;k<6;k++){const a=(k-2.5)*.3,d=11+(k%3)*4;const lx=Math.sin(a)*d,lz=Math.cos(a)*d+1.2;const wp=new V3(lx,0,lz).applyAxisAngle(new V3(0,1,0),yaw).add(g.position);const ty=heightAt(wp.x,wp.z);
+    const tg=new THREE.Group();tg.position.set(wp.x,ty,wp.z);tg.rotation.y=yaw+Math.PI;worldGroup.add(tg);const post=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,2,6),M(0x8a5a35));post.position.y=1;tg.add(post);
+    const board=new THREE.Group();board.position.y=2.2;tg.add(board);const cv=document.createElement('canvas');cv.width=cv.height=64;const c=cv.getContext('2d');[['#ff4f6d',32],['#ffffff',24],['#ff4f6d',16],['#ffffff',8]].forEach(([col,r])=>{c.fillStyle=col;c.beginPath();c.arc(32,32,r,0,7);c.fill();});
+    const face=new THREE.Mesh(new THREE.CircleGeometry(.85,24),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(cv),side:THREE.DoubleSide}));board.add(face);board.rotation.x=-Math.PI/2;
+    targets.push({tg,board,up:false,hit:new V3(wp.x,ty+2.2,wp.z),k});}
+  addInter({pos:new V3(bp.x,y+1,bp.z),r:3.2,label:'🪃 Talk to Boomerang Barry',act:()=>openBarry()});
+  BRANGE={g,barry,y,targets,game:null,throwPos:new V3(0,0,1.2).applyAxisAngle(new V3(0,1,0),yaw).add(g.position),yaw};}
+function openBarry(){const r=rangS(),R=curRang();const btns=[];
+  RANGS.forEach(it=>{const own=r.owned[it.id];btns.push({label:(own?(r.eq===it.id?'✓ Using ':'Use ')+it.icon+' '+it.name:'Buy '+it.icon+' '+it.name+' · 🪙 '+it.price.toLocaleString()),cls:!own&&S.coins>=it.price?'gold':'',fn:()=>{
+    if(!own){if(S.coins<it.price){toast('You need '+(it.price-S.coins)+' more coins','bad','🪙');return;}S.coins-=it.price;r.owned[it.id]=1;sfx('buy');updateCoinsUI(true);if(it.id==='rang_rainbow')award('rang_rainbow');toast('You got the '+it.name+'! Press F (or the 🪃 button) to throw it!','badge',it.icon);}
+    r.eq=it.id;save();closeSheets();}});});
+  if(R)btns.push({label:'🎯 Play Target Range (30 seconds)',cls:'gold',fn:()=>{closeSheets();rangeStart();}});btns.push({label:'Bye!',fn:()=>closeSheets()});
+  showResult({title:'Boomerang Barry',big:'🪃',line:R?'G\'day! Throw your boomerang with F (or the 🪃 button). It flies where your camera faces and comes right back! Bonk wild animals and they toss you coins. Try my Target Range! Best score: '+r.best+'.':'G\'day, mate! Want a boomerang? Throw it, and it comes right back to you. It bonks wild animals, and they toss you coins!',coins:null,buttons:btns});}
+function rangeStart(){const G={t:30,score:0,next:0};BRANGE.game=G;BRANGE.targets.forEach(T=>{T.up=false;});player.pos.set(BRANGE.throwPos.x,heightAt(BRANGE.throwPos.x,BRANGE.throwPos.z)+player.r,BRANGE.throwPos.z);player.vel.set(0,0,0);camYaw=BRANGE.yaw+Math.PI;snapCamera();
+  let u=$('#rangeUI');if(!u){u=document.createElement('div');u.id='rangeUI';document.body.appendChild(u);}u.hidden=false;sfx('go');toast('Hit the targets when they pop up! 🎯','', '🎯');}
+function rangeHit(T,Rg){const G=BRANGE.game;T.up=false;sfx('hoop');burst(T.hit.clone(),['#ff4f6d','#ffffff','#ffd23d'],14);if(G){G.score+=Rg.rainbow?2:1;}}
+function rangeTick(dt,t){const A=BRANGE;if(!A)return;const vis=mode==='world';if(A.vis!==vis){A.vis=vis;A.barry.setVisible(vis);}if(!vis)return;A.barry.pos.y=A.y+.85+Math.abs(Math.sin(t*2))*.1;A.barry.sync(dt);
+  A.targets.forEach(T=>{const want=T.up?0:-Math.PI/2;T.board.rotation.x+=(want-T.board.rotation.x)*Math.min(1,dt*10);});
+  const G=A.game;if(!G)return;G.t-=dt;G.next-=dt;if(G.next<=0){G.next=1.1+Math.random()*.8;const down=A.targets.filter(T=>!T.up);if(down.length&&A.targets.filter(T=>T.up).length<3){const T=down[Math.floor(Math.random()*down.length)];T.up=true;T.upT=t;sfx('beep');}}
+  A.targets.forEach(T=>{if(T.up&&t-T.upT>3.5)T.up=false;});
+  const u=$('#rangeUI');if(u)u.textContent='🎯 Target Range · '+Math.max(0,Math.ceil(G.t))+'s · Score '+G.score;
+  if(G.t<=0||mode!=='world'){A.game=null;if(u)u.hidden=true;A.targets.forEach(T=>T.up=false);const r=rangS();const best=G.score>r.best;r.best=Math.max(r.best,G.score);const got=G.score?addCoins(G.score*15):0;if(G.score>=10)award('rang_sharp');save();updateCoinsUI(true);sfx('badge');
+    showResult({title:'Time\'s up!',big:'🎯',line:'You hit '+G.score+' target'+(G.score===1?'':'s')+'!'+(best&&G.score?' NEW BEST!':' Best: '+r.best),coins:got||null,buttons:[{label:'Play again 🪃',cls:'gold',fn:()=>{closeSheets();rangeStart();}},{label:'Done',fn:()=>closeSheets()}]});}}
+BADGES.push({id:'rang_first',icon:'🪃',name:'Boomerang!',desc:'Throw a boomerang'},{id:'rang_bonk',icon:'🐿️',name:'Bonk!',desc:'Bonk a wild animal with your boomerang'},{id:'rang_catch',icon:'🧤',name:'Nice Catch',desc:'Catch your boomerang 25 times'},
+  {id:'rang_sharp',icon:'🎯',name:'Sharpshooter',desc:'Score 10 at the Target Range'},{id:'rang_rainbow',icon:'🌈',name:'Rainbow Thrower',desc:'Buy the Rainbow Boomerang'});
+{const b=document.createElement('button');b.id='boomBtn';b.className='btn gold';b.textContent='🪃';b.title='Throw boomerang (F)';b.hidden=true;b.addEventListener('pointerdown',e=>{e.preventDefault();BR.tap=true;});document.body.appendChild(b);}
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
@@ -7697,7 +7765,7 @@ function frame(now){
 
 /* ================= BOOT ================= */
 envTex=makeEnv(renderer);
-buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();buildTeleporters();buildFishing();buildArena();buildBalloon();
+buildWorld();buildExtras();buildNeighborhood();buildObby();buildVending();buildSecretsWorld();buildStatue();buildRaceGates();buildMinimap();buildFerry();buildIslandShapes();buildDaycare();buildGarden();buildPool();buildFolk();buildStar();buildC3Obby();buildAuraShop();buildTeleporters();buildFishing();buildArena();buildBalloon();buildBoomRange();
 player=new Ball(lookOf(S.equip));
 player.pos.set(SPAWN.x+14,0,SPAWN.z);snapToGround(player,heightAt);
 titleAng=0;camPos.set(player.pos.x,player.pos.y+12,player.pos.z+26);
