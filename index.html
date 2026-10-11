@@ -7983,7 +7983,7 @@ function buildEggs(){const f=funS();
     const neck=new THREE.Mesh(new THREE.CylinderGeometry(.16,.2,1.3,8),wh);neck.position.set(0,1.7,.8);neck.rotation.x=-.3;g.add(neck);const head=new THREE.Mesh(new THREE.SphereGeometry(.28,10,8),wh);head.position.set(0,2.35,1);g.add(head);
     const bk=new THREE.Mesh(new THREE.ConeGeometry(.12,.4,8),FM(0xff8a1f));bk.rotation.x=Math.PI/2;bk.position.set(0,2.32,1.4);g.add(bk);for(const x of[-.14,.14]){const e=new THREE.Mesh(new THREE.SphereGeometry(.05,6,5),new THREE.MeshBasicMaterial({color:0x111111}));e.position.set(x,2.42,1.2);g.add(e);}
     for(const x of[-.3,.3]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.5,6),FM(0xff8a1f));l.position.set(x,.25,0);g.add(l);}const lab=makeLabel('🪿 THE GOOSE',{scale:1.2,bg:'rgba(255,255,255,.97)'});lab.position.y=5;g.add(lab);
-    EGG.goose={g,home:new V3(p.x,0,p.z),pos:new V3(p.x,p.y,p.z),tgt:new V3(p.x,0,p.z),wait:0,shown:false};EGG.goose.inter=addInter({pos:new V3(p.x,p.y+1,p.z),r:3.2,label:'🪿 Talk to the goose',act:()=>{sfx('beep');funMsg('The Goose','🪿','"'+GOOSE_LINE+'"');}});}}
+    EGG.goose={g,home:new V3(p.x,0,p.z),pos:new V3(p.x,p.y,p.z),tgt:new V3(p.x,0,p.z),wait:0,shown:false};EGG.goose.inter=addInter({pos:new V3(p.x,p.y+1,p.z),r:3.2,on:()=>{const st=EGG.goose.state||'wander';return st==='wander'||st==='return';},label:'🪿 Talk to the goose',act:()=>{sfx('beep');funMsg('The Goose','🪿','"'+GOOSE_LINE+'" …HONK. You want to fight?',[{label:'⚔️ Fight the goose!',cls:'gold',fn:()=>{closeSheets();gooseStartFight();}},{label:'Nope, bye',fn:()=>closeSheets()}]);}});}}
 }
 function jerryJoke(){const f=funS();const j=JOKES[f.jokes%JOKES.length];f.jokes++;save();if(f.jokes>=5)award('fun_jokes');playSfxKey('laugh');
   funMsg('Joke Jerry','😂','"'+j+'"',[{label:'😑 Boo!',fn:()=>closeSheets()},{label:'😂 Another one!',cls:'gold',fn:()=>jerryJoke()}]);}
@@ -7999,6 +7999,7 @@ function eggTick(dt,t){const vis=mode==='world';FUN_BALLS.forEach(F=>{if(F.vis!=
   if(EGG.wall){const W=EGG.wall;W.cd-=dt;const dx=player.pos.x-W.x,dz=player.pos.z-W.z;const lx=dx*W.cs-dz*W.sn,lz=dx*W.sn+dz*W.cs;const hs=Math.hypot(player.vel.x,player.vel.z);
     if(Math.abs(lx)<4.6&&Math.abs(lz)<1.9&&W.cd<=0&&(hs>4||W.lastHs>8)){W.cd=4;sfx('bump');camShake=.25;award('fun_wall');toast('The wall: "That hurt, man."','badge','🧱');}W.lastHs=hs;}
   if(EGG.goose)gooseTick(dt,t);}
+function gooseStartFight(){const G=EGG.goose;if(!G)return;G.state='chase';G.hearts=5;G.dashCd=2;G.dash=0;G.inv=1.5;sfx('beep');camShake=.2;award('fun_goose');toast('🪿 HONK!! The goose is coming for you! Lead it to the 🌋 volcano to defeat it!','bad','🪿');gooseUI();}
 function gooseUI(){const G=EGG.goose;const b=$('#boss');b.hidden=false;b.querySelector('.nm').textContent='🪿 THE GOOSE';$('#bossBar i').style.width='100%';const h=$('#hearts');h.style.cssText='font-size:16px;letter-spacing:0;font-weight:800;color:#fff;text-shadow:0 2px 0 #14213d';
   h.textContent='❤️'.repeat(Math.max(0,G.hearts))+'🖤'.repeat(Math.max(0,5-G.hearts))+'  ·  HP 9,999,999,999  ·  Lead it to the 🌋 volcano!';G.shown=true;}
 function gooseTick(dt,t){const G=EGG.goose,f=funS();G.state=G.state||'wander';G.inv=Math.max(0,(G.inv||0)-dt);
@@ -8006,7 +8007,7 @@ function gooseTick(dt,t){const G=EGG.goose,f=funS();G.state=G.state||'wander';G.
   const pd=Math.hypot(player.pos.x-G.pos.x,player.pos.z-G.pos.z);let vx=0,vz=0,sp=0;
   if(G.state==='burn'){G.bt+=dt;G.g.position.y+=dt*2;G.g.rotation.y+=dt*12;G.g.scale.setScalar(Math.max(.05,1-G.bt*.3));if(Math.random()<.7)burst(G.g.position.clone().add(new V3(0,1,0)),['#ff3b00','#ff8a1f','#ffd23d','#333333'],2);if(G.bt>3.2)gooseDefeated();return;}
   if(G.state==='wander'){G.wait-=dt;if(G.wait<=0){G.wait=2+Math.random()*3;G.tgt.set(G.home.x+(Math.random()-.5)*12,0,G.home.z+(Math.random()-.5)*12);}const dx=G.tgt.x-G.pos.x,dz=G.tgt.z-G.pos.z,d=Math.hypot(dx,dz);if(d>.3){vx=dx/d;vz=dz/d;sp=2;}
-    if(pd<16&&mode==='world'){G.state='chase';G.hearts=5;G.dashCd=1.5;G.dash=0;sfx('beep');camShake=.2;award('fun_goose');toast('🪿 HONK!! The goose is coming for you! Lead it to the 🌋 volcano to defeat it!','bad','🪿');gooseUI();}}
+    if(pd<8&&mode==='world')award('fun_goose');}
   else if(G.state==='chase'){if(pd>90){G.state='return';gooseHide();toast('The goose lost you… it waddles back to the desert.','', '🪿');return;}
     G.dashCd-=dt;sp=18;if(G.dash>0){G.dash-=dt;sp=32;}else if(G.dashCd<=0){G.dashCd=2+Math.random()*1.4;G.dash=.6;sfx('beep');if(Math.random()<.4)toast('HONK!','', '🪿');}
     if(pd>.5){vx=(player.pos.x-G.pos.x)/pd;vz=(player.pos.z-G.pos.z)/pd;}
@@ -8015,7 +8016,7 @@ function gooseTick(dt,t){const G=EGG.goose,f=funS();G.state=G.state||'wander';G.
         setTimeout(()=>funMsg('HONKED!','🪿','The goose got you! You woke up back at spawn. Tip: dash (Q) away when it charges, and lead it north to the 🌋 volcano.'),900);return;}}
     if(dominant(biomeWeights(G.pos.x,G.pos.z))==='volcano'||Math.hypot(G.pos.x-VC.x,G.pos.z-VC.z)<70){G.state='burn';G.bt=0;sfx('boom');camShake=.6;gooseHide();toast('🔥 HONK?!?! The goose stepped on the hot volcano rocks!','badge','🌋');return;}
     if(!G.shown)gooseUI();}
-  else if(G.state==='return'){const dx=G.home.x-G.pos.x,dz=G.home.z-G.pos.z,d=Math.hypot(dx,dz);if(d>1){vx=dx/d;vz=dz/d;sp=9;}else G.state='wander';if(pd<12&&mode==='world'&&d<40){G.state='chase';G.hearts=5;gooseUI();}}
+  else if(G.state==='return'){const dx=G.home.x-G.pos.x,dz=G.home.z-G.pos.z,d=Math.hypot(dx,dz);if(d>1){vx=dx/d;vz=dz/d;sp=9;}else G.state='wander';}
   if(sp){G.pos.x+=vx*sp*dt;G.pos.z+=vz*sp*dt;G.g.rotation.y=Math.atan2(vx,vz);}
   G.pos.y=heightAt(G.pos.x,G.pos.z);G.inter.pos.set(G.pos.x,G.pos.y+1,G.pos.z);G.g.position.set(G.pos.x,G.pos.y+Math.abs(Math.sin(t*(sp>10?16:8)))*.08,G.pos.z);}
 function gooseDefeated(){const G=EGG.goose,f=funS();G.state='gone';G.g.visible=false;G.g.scale.setScalar(1);f.gooseBack=Date.now()+5*60*1000;const first=!f.gooseWins;f.gooseWins=(f.gooseWins||0)+1;
