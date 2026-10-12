@@ -8278,7 +8278,7 @@ function HOF_FINAL(a,{HX,HZ}){const H=hofS();const lt=new THREE.PointLight(0xff2
     if(morph>1&&!R.m){R.m=1;b.setLook(lookOf(S.equip));R.lab.visible=false;burst(b.pos.clone(),['#ff2030','#ffffff'],50);sfx('boom');camShake=.6;const l=$('#bossLine');l.textContent='The red sphere turns into… YOU!';l.hidden=false;setTimeout(()=>l.hidden=true,2400);}
     if(morph>2.6&&!R.g){R.g=1;fadeTo(()=>enterArea('hofboss'));}};}
 /* ---------- the boss fight ---------- */
-AREA_BUILD.hofboss=a=>{const H=hofS();if(!H.bphase)H.bphase=1;if(H.bossHp==null||H.bossHp<=0)H.bossHp=RED_HP;const P2=H.bphase>=2;
+AREA_BUILD.hofboss=a=>{const TPR=!!(BOSS_TP&&BOSS_TP.id==='hofboss');const H=TPR?{bphase:1,bossHp:RED_HP}:hofS();if(!H.bphase)H.bphase=1;if(H.bossHp==null||H.bossHp<=0)H.bossHp=RED_HP;const P2=H.bphase>=2;
   a.name=P2?'🔴 '+hofName()+' · Phase 2':'🔴 '+hofName()+' · The Red Sphere';a.busy=true;a.leaveLabel='Flee';a.onLeave=()=>fadeTo(()=>enterArea('hof'));a.music=P2?'boss_nova':'boss_perfect';
   a.sky={top:0x12000a,bottom:0x3a0612,fog:0x2a0410,near:60,far:170,hemi:.65,sun:.7,amb:.5,sunColor:0xff8a8a,stars:1};
   const R0=34;a.ground=(x,z)=>Math.hypot(x,z)<R0+.5?0:null;a.spawn=new V3(0,0,22);a.yaw=0;a.killY=-30;
@@ -8371,9 +8371,10 @@ AREA_BUILD.hofboss=a=>{const H=hofS();if(!H.bphase)H.bphase=1;if(H.bossHp==null|
   function hurt(d){if(B.inv>0||B.state!=='fight'||a.god)return;B.hearts-=P2?99:d*1.5;B.inv=1.1;ui();sfx('bad');camShake=.5;const n=new V3(P().x-B.pos.x,0,P().z-B.pos.z);if(n.lengthSq()<.01)n.set(0,0,1);n.normalize();
     player.vel.x=n.x*14;player.vel.z=n.z*14;player.vel.y=8;burst(P().clone(),['#ff2030','#ffffff'],16);if(B.hearts<=0)lose();}
   function lose(){B.state='lost';clearAll();line(P2?'One hit. That is all it takes.':'Is that all you have, '+hofName()+'?',2600);
-    setTimeout(()=>{if(area!==a)return;showResult({title:'Defeated!',big:'🔴',line:'The Red Sphere beat you. (His HP stays where you left it: '+Math.max(0,Math.round(B.hp)).toLocaleString()+')',coins:null,
-      buttons:[{label:'Try again ⚔️',cls:'gold',fn:()=>{closeSheets();fadeTo(()=>enterArea('hofboss'));}},{label:'Back to the Hall',fn:()=>{closeSheets();fadeTo(()=>enterArea('hof'));}}]});},2200);}
+    setTimeout(()=>{if(area!==a)return;showResult({title:'Defeated!',big:'🔴',line:TPR?'The Red Sphere beat you. Try the rematch again!':'The Red Sphere beat you. (His HP stays where you left it: '+Math.max(0,Math.round(B.hp)).toLocaleString()+')',coins:null,
+      buttons:[{label:'Try again ⚔️',cls:'gold',fn:()=>{closeSheets();fadeTo(()=>enterArea('hofboss'));}},TPR?{label:'Teleport back 🌀',fn:()=>tpHome()}:{label:'Back to the Hall',fn:()=>{closeSheets();fadeTo(()=>enterArea('hof'));}}]});},2200);}
   function bossDown(){B.state='down';B.downT=0;clearAll();ui();sfx('badge');camShake=.8;bb.setVisible(true);B.pos.y=BR;
+    if(TPR){line('…again? You beat me AGAIN?',2600);setTimeout(()=>{if(area===a)tpWin('hofboss');},2200);return;}
     if(!P2){H.bphase=2;H.bossHp=RED_HP;save();line('…no. NO. You do not get to win like that.',3000);setTimeout(()=>{if(area!==a)return;ZMODE='cut';fadeTo(()=>enterArea('zero'));},3200);}
     else{H.bossHp=0;save();line('Us Gods as we knew it tried stopping you.',3800);
       setTimeout(()=>{if(area!==a)return;line('Take hold what you did… or End what you began.',4200);
@@ -8511,6 +8512,7 @@ AREA_BUILD.chaos=a=>{a.name='🔥 "You": the world that ended';a.leaveLabel='Bac
     for(let i=mets.length-1;i>=0;i--){const M=mets[i];M.t+=dt;const f=M.t/1.4;M.m.position.set(M.T.x+(1-f)*40,M.T.y+(1-f)*80,M.T.z-(1-f)*20);if(f>=1){burst(M.T.clone().add(new V3(0,1,0)),['#ff6a1f','#ffd23d','#3a0a0a'],14);hofKill(M.m);mets.splice(i,1);}}};
   a.cleanup=()=>{camTilt=.42;mets.forEach(M=>hofKill(M.m));};};
 /* ---------- rewards ---------- */
+TP_BOSSES.push({id:'hofboss',name:'The Red Sphere (YOU)',icon:'🔴',price:3000000,reward:3000000,cd:600,col:'#ff2030',hint:'Beat the Red Sphere at the end of the Hall of Fame',beat:()=>!!hofS().done});
 BADGES.push({id:'hof_enter',icon:'🏛️',name:'Hall of Fame',desc:'Catch your blacked-out self',secret:1},{id:'hof_chaos',icon:'🔥',name:'What You Did',desc:'Visit the "You" world',secret:1},
   {id:'hof_end',icon:'🔴',name:'The Last God',desc:'Defeat the Red Sphere at the end of the Hall of Fame',secret:1,supernova:1});
 PETS.push({id:'pet_allgods',name:'All Gods',rar:'mythic',special:1,fly:true});
