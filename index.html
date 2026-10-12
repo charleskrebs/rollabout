@@ -320,14 +320,16 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
 @media (max-width:700px){#dashBtn{right:24px;bottom:calc(150px + env(safe-area-inset-bottom,0px))}#photoBtn{right:132px;bottom:calc(120px + env(safe-area-inset-bottom,0px))}}
 #rareFlash{position:fixed;inset:0;z-index:60;background:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:clamp(48px,11vw,120px);color:#14213d;pointer-events:none;transition:opacity 2.2s}#rareFlash.out{opacity:0}
 .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.photo-card{background:#fff;border:2.5px solid var(--ink);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:6px}.photo-card img{width:100%;border-radius:10px;display:block}
-#abBar{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:15;display:flex;gap:10px}
+#abBar{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:15;display:flex;gap:10px;max-width:calc(100vw - 150px);flex-wrap:wrap;justify-content:center}
+#abBar.many{gap:6px}#abBar.many .abBtn{width:62px;height:62px}#abBar.many .abBtn .ic{font-size:24px}#abBar.many .abBtn .nm{font-size:9px;max-width:58px}
+.abSlot.buy{cursor:pointer;border-color:#ffd23d;background:#fff8e0}
 .abBtn{position:relative;width:78px;height:78px;border-radius:18px;border:3px solid var(--ink);background:radial-gradient(circle at 50% 35%,#fff 0 18%,var(--c) 70%);box-shadow:0 4px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:2px;touch-action:none;font-family:inherit}
 .abBtn .ic{font-size:30px;line-height:1}.abBtn .nm{font-size:10px;font-weight:800;color:#14213d;background:rgba(255,255,255,.85);border-radius:6px;padding:0 4px;margin-top:3px;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .abBtn .ky{position:absolute;top:-8px;left:-8px;width:22px;height:22px;border-radius:50%;background:#14213d;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .abBtn .cdv{position:absolute;inset:0;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;text-shadow:0 2px 4px #000}
 .abBtn.cd{filter:grayscale(.85) brightness(.7)}.abBtn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
 #abTime{position:fixed;inset:0;z-index:9;pointer-events:none;background:radial-gradient(circle,rgba(200,210,230,.05),rgba(120,130,160,.45));mix-blend-mode:saturation}
-.abEq{display:flex;gap:10px;margin:6px 0 12px}.abSlot{flex:1;border:3px dashed #9aa7bb;border-radius:14px;padding:8px;text-align:center;display:flex;flex-direction:column;gap:2px}.abSlot.on{border:3px solid var(--ink);background:var(--c);box-shadow:0 3px 0 var(--ink)}
+.abEq{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 12px}.abSlot{flex:1 1 90px;font-family:inherit;background:none;border:3px dashed #9aa7bb;border-radius:14px;padding:8px;text-align:center;display:flex;flex-direction:column;gap:2px}.abSlot.on{border:3px solid var(--ink);background:var(--c);box-shadow:0 3px 0 var(--ink)}
 .abSlot b{font-size:26px}.abSlot small{font-weight:800;font-size:11px}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
@@ -8585,7 +8587,9 @@ function pickXPet(k){const ids=xPets();const main=S.equip.pet;const list=ownedPe
   if(multiPetOK()){body.appendChild(el('div','sec-h','🐾 Extra pet slots (All Gods power)'));const l=el('div','list');const ids=xPets();
     [0,1].forEach(k=>{const p=ids[k]&&PETS.find(q=>q.id===ids[k]);l.appendChild(rowItem('🐾','Pet slot '+(k+2),p?p.name+((PERKS[p.id]||{}).txt?' · '+PERKS[p.id].txt:''):'Empty: pick a second pet!','Change',()=>pickXPet(k)));});body.appendChild(l);}};}
 /* ================= BOSS ABILITIES ================= */
-function abS(){S.abil=S.abil||{own:{},eq:[]};S.abil.own=S.abil.own||{};S.abil.eq=(S.abil.eq||[]).filter(id=>S.abil.own[id]).slice(0,3);return S.abil;}
+function abS(){S.abil=S.abil||{own:{},eq:[]};S.abil.own=S.abil.own||{};S.abil.slots=Math.max(3,Math.min(7,S.abil.slots||3));S.abil.eq=(S.abil.eq||[]).filter(id=>S.abil.own[id]).slice(0,S.abil.slots);return S.abil;}
+const AB_SLOT_PRICE={4:250000,5:1000000,6:3000000,7:10000000};
+function abBuySlot(){const A=abS();const n=A.slots+1;const pr=AB_SLOT_PRICE[n];if(!pr)return;if(S.coins<pr){toast('You need '+(pr-S.coins).toLocaleString()+' more coins','bad','🪙');return;}S.coins-=pr;A.slots=n;save();updateCoinsUI(true);sfx('buy');toast('Ability slot '+n+' unlocked! Press '+n+' to use it.','badge','⚔️');if(n===7)award('abil_slots');renderAbilShop();}
 const AB={area:null,cd:{},fx:[],dots:[],keys:{}};
 const abBoss=()=>area&&(area.boss||area.B);
 function abTarget(){const A=area&&area.abil;if(!A)return null;const p=A.pos();if(!p)return null;return new V3(p.x,(p.y||0)+(A.yo||0),p.z);}
@@ -8673,28 +8677,28 @@ const abById=id=>ABILS.find(x=>x.id===id);
 /* ---------- using abilities ---------- */
 function abUse(k){const id=abS().eq[k];if(!id)return;const ab=abById(id);if(!ab||!(mode==='area'&&area&&area.abil)||sheetOpen)return;const B=abBoss();if(B&&(B.state==='intro'||B.ended))return toast('Wait for the fight to start!','', '⏳');
   const now=performance.now()/1000;if((AB.cd[id]||0)>now)return;AB.cd[id]=now+ab.cd;ab.use();abBarUpdate(true);}
-addEventListener('keydown',e=>{if(e.repeat)return;const k=['Digit1','Digit2','Digit3','Numpad1','Numpad2','Numpad3'].indexOf(e.code);if(k<0||!(mode==='area'&&area&&area.abil))return;if(e.target&&/INPUT|TEXTAREA/.test(e.target.tagName))return;abUse(k%3);});
+addEventListener('keydown',e=>{if(e.repeat)return;const k=['Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Numpad1','Numpad2','Numpad3','Numpad4','Numpad5','Numpad6','Numpad7'].indexOf(e.code);if(k<0||!(mode==='area'&&area&&area.abil))return;if(e.target&&/INPUT|TEXTAREA/.test(e.target.tagName))return;abUse(k%7);});
 function abClear(){AB.fx.forEach(o=>{if(o.ball)o.ball.dispose();o.ms.forEach(m=>{if(m.parent)m.parent.remove(m);});});AB.fx.length=0;AB.dots.length=0;AB.cd={};$('#abTime').hidden=true;}
 function abTick(dt){if(AB.area!==area){abClear();AB.area=area;}const on=mode==='area'&&area&&area.abil&&abS().eq.length&&!sheetOpen;const bar=$('#abBar');if(bar.hidden===!!on)bar.hidden=!on;
   if(!(mode==='area'&&area&&area.abil))return;
   for(let i=AB.fx.length-1;i>=0;i--){const o=AB.fx[i];o.t+=dt;if(!o.upd(o,dt)){AB.fx.splice(i,1);o.ms.forEach(m=>{if(m.parent)m.parent.remove(m);});}}
   for(let i=AB.dots.length-1;i>=0;i--){const D=AB.dots[i];D.left-=dt;D.tick-=dt;if(D.tick<=0){D.tick=1;abHit(D.f,D.col);const T=abTarget();if(T)burst(T,D.fx,8);}if(D.left<=0)AB.dots.splice(i,1);}
   abBarUpdate(false);}
-function abBarUpdate(force){const bar=$('#abBar');if(bar.hidden)return;const eq=abS().eq;const now=performance.now()/1000;const key=eq.join(',');if(force||bar.dataset.k!==key){bar.dataset.k=key;bar.innerHTML='';eq.forEach((id,k)=>{const ab=abById(id);const b=document.createElement('button');b.className='abBtn';b.style.setProperty('--c',ab.col);
+function abBarUpdate(force){const bar=$('#abBar');if(bar.hidden)return;const eq=abS().eq;const now=performance.now()/1000;const key=eq.join(',');if(force||bar.dataset.k!==key){bar.dataset.k=key;bar.innerHTML='';bar.classList.toggle('many',eq.length>4);eq.forEach((id,k)=>{const ab=abById(id);const b=document.createElement('button');b.className='abBtn';b.style.setProperty('--c',ab.col);
     b.innerHTML='<span class="ic">'+ab.icon+'</span><span class="nm">'+ab.name+'</span><span class="ky">'+(k+1)+'</span><span class="cdv"></span>';b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();abUse(k);});bar.appendChild(b);});}
   [...bar.children].forEach((b,k)=>{const id=eq[k];const left=Math.max(0,(AB.cd[id]||0)-now);const c=b.querySelector('.cdv');const txt=left>0?Math.ceil(left)+'s':'';if(c.textContent!==txt)c.textContent=txt;b.classList.toggle('cd',left>0);});}
 /* ---------- the ability shop ---------- */
 function openAbilShop(){openSheet('abilSheet');renderAbilShop();}
 function renderAbilShop(){const A=abS();const body=$('#abilBody');body.innerHTML='';$$('#abilSheet .coinNum').forEach(e=>e.textContent=S.coins.toLocaleString());
-  body.appendChild(el('p','sub','Buy abilities and equip up to 3. In every boss battle press 1, 2 or 3 (or tap the buttons) to use them. Equipped: '+A.eq.length+'/3'));
-  const eqw=el('div','abEq');for(let k=0;k<3;k++){const id=A.eq[k],ab=id&&abById(id);const s=el('div','abSlot'+(ab?' on':''));s.innerHTML=ab?'<b>'+ab.icon+'</b><small>'+(k+1)+' · '+ab.name+'</small>':'<b>➕</b><small>'+(k+1)+' · empty</small>';if(ab)s.style.setProperty('--c',ab.col);eqw.appendChild(s);}body.appendChild(eqw);
+  body.appendChild(el('p','sub','Buy abilities and equip them in your slots (you can buy up to 7 slots). In every boss battle press 1–'+A.slots+' (or tap the buttons) to use them. Equipped: '+A.eq.length+'/'+A.slots));
+  const eqw=el('div','abEq');for(let k=0;k<A.slots;k++){const id=A.eq[k],ab=id&&abById(id);const s=el('div','abSlot'+(ab?' on':''));s.innerHTML=ab?'<b>'+ab.icon+'</b><small>'+(k+1)+' · '+ab.name+'</small>':'<b>➕</b><small>'+(k+1)+' · empty</small>';if(ab)s.style.setProperty('--c',ab.col);eqw.appendChild(s);}const np=AB_SLOT_PRICE[A.slots+1];if(np){const s=el('button','abSlot buy');s.innerHTML='<b>🔓</b><small>Slot '+(A.slots+1)+' · 🪙 '+np.toLocaleString()+'</small>';s.addEventListener('click',abBuySlot);if(S.coins<np)s.style.opacity=.55;eqw.appendChild(s);}body.appendChild(eqw);
   const l=el('div','list');l.style.gridTemplateColumns='1fr 1fr';ABILS.forEach(ab=>{const own=!!A.own[ab.id],eq=A.eq.includes(ab.id);
     const r=rowItem(ab.icon,ab.name+(eq?' ✓':''),ab.desc+' · Cooldown '+ab.cd+'s',own?(eq?'Unequip':'Equip'):'🪙 '+ab.price.toLocaleString(),()=>{
-      if(!own){if(S.coins<ab.price){toast('You need '+(ab.price-S.coins).toLocaleString()+' more coins','bad','🪙');return;}S.coins-=ab.price;A.own[ab.id]=1;if(A.eq.length<3)A.eq.push(ab.id);save();updateCoinsUI(true);sfx('buy');award('abil_1');if(ABILS.every(x=>A.own[x.id]))award('abil_all');toast(ab.icon+' '+ab.name+' unlocked!','badge',ab.icon);}
+      if(!own){if(S.coins<ab.price){toast('You need '+(ab.price-S.coins).toLocaleString()+' more coins','bad','🪙');return;}S.coins-=ab.price;A.own[ab.id]=1;if(A.eq.length<A.slots)A.eq.push(ab.id);save();updateCoinsUI(true);sfx('buy');award('abil_1');if(ABILS.every(x=>A.own[x.id]))award('abil_all');toast(ab.icon+' '+ab.name+' unlocked!','badge',ab.icon);}
       else if(eq){A.eq=A.eq.filter(x=>x!==ab.id);save();sfx('blip');}
-      else{if(A.eq.length>=3){toast('You can only equip 3. Unequip one first!','bad','⚔️');return;}A.eq.push(ab.id);save();sfx('buy');}
+      else{if(A.eq.length>=A.slots){toast('All '+A.slots+' slots are full. Unequip one first, or buy another slot!','bad','⚔️');return;}A.eq.push(ab.id);save();sfx('buy');}
       renderAbilShop();},!own&&S.coins<ab.price);if(eq)r.style.boxShadow='inset 0 0 0 3px '+ab.col;l.appendChild(r);});body.appendChild(l);}
-BADGES.push({id:'abil_1',icon:'⚔️',name:'Special Move',desc:'Buy your first boss ability'},{id:'abil_all',icon:'🟣',name:'Master of Moves',desc:'Own every boss ability'});
+BADGES.push({id:'abil_slots',icon:'🎰',name:'Seven Slots',desc:'Unlock all 7 ability slots'},{id:'abil_1',icon:'⚔️',name:'Special Move',desc:'Buy your first boss ability'},{id:'abil_all',icon:'🟣',name:'Master of Moves',desc:'Own every boss ability'});
 let ABSHOP=null;
 function buildAbilShop(){document.body.append($('#abBar'),$('#abTime'));const bx=TP_ST?TP_ST.g.position.x+12:14,bz=TP_ST?TP_ST.g.position.z+4:41;let x=bx,z=bz;for(let k=0;k<10&&obNear(x,z,2.5);k++)x+=2;const y=heightAt(x,z);const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=Math.atan2(SPAWN.x-x,SPAWN.z-z);worldGroup.add(g);
   const M=(c,o)=>std(c,Object.assign({flatShading:false},o||{}));const base=new THREE.Mesh(new THREE.BoxGeometry(5,1.1,2.4),M(0x3a1a5a));base.position.y=.55;g.add(base);
@@ -8709,7 +8713,7 @@ function buildAbilShop(){document.body.append($('#abBar'),$('#abTime'));const bx
 function abShopTick(dt){if(!ABSHOP)return;const v=mode==='world';ABSHOP.npc.setVisible(v);if(!v)return;const t=performance.now()/1000;ABSHOP.orbs.children.forEach((o,k)=>{o.position.y=Math.sin(t*2+k)*.25;});ABSHOP.orbs.rotation.y=Math.sin(t*.7)*.3;
   ABSHOP.npc.pos.set(ABSHOP.x,heightAt(ABSHOP.x,ABSHOP.z)+1+Math.abs(Math.sin(t*2))*.25,ABSHOP.z);ABSHOP.npc.sync(0);}
 {const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const body=$('#bagBody');const A=abS();body.appendChild(el('div','sec-h','⚔️ Boss abilities'));const l=el('div','list');
-  l.appendChild(rowItem('⚔️','Equipped: '+(A.eq.length?A.eq.map(id=>abById(id).icon+' '+abById(id).name).join(', '):'none'),'Use them in boss battles with 1, 2, 3 · '+Object.keys(A.own).length+'/'+ABILS.length+' owned','Open',()=>openAbilShop(),mode!=='world'));body.appendChild(l);};}
+  l.appendChild(rowItem('⚔️','Equipped: '+(A.eq.length?A.eq.map(id=>abById(id).icon+' '+abById(id).name).join(', '):'none'),'Use them in boss battles with keys 1–'+A.slots+' · '+Object.keys(A.own).length+'/'+ABILS.length+' owned','Open',()=>openAbilShop(),mode!=='world'));body.appendChild(l);};}
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
 function buildMinimap(){
