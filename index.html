@@ -8086,7 +8086,7 @@ let HOFX=null;
 const HM=(c,o)=>std(c,Object.assign({flatShading:false},o||{}));
 /* ---------- catching your shadow 5 times ---------- */
 {const _sg=shadowGone;shadowGone=function(caught){_sg.apply(this,arguments);if(!caught)return;const f=funS();f.shadowN=(f.shadowN||0)+1;save();const H=hofS();
-  if(H.unlocked)return;if(f.shadowN>=5){setTimeout(()=>{if(mode!=='world')return;H.unlocked=1;save();award('hof_enter');toast('👤 …you have caught yourself 5 times. Something is pulling you in.','bad','👤');fadeTo(()=>enterArea('hofmerge'));},1800);}
+  if(H.unlocked)return;if(f.shadowN>=1){setTimeout(()=>{if(mode!=='world')return;H.unlocked=1;save();award('hof_enter');toast('👤 …you caught yourself. Something is pulling you in.','bad','👤');fadeTo(()=>enterArea('hofmerge'));},1800);}
   else setTimeout(()=>toast('👤 Shadow caught ('+f.shadowN+'/5)…','', '👤'),1200);};}
 /* ---------- the 4 dead versions of you ---------- */
 function deadYou(kind){const L=lookOf(S.equip);const b=new Ball({color:kind==='sphere'?'#8a7a4a':kind==='cube'?'#4a3a6a':kind==='shapes'?'#5a5a5a':'#1a1022',secondary:'sec_black',pattern:L.pattern,hat:L.hat},1);
@@ -8511,7 +8511,7 @@ AREA_BUILD.chaos=a=>{a.name='🔥 "You": the world that ended';a.leaveLabel='Bac
     for(let i=mets.length-1;i>=0;i--){const M=mets[i];M.t+=dt;const f=M.t/1.4;M.m.position.set(M.T.x+(1-f)*40,M.T.y+(1-f)*80,M.T.z-(1-f)*20);if(f>=1){burst(M.T.clone().add(new V3(0,1,0)),['#ff6a1f','#ffd23d','#3a0a0a'],14);hofKill(M.m);mets.splice(i,1);}}};
   a.cleanup=()=>{camTilt=.42;mets.forEach(M=>hofKill(M.m));};};
 /* ---------- rewards ---------- */
-BADGES.push({id:'hof_enter',icon:'🏛️',name:'Hall of Fame',desc:'Catch your blacked-out self 5 times',secret:1},{id:'hof_chaos',icon:'🔥',name:'What You Did',desc:'Visit the "You" world',secret:1},
+BADGES.push({id:'hof_enter',icon:'🏛️',name:'Hall of Fame',desc:'Catch your blacked-out self',secret:1},{id:'hof_chaos',icon:'🔥',name:'What You Did',desc:'Visit the "You" world',secret:1},
   {id:'hof_end',icon:'🔴',name:'The Last God',desc:'Defeat the Red Sphere at the end of the Hall of Fame',secret:1,supernova:1});
 PETS.push({id:'pet_allgods',name:'All Gods',rar:'mythic',special:1,fly:true});
 PERKS.pet_allgods={coins:20,dj:7,speed:.45,jump:.45,txt:'👑 ALL GODS: 21x COINS, OCTUPLE JUMP, roll 45% faster, jump 45% higher, and you can equip 3 PETS at once!'};
