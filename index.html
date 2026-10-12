@@ -8086,7 +8086,9 @@ let HOFX=null;
 const HM=(c,o)=>std(c,Object.assign({flatShading:false},o||{}));
 /* ---------- catching your shadow 5 times ---------- */
 {const _sg=shadowGone;shadowGone=function(caught){_sg.apply(this,arguments);if(!caught)return;const f=funS();f.shadowN=(f.shadowN||0)+1;save();const H=hofS();
-  if(H.unlocked)return;if(f.shadowN>=1){setTimeout(()=>{if(mode!=='world')return;H.unlocked=1;save();award('hof_enter');toast('👤 …you caught yourself. Something is pulling you in.','bad','👤');fadeTo(()=>enterArea('hofmerge'));},1800);}
+  if(H.unlocked){setTimeout(()=>{if(mode!=='world'||(area&&area.busy))return;if(H.done){H.stage=0;H.solved={};save();}toast('👤 …you caught yourself again. The Hall of Fame pulls you back in.','bad','👤');
+    const f2=$('#flashOv');f2.style.transition='none';f2.style.background='#ffffff';f2.style.opacity=1;sfx('boom');camShake=.6;setTimeout(()=>{enterArea('hof');f2.style.transition='opacity 1.4s';f2.style.opacity=0;setTimeout(()=>{f2.style.transition='';},1500);},700);},1200);return;}
+  if(f.shadowN>=1){setTimeout(()=>{if(mode!=='world')return;H.unlocked=1;save();award('hof_enter');toast('👤 …you caught yourself. Something is pulling you in.','bad','👤');fadeTo(()=>enterArea('hofmerge'));},1800);}
   else setTimeout(()=>toast('👤 Shadow caught ('+f.shadowN+'/5)…','', '👤'),1200);};}
 /* ---------- the 4 dead versions of you ---------- */
 function deadYou(kind){const L=lookOf(S.equip);const b=new Ball({color:kind==='sphere'?'#8a7a4a':kind==='cube'?'#4a3a6a':kind==='shapes'?'#5a5a5a':'#1a1022',secondary:'sec_black',pattern:L.pattern,hat:L.hat},1);
