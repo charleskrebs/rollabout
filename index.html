@@ -7840,12 +7840,12 @@ function photoPost(p){syncPhotoBg();const sp=newSpec();sp.bg='photo:'+p.id;sp.ti
   studio.sp=sp;studio.editing=null;studio.sel=-1;openStudio();award('photo_post');toast('Your photo is the background! Add text or characters, then Publish.','', '📺');}
 {const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const body=$('#bagBody');body.appendChild(el('div','sec-h','📷 Photos'));const l=el('div','list');l.appendChild(rowItem('📷','Photo album',photos().length+'/12 photos · press P to take one','Open',()=>openPhotos()));body.appendChild(l);};}
 /* ---------- shadow self ---------- */
-const SHD={b:null,t:0,next:120,idx:0,rec:0};
+const SHD={b:null,t:0,next:1.2,idx:0,rec:0};
 function shadowTick(dt,t){const F=funS();if(mode==='world'){SHD.rec+=dt;if(SHD.rec>1.2){SHD.rec=0;const L=F.trail[F.trail.length-1];if(!L||Math.hypot(L[0]-player.pos.x,L[1]-player.pos.z)>2.5){F.trail.push([Math.round(player.pos.x*10)/10,Math.round(player.pos.z*10)/10]);if(F.trail.length>700)F.trail.splice(0,F.trail.length-700);}}}
   if(SHD.b){const B=SHD.b;if(mode!=='world'){shadowGone(false);return;}B.t+=dt;const tr=F.trail;const fi=B.i0+B.t/1.1;const i=Math.min(tr.length-2,Math.floor(fi)),u=fi-Math.floor(fi);const a=tr[i],b2=tr[i+1];if(!a||!b2){shadowGone(false);return;}
     const x=a[0]+(b2[0]-a[0])*u,z=a[1]+(b2[1]-a[1])*u;B.ball.pos.set(x,heightAt(x,z)+1,z);B.ball.sync(dt);B.fade=Math.min(1,B.fade+dt);
     const d=Math.hypot(player.pos.x-x,player.pos.z-z);if(d<4.5){shadowGone(true);return;}if(B.t>26||fi>=tr.length-2)shadowGone(false);return;}
-  if(mode!=='world')return;SHD.next-=dt;if(SHD.next>0)return;SHD.next=90+Math.random()*120;const tr=F.trail;if(tr.length<40)return;
+  if(mode!=='world')return;SHD.next-=dt;if(SHD.next>0)return;SHD.next=.9+Math.random()*1.2;const tr=F.trail;if(tr.length<40)return;
   const cands=[];for(let i=0;i<tr.length-25;i+=3){const d=Math.hypot(tr[i][0]-player.pos.x,tr[i][1]-player.pos.z);if(d>22&&d<70)cands.push(i);}if(!cands.length)return;
   const i0=cands[Math.floor(Math.random()*cands.length)];const L=lookOf(S.equip);const ball=new Ball({color:'#050505',secondary:'sec_black',pattern:L.pattern,hat:L.hat},1);
   ball.pos.set(tr[i0][0],heightAt(tr[i0][0],tr[i0][1])+1,tr[i0][1]);for(const k in ball){const o=ball[k];if(o&&o.isObject3D)o.traverse(m=>{if(m.material&&m.material.color){m.material=m.material.clone();m.material.color.set(0x050505);if(m.material.emissive)m.material.emissive.set(0x000000);}});}
