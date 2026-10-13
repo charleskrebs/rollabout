@@ -8830,11 +8830,11 @@ function serBridgeH(x,z){for(const R of SER_BR){const t=((x-R.a.x)*R.ux+(z-R.a.z
 const SER_FLOAT=[{x:-30,z:112,top:serLand(-30,112)+30,r:9,name:'Bloom Float'},{x:30,z:-118,top:serLand(30,-118)+30,r:9,name:'Frost Float'},{x:72,z:-62,top:46,r:11,name:'Sky Isle'}];
 function serGround(x,z,y){let h=serLand(x,z);const bh=serBridgeH(x,z);if(bh!=null&&bh>h)h=bh;for(const F of SER_FLOAT){if(Math.hypot(x-F.x,z-F.z)<F.r&&(y==null||y>=F.top-.8))h=Math.max(h,F.top);}return h;}
 /* ---------- quest items ---------- */
-const SER_DYN=[[25,-178],[30,168],[-168,-26],[-30,112,'F']];
-const SER_SOUL=[[0,-150],[-150,0],[72,-62,'F'],[30,-118,'F'],[-24,140]];
+const SER_DYN=[[25,-178],[30,168],[-168,-26],[-26,116,'F']];
+const SER_SOUL=[[0,-150],[-150,0],[76,-58,'F'],[34,-114,'F'],[-24,140]];
 const SER_WISP=[[18,-20],[-30,25],[-20,-160],[30,-140],[160,30],[130,-25],[20,140],[-35,170],[-140,30],[-170,-15]];
 const SER_STONE={x:150,z:4};
-function serItemY(x,z,f){return(f?SER_FLOAT.find(F=>Math.hypot(F.x-x,F.z-z)<2).top:serGround(x,z))+1.1;}
+function serItemY(x,z,f){return(f?SER_FLOAT.find(F=>Math.hypot(F.x-x,F.z-z)<F.r).top:serGround(x,z))+1.1;}
 function serStage(){const s=serS();if(s.eye)return 6;if(s.fs)return 5;if(s.ts)return 4;if(s.stone)return 2;return 0;}
 /* ---------- title button ---------- */
 {const nav=$('#tPlay');const b=document.createElement('button');b.className='btn';b.id='tSer';b.style.cssText='background:linear-gradient(135deg,#2a0a4a,#ff2030);color:#fff';b.innerHTML='Change what you have started <small>A new island</small>';nav.after(b);
@@ -8910,7 +8910,7 @@ AREA_BUILD.serence=a=>{const s=serS();SERA=a;a.ser=true;a.name='🏝️ Serence 
   SER_B.forEach(B=>{for(let k=0;k<24;k++){const an=rnd()*Math.PI*2,r=8+rnd()*40;const x=B.x+Math.cos(an)*r,z=B.z+Math.sin(an)*r;if(B.id==='frost'&&Math.hypot(x-B.x,z-B.z)<14)continue;if(B.id==='ember'&&Math.hypot(x-B.x,z-B.z)<26)continue;tree(x,z,{frost:'pine',sand:'cactus',bloom:k%3?'round':'big',ember:'dead'}[B.id]);}});
   const lava=new THREE.Mesh(new THREE.CircleGeometry(6,32),new THREE.MeshStandardMaterial({color:0xff5a1f,emissive:0xff3b00,emissiveIntensity:1}));lava.rotation.x=-Math.PI/2;lava.position.set(-150,15.2,0);a.group.add(lava);
   // floating islands
-  SER_FLOAT.forEach(F=>{const top=new THREE.Mesh(new THREE.CylinderGeometry(F.r,F.r*.9,1.6,24),HM(0x6fbf5a));top.position.set(F.x,F.top-.8,F.z);a.group.add(top);const rock=new THREE.Mesh(new THREE.ConeGeometry(F.r*.85,F.r*1.8,10),HM(0x8a6a4a));rock.rotation.x=Math.PI;rock.position.set(F.x,F.top-1.6-F.r*.9,F.z);a.group.add(rock);
+  SER_FLOAT.forEach(F=>{const top=new THREE.Mesh(new THREE.CylinderGeometry(F.r,F.r*.9,1.6,24),HM(0x6fbf5a));top.position.set(F.x,F.top-.8,F.z);a.group.add(top);const rock=new THREE.Mesh(new THREE.ConeGeometry(F.r*.85,F.r*1.1,10),HM(0x8a6a4a));rock.rotation.x=Math.PI;rock.position.set(F.x,F.top-1.6-F.r*.55,F.z);a.group.add(rock);
     const l=makeLabel('☁️ '+F.name,{scale:.6});l.position.set(F.x,F.top+5,F.z);a.group.add(l);for(let k=0;k<3;k++){const an=k*2.1;tree(F.x+Math.cos(an)*F.r*.6,F.z+Math.sin(an)*F.r*.6,'round');}});
   a.obs=a.obs.filter(o=>true);
   // speed pads
@@ -8919,9 +8919,9 @@ AREA_BUILD.serence=a=>{const s=serS();SERA=a;a.ser=true;a.name='🏝️ Serence 
   [[0,-40,0],[0,-80,0],[40,0,Math.PI/2],[100,0,Math.PI/2],[0,40,Math.PI],[0,95,Math.PI],[-40,0,-Math.PI/2],[-100,0,-Math.PI/2],[150,-35,0],[-20,-140,Math.PI/2]].forEach(([x,z,ry])=>{const y=serGround(x,z);const m=new THREE.Mesh(new THREE.BoxGeometry(3.6,.16,6.5),padMat);m.position.set(x,y+.08,z);m.rotation.y=ry+Math.PI;a.group.add(m);pads.push({x,z,y,dx:-Math.sin(ry),dz:-Math.cos(ry),cool:0});});
   // mushrooms
   const capTex=(()=>{const cc=document.createElement('canvas');cc.width=256;cc.height=128;const g=cc.getContext('2d');g.fillStyle='#e8413c';g.fillRect(0,0,256,128);g.fillStyle='#fff';const r=mulberry32(8);for(let i=0;i<22;i++){g.beginPath();g.arc(r()*256,r()*90,6+r()*9,0,7);g.fill();}return new THREE.CanvasTexture(cc);})();
-  const shrooms=[];const shroom=(x,z,sky)=>{const y=serGround(x,z);const st=new THREE.Mesh(new THREE.CylinderGeometry(.6,.85,2.2,10),HM(0xf3ead6));st.position.set(x,y+1.1,z);a.group.add(st);const cap=new THREE.Mesh(new THREE.SphereGeometry(2.6,20,10,0,Math.PI*2,0,Math.PI/2),sky?new THREE.MeshStandardMaterial({color:0x9a5cff,emissive:0x5a1f8a,emissiveIntensity:.6}):new THREE.MeshStandardMaterial({map:capTex}));cap.scale.y=.6;cap.position.set(x,y+2,z);a.group.add(cap);
-    if(sky){const l=makeLabel('🍄 Sky Mushroom',{scale:.45,bg:'rgba(154,92,255,.95)',color:'#fff'});l.position.set(x,y+5,z);a.group.add(l);}shrooms.push({x,z,y,cap,sq:0,cool:0,sky});};
-  [[10,140],[-15,160],[25,175],[-40,150],[35,125],[-10,120]].forEach(([x,z])=>shroom(x,z,false));SER_FLOAT.slice(0,2).forEach(F=>shroom(F.x,F.z,true));
+  const shrooms=[];const shroom=(x,z,sky)=>{const y=serGround(x,z,-50);const st=new THREE.Mesh(new THREE.CylinderGeometry(.6,.85,2.2,10),HM(0xf3ead6));st.position.set(x,y+1.1,z);a.group.add(st);const cap=new THREE.Mesh(new THREE.SphereGeometry(2.6,20,10,0,Math.PI*2,0,Math.PI/2),sky?new THREE.MeshStandardMaterial({color:0x9a5cff,emissive:0x5a1f8a,emissiveIntensity:.6}):new THREE.MeshStandardMaterial({map:capTex}));cap.scale.y=.6;cap.position.set(x,y+2,z);a.group.add(cap);
+    if(sky){const l=makeLabel('🍄 Sky Mushroom · bounce up to the floating island!',{scale:.45,bg:'rgba(154,92,255,.95)',color:'#fff'});l.position.set(x,y+5,z);a.group.add(l);}shrooms.push({x,z,y,cap,sq:0,cool:0,sky});};
+  [[10,140],[-15,160],[25,175],[-40,150],[35,125],[-10,120]].forEach(([x,z])=>shroom(x,z,false));SER_FLOAT.slice(0,2).forEach(F=>shroom(F.x-5,F.z-3,true));
   // vending machines
   [['red',8,-6,Math.PI],['blue',-8,-6,Math.PI]].forEach(([col,x,z,ry])=>{const v=makeVending(col);const y=serGround(x,z);v.position.set(x,y,z);v.rotation.y=ry;a.group.add(v);a.obs.push({x,z,r:1.4,top:y+3.6});a.inter.push({pos:new V3(x+Math.sin(ry)*1.8,y+1,z+Math.cos(ry)*1.8),r:3.5,label:'Use the '+MACHINES[col].name,act:()=>openVending(col)});});
   // neighborhood
@@ -8950,7 +8950,7 @@ AREA_BUILD.serence=a=>{const s=serS();SERA=a;a.ser=true;a.name='🏝️ Serence 
   const mkItem=(geo,col,em)=>{const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:col,emissive:em||col,emissiveIntensity:.7}));a.group.add(m);const gl=abSprite(em||col,3,.7);m.add(gl);return m;};
   const dyn=SER_DYN.map(([x,z,f],i)=>{const g=new THREE.Group();const st=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,1.4,10),HM(0xe8413c));g.add(st);const fu=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.6,4),HM(0x333333));fu.position.y=.95;g.add(fu);const sp=abSprite(0xffd23d,1.2,1);sp.position.y=1.3;g.add(sp);
     g.position.set(x,serItemY(x,z,f),z);a.group.add(g);const l=makeLabel('🧨',{scale:.45});l.position.y=1.9;g.add(l);return{g,i,x,z,y:g.position.y};});
-  const souls=SER_SOUL.map(([x,z,f],i)=>{const m=mkItem(new THREE.SphereGeometry(.55,16,12),0xe0c8ff,0x9a5cff);m.position.set(x,serItemY(x,z,f)+.4,z);const beam=new THREE.Mesh(new THREE.CylinderGeometry(2,2,160,12,1,true),new THREE.MeshBasicMaterial({color:0x9a3dff,transparent:true,opacity:.6,depthWrite:false,side:THREE.DoubleSide,fog:false}));beam.position.y=80;m.add(beam);const bg=abSprite(0xc08cff,7,.9);m.add(bg);const lb=makeLabel('👻 Soul piece',{scale:.55,bg:'rgba(154,92,255,.95)',color:'#fff'});lb.position.y=2.2;m.add(lb);m.userData.beam=beam;return{m,i,x,z,y:m.position.y};});
+  const souls=SER_SOUL.map(([x,z,f],i)=>{const m=mkItem(new THREE.SphereGeometry(.55,16,12),0xe0c8ff,0x9a5cff);m.position.set(x,serItemY(x,z,f)+.4,z);const beam=new THREE.Mesh(new THREE.CylinderGeometry(2,2,160,12,1,true),new THREE.MeshBasicMaterial({color:0x9a3dff,transparent:true,opacity:.6,depthWrite:false,side:THREE.DoubleSide,fog:false}));beam.position.y=80;m.add(beam);const bg=abSprite(0xc08cff,4,.8);m.add(bg);const lb=makeLabel('👻 Soul piece',{scale:.55,bg:'rgba(154,92,255,.95)',color:'#fff'});lb.position.y=2.2;m.add(lb);m.userData.beam=beam;return{m,i,x,z,y:m.position.y};});
   const wisps=SER_WISP.map(([x,z],i)=>{const m=mkItem([new THREE.TetrahedronGeometry(.6),new THREE.BoxGeometry(.8,.8,.8),new THREE.OctahedronGeometry(.6)][i%3],[0x2ee6ff,0xffd23d,0xff4f6d][i%3]);m.position.set(x,serItemY(x,z)+.5,z);return{m,i,x,z,y:m.position.y};});
   const SY=serGround(SER_STONE.x,SER_STONE.z);const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(7,1),HM(0x8d8a85,{roughness:1}));stone.scale.y=.75;stone.position.set(SER_STONE.x,SY+4.5,SER_STONE.z);a.group.add(stone);const stl=makeLabel('🪨 The Big Stone',{scale:.6});stl.position.set(SER_STONE.x,SY+12,SER_STONE.z);a.group.add(stl);
   const statue=serStatueModel();statue.position.set(SER_STONE.x,SY-12,SER_STONE.z);a.group.add(statue);let fsM=null;const sideBox={x:SER_STONE.x,z:SER_STONE.z,r:5.5,top:SY+9};a.obs.push(sideBox);
