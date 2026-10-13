@@ -345,6 +345,8 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
  text-shadow:0 0 18px #2ee6ff,0 0 40px #39c45f,0 5px 0 #14213d;-webkit-text-stroke:2px #14213d}#serTitle small{display:block;font-size:26px;letter-spacing:4px}
 #serTitle.go{animation:serT 4.5s ease-out forwards}@keyframes serT{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
 @media (max-width:600px){#serTitle{font-size:34px}#serTitle small{font-size:16px}}
+#serPoint{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;display:flex;align-items:center;gap:8px;background:rgba(40,14,70,.92);color:#fff;border:3px solid #c08cff;border-radius:999px;padding:5px 14px 5px 8px;font-weight:800;font-size:14px;box-shadow:0 0 18px rgba(192,140,255,.7);pointer-events:none}
+#serPoint b{display:inline-flex;width:28px;height:28px;border-radius:50%;background:#c08cff;color:#14213d;align-items:center;justify-content:center;font-size:18px}
 #fsBar{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:15;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 150px)}#fsBar .abBtn{width:66px;height:66px}#fsBar .abBtn .ic{font-size:24px}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
@@ -8838,7 +8840,7 @@ function serStage(){const s=serS();if(s.eye)return 6;if(s.fs)return 5;if(s.ts)re
 {const nav=$('#tPlay');const b=document.createElement('button');b.className='btn';b.id='tSer';b.style.cssText='background:linear-gradient(135deg,#2a0a4a,#ff2030);color:#fff';b.innerHTML='Change what you have started <small>A new island</small>';nav.after(b);
   b.addEventListener('click',()=>{play();const s=serS();if(!s.seen)fadeTo(()=>enterArea('serintro'));else fadeTo(()=>{enterArea('serence');serTitle(true);});});}
 function serTitle(back){const t=$('#serTitle');t.innerHTML=back?'<small>Welcome back to</small>Serence Island!':'<small>Welcome to</small>Serence Island!';t.classList.remove('go');void t.offsetWidth;t.classList.add('go');sfx('badge');}
-document.body.insertAdjacentHTML('beforeend','<div id="serTitle"></div><div id="fsBar" hidden></div>');
+document.body.insertAdjacentHTML('beforeend','<div id="serPoint" hidden><b>⬆</b><span></span></div><div id="serTitle"></div><div id="fsBar" hidden></div>');
 /* ---------- models ---------- */
 function serHand(){const g=new THREE.Group();const M=HM(0x2a0a3a,{emissive:0x5a1f8a,emissiveIntensity:.5,roughness:.6});const palm=new THREE.Mesh(new THREE.BoxGeometry(7,1.8,7.5),M);g.add(palm);const fingers=[];
   for(let i=0;i<4;i++){const f=new THREE.Group();f.position.set(-2.6+i*1.75,0,-3.6);const s1=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.4,4),M);s1.position.z=-2;f.add(s1);const s2=new THREE.Group();s2.position.z=-4;f.add(s2);const s3=new THREE.Mesh(new THREE.BoxGeometry(1.3,1.3,3),M);s3.position.z=-1.5;s2.add(s3);g.add(f);fingers.push({f,s2});}
@@ -8948,7 +8950,7 @@ AREA_BUILD.serence=a=>{const s=serS();SERA=a;a.ser=true;a.name='🏝️ Serence 
   const mkItem=(geo,col,em)=>{const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:col,emissive:em||col,emissiveIntensity:.7}));a.group.add(m);const gl=abSprite(em||col,3,.7);m.add(gl);return m;};
   const dyn=SER_DYN.map(([x,z,f],i)=>{const g=new THREE.Group();const st=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,1.4,10),HM(0xe8413c));g.add(st);const fu=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.6,4),HM(0x333333));fu.position.y=.95;g.add(fu);const sp=abSprite(0xffd23d,1.2,1);sp.position.y=1.3;g.add(sp);
     g.position.set(x,serItemY(x,z,f),z);a.group.add(g);const l=makeLabel('🧨',{scale:.45});l.position.y=1.9;g.add(l);return{g,i,x,z,y:g.position.y};});
-  const souls=SER_SOUL.map(([x,z,f],i)=>{const m=mkItem(new THREE.SphereGeometry(.55,16,12),0xe0c8ff,0x9a5cff);m.position.set(x,serItemY(x,z,f)+.4,z);return{m,i,x,z,y:m.position.y};});
+  const souls=SER_SOUL.map(([x,z,f],i)=>{const m=mkItem(new THREE.SphereGeometry(.55,16,12),0xe0c8ff,0x9a5cff);m.position.set(x,serItemY(x,z,f)+.4,z);const beam=new THREE.Mesh(new THREE.CylinderGeometry(2,2,160,12,1,true),new THREE.MeshBasicMaterial({color:0x9a3dff,transparent:true,opacity:.6,depthWrite:false,side:THREE.DoubleSide,fog:false}));beam.position.y=80;m.add(beam);const bg=abSprite(0xc08cff,7,.9);m.add(bg);const lb=makeLabel('👻 Soul piece',{scale:.55,bg:'rgba(154,92,255,.95)',color:'#fff'});lb.position.y=2.2;m.add(lb);m.userData.beam=beam;return{m,i,x,z,y:m.position.y};});
   const wisps=SER_WISP.map(([x,z],i)=>{const m=mkItem([new THREE.TetrahedronGeometry(.6),new THREE.BoxGeometry(.8,.8,.8),new THREE.OctahedronGeometry(.6)][i%3],[0x2ee6ff,0xffd23d,0xff4f6d][i%3]);m.position.set(x,serItemY(x,z)+.5,z);return{m,i,x,z,y:m.position.y};});
   const SY=serGround(SER_STONE.x,SER_STONE.z);const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(7,1),HM(0x8d8a85,{roughness:1}));stone.scale.y=.75;stone.position.set(SER_STONE.x,SY+4.5,SER_STONE.z);a.group.add(stone);const stl=makeLabel('🪨 The Big Stone',{scale:.6});stl.position.set(SER_STONE.x,SY+12,SER_STONE.z);a.group.add(stl);
   const statue=serStatueModel();statue.position.set(SER_STONE.x,SY-12,SER_STONE.z);a.group.add(statue);let fsM=null;const sideBox={x:SER_STONE.x,z:SER_STONE.z,r:5.5,top:SY+9};a.obs.push(sideBox);
@@ -8983,10 +8985,13 @@ AREA_BUILD.serence=a=>{const s=serS();SERA=a;a.ser=true;a.name='🏝️ Serence 
     nbs.forEach(B=>{const b=B.b;B.w-=dt;if(B.w<=0){B.w=2+Math.random()*3;B.tgt.set(B.home.x+(Math.random()-.5)*10,0,B.home.z+(Math.random()-.5)*6);}const dx=B.tgt.x-b.pos.x,dz=B.tgt.z-b.pos.z,d=Math.hypot(dx,dz);if(d>.3){b.vel.set(dx/d*2.5,0,dz/d*2.5);b.pos.x+=b.vel.x*dt;b.pos.z+=b.vel.z*dt;}else b.vel.set(0,0,0);b.pos.y=serGround(b.pos.x,b.pos.z)+1;b.sync(dt);B.lab.position.set(b.pos.x,b.pos.y+2.2,b.pos.z);});
     lms.forEach(L=>{if(L.g.userData.spin)L.g.userData.spin.rotation[L.i===0?'z':'y']+=dt*(L.i===0?1:.6);if(!s.lm[L.i]&&Math.hypot(p.x-L.x,p.z-L.z)<12){s.lm[L.i]=1;save();toast('📍 Landmark found: '+L.nm+' ('+carried(s.lm)+'/'+lms.length+')','badge','📍');if(carried(s.lm)>=lms.length)award('ser_lm');}});
     disc.rotation.z-=dt*2;
+    {const list=[...souls.filter(o=>o.m.visible).map(o=>['👻 Soul piece',o]),...dyn.filter(d=>d.g.visible).map(d=>['🧨 Dynamite',d]),...wisps.filter(o=>o.m.visible).map(o=>['✨ Shape wisp',o])];const cp=$('#serPoint');
+      if(!list.length||sheetOpen){cp.hidden=true;}else{let best=null,bd=1e9;list.forEach(L=>{const d=Math.hypot(L[1].x-p.x,L[1].z-p.z);if(d<bd){bd=d;best=L;}});const ang=Math.atan2(best[1].x-p.x,best[1].z-p.z);const rel=ang-(camYaw+Math.PI);
+        cp.hidden=false;cp.querySelector('b').style.transform='rotate('+(-rel*180/Math.PI)+'deg)';const tx=best[0]+' · '+Math.round(bd)+'m'+(best[1].y-p.y>15?' ⬆ up high':'');const sp=cp.querySelector('span');if(sp.textContent!==tx)sp.textContent=tx;}}
     // items
     const grab=(o,y)=>Math.hypot(p.x-o.x,p.z-o.z)<2.4&&Math.abs(p.y-y)<2.6;
     dyn.forEach(d=>{if(!d.g.visible)return;d.g.rotation.y+=dt*2;if(grab(d,d.y)){s.dyn[d.i]=1;save();sfx('coin');toast('🧨 Dynamite found! ('+carried(s.dyn)+'/4)','badge','🧨');setState();}});
-    souls.forEach(o=>{if(!o.m.visible)return;o.m.position.y=o.y+Math.sin(t*2+o.i)*.3;if(grab(o,o.y)){s.soul[o.i]=1;save();sfx('badge');toast('👻 Soul piece found! ('+carried(s.soul)+'/5)','badge','👻');setState();}});
+    souls.forEach(o=>{if(!o.m.visible)return;o.m.position.y=o.y+Math.sin(t*2+o.i)*.3;o.m.userData.beam.material.opacity=.5+Math.sin(t*3+o.i)*.15;if(grab(o,o.y)){s.soul[o.i]=1;save();sfx('badge');toast('👻 Soul piece found! ('+carried(s.soul)+'/5)','badge','👻');setState();}});
     wisps.forEach(o=>{if(!o.m.visible)return;o.m.rotation.y+=dt*3;o.m.rotation.x+=dt*2;o.m.position.y=o.y+Math.sin(t*3+o.i)*.4;if(grab(o,o.y)){s.wisp[o.i]=1;save();sfx('coin');toast('✨ Shape wisp! ('+carried(s.wisp)+'/10)','', '✨');setState();}});
     // statue
     if(a.fuse!=null){a.fuse+=dt;a.locked=true;if(Math.random()<.6)burst(stone.position.clone().add(new V3((Math.random()-.5)*6,3,(Math.random()-.5)*6)),['#ffd23d','#ff8a1f'],2);
@@ -9002,7 +9007,7 @@ AREA_BUILD.serence=a=>{const s=serS();SERA=a;a.ser=true;a.name='🏝️ Serence 
     // balloon ride
     if(ride){ride.t+=dt;const T=14;const u=Math.min(1,ride.t/T);const F=SER_FLOAT[2];const sx=BS.x,sz=BS.z;const e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;const x=sx+(F.x-sx)*e,z=sz+(F.z-sz)*e,y=by+(F.top+6-by)*Math.min(1,u*1.6)+Math.sin(u*Math.PI)*8;bal.g.position.set(x,y,z);if(bal.flame)bal.flame.scale.setScalar(1+Math.random()*.3);
       player.pos.set(x,y+1.6,z);player.vel.set(0,0,0);if(u>=1&&!ride.drop){ride.drop=1;player.pos.set(F.x,F.top+1.2,F.z+3);toast('☁️ Welcome to the Sky Isle!','badge','☁️');}if(ride.drop&&ride.t>T+3){bal.g.position.set(BS.x,by,BS.z);ride=null;}}};
-  a.cleanup=()=>{nbs.forEach(B=>B.b.dispose());SERA=null;$('#bossLine').hidden=true;};};
+  a.cleanup=()=>{$('#serPoint').hidden=true;nbs.forEach(B=>B.b.dispose());SERA=null;$('#bossLine').hidden=true;};};
 /* ---------- the Eye of Truth: play as the False Sphere ---------- */
 const FS_ATK=[{k:'orb',name:'Dark Orb',icon:'⚫',cd:1.6,col:'#ff2030'},{k:'shapes',name:'Shape Barrage',icon:'🔷',cd:5,col:'#2ee6ff'},{k:'beam',name:'Inverse Beam',icon:'⚡',cd:9,col:'#ffffff'},{k:'pulse',name:'Void Pulse',icon:'💥',cd:7,col:'#9a5cff'},{k:'shield',name:'Lie Shield',icon:'🛡️',cd:14,col:'#ffd23d'}];
 const EYE_HP=3000;
