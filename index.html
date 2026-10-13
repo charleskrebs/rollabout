@@ -8593,7 +8593,7 @@ function abBuySlot(){const A=abS();const n=A.slots+1;const pr=AB_SLOT_PRICE[n];i
 const AB={area:null,cd:{},fx:[],dots:[],keys:{}};
 const abBoss=()=>area&&(area.boss||area.B);
 function abTarget(){const A=area&&area.abil;if(!A)return null;const p=A.pos();if(!p)return null;return new V3(p.x,(p.y||0)+(A.yo||0),p.z);}
-function abHit(f,col){const A=area&&area.abil;if(!A)return 0;const n=A.hit(f);if(n>0){const t=abTarget()||player.pos.clone();const l=makeLabel(A.foes?'-'+n+' shape'+(n>1?'s':''):'-'+n.toLocaleString(),{scale:.75,bg:'rgba(255,255,255,.95)',color:col||'#14213d'});l.position.copy(t).add(new V3((Math.random()-.5)*2,3,0));area.group.add(l);
+function abHit(f,col){const A=area&&area.abil;if(!A)return 0;const n=A.hit(f*AB_DMG);if(n>0){const t=abTarget()||player.pos.clone();const l=makeLabel(A.foes?'-'+n+' shape'+(n>1?'s':''):'-'+n.toLocaleString(),{scale:.75,bg:'rgba(255,255,255,.95)',color:col||'#14213d'});l.position.copy(t).add(new V3((Math.random()-.5)*2,3,0));area.group.add(l);
   AB.fx.push({t:0,ms:[l],upd(h,dt){l.position.y+=dt*3;return h.t<1.1;}});}return n;}
 function abStun(s){const B=abBoss();if(B)B.frz=Math.max(B.frz||0,s);}
 function abInv(s){const B=abBoss();if(B)B.inv=Math.max(B.inv||0,s);}
@@ -8673,6 +8673,8 @@ ABILS.push(
        for(let k=0;k<6;k++){const t=new THREE.Mesh(new THREE.ConeGeometry(.5,2.2,4),M(0xf1e4cc));t.position.set(-5+k*2,9.3,1.3);t.rotation.x=Math.PI;sh.add(t);}const eye=new THREE.Mesh(new THREE.SphereGeometry(.9,12,10),abGlow(0xff2030,1));eye.position.set(0,7,.6);sh.add(eye);g.add(sh);},
      tick(h,dt){next-=dt;const T=abTarget();if(!T)return;if(Math.random()<.7)abSlash(T.clone().add(new V3((Math.random()-.5)*6,(Math.random()-.5)*4,(Math.random()-.5)*6)),8+Math.random()*8,Math.random()<.5?0xff2030:0xffffff);
        if(next<=0&&h.t<6.5&&n<16){next=.36;n++;abHit(.018,'#b0001a');sfx('hoop');camShake=Math.max(camShake,.2);}}});}});
+const AB_DMG=.4,AB_PRICE=.25;
+ABILS.forEach(a=>{a.desc=a.desc.replace(/(\d+(?:\.\d+)?)%/g,(m,v)=>{const x=Math.round(parseFloat(v)*AB_DMG*10)/10;return x+'%';});if(a.price>600)a.price=Math.max(1000,Math.round(a.price*AB_PRICE/500)*500);});
 const abById=id=>ABILS.find(x=>x.id===id);
 /* ---------- using abilities ---------- */
 function abUse(k){const id=abS().eq[k];if(!id)return;const ab=abById(id);if(!ab||!(mode==='area'&&area&&area.abil)||sheetOpen)return;const B=abBoss();if(B&&(B.state==='intro'||B.ended))return toast('Wait for the fight to start!','', '⏳');
