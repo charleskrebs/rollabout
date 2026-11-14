@@ -9159,6 +9159,12 @@ AURAS.push({id:'aura_truesphere',name:'True Sphere',price:0,rar:'mythic',icon:'�
 /* ---------- travel from the Bag ---------- */
 {const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const s=serS();if(!s.seen)return;const body=$('#bagBody');body.appendChild(el('div','sec-h','🏝️ Islands'));const l=el('div','list');
   const inSer=mode==='area'&&area&&area.id==='serence';l.appendChild(rowItem(inSer?'🌍':'🏝️',inSer?'The first island':'Serence Island',inSer?'Go back to where it all started':'The new island','Travel',()=>{closeSheets();fadeTo(()=>{if(inSer)exitToWorld(new V3(SPAWN.x,0,SPAWN.z));else enterArea('serence');});},!(mode==='world'&&!(area&&area.busy))&&!inSer));body.appendChild(l);};}
+/* ---------- the Owner title ---------- */
+BADGES.push({id:'owner',icon:'👑',name:'Owner',desc:'The owner of Rollabout. You can only get this one with a special code.',secret:1});
+{const _sl=setPlayerLabel;setPlayerLabel=function(){_sl.apply(this,arguments);if(S.title!=='owner')return;if(playerLabel)scene.remove(playerLabel);
+  const nm=S.name||'Rollie';playerLabel=makeLabel('👑 OWNER · '+nm,{scale:.9,bg:'rgba(255,214,60,.98)',color:'#7a1200'});scene.add(playerLabel);$('#nameTxt').textContent='👑 OWNER · '+nm;};}
+try{setPlayerLabel();}catch(e){}
+
 /* ================= HORROR MODE: GRINNY'S FUN FAIR ================= */
 /* ---------- the map: a 36x36 grid of 4m cells ---------- */
 const HR_N=36,HR_C=4;
