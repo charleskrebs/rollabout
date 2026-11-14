@@ -407,6 +407,7 @@ body.horror #clockChip,body.horror #biomeChip,body.horror #hint{display:none!imp
 #hrStruggle{position:fixed;left:50%;top:60%;transform:translate(-50%,-50%);z-index:21;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;font-weight:900;text-shadow:0 2px 8px #000;pointer-events:auto;cursor:pointer;user-select:none}
 #hrStruggle small{font-size:22px;letter-spacing:2px;color:#ffb0b8}#hrStruggle b{padding:10px 18px;border-radius:14px;background:#fff;color:#14213d;font-size:26px;text-shadow:none;box-shadow:0 0 30px #ff3b52;animation:hrPop .15s infinite alternate}
 #hrStruggle .qbar{width:240px;height:12px;background:rgba(255,255,255,.2);border-radius:8px;overflow:hidden}#hrStruggle .qbar i{display:block;height:100%;width:0;background:#7dff9a}
+.hrCh2{display:flex;flex-direction:column;gap:2px;margin:14px 0 8px;padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,#2a1a14,#1a0a10);border:2px solid #5a3a2a}.hrCh2 b{color:#ffb070;letter-spacing:1px}.hrCh2 small{color:#a898b8;font-weight:700}
 #rcSheet{width:min(1180px,100%);height:calc(100dvh - 32px);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;overflow:hidden;padding:14px 16px 16px;background:#fffdf5}
 #rcSheet header{flex-wrap:wrap;margin-bottom:10px}.rcHead{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.rcHead h2{margin:0;font-size:30px;letter-spacing:1px;color:#14213d}.rcHead h2 span{color:#2bb673}
 .rcProg{font-weight:800;color:#14213d;font-size:14px}.rcProg small{color:#9a5cff;margin-left:6px}.rcPb{width:180px;height:8px;border-radius:6px;background:#e8e4d4;border:2px solid #14213d;overflow:hidden;margin-top:3px}.rcPb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7dff9a,#2ee6ff,#9a5cff);transition:width .4s}
@@ -9329,15 +9330,15 @@ function hrBuildGrid(){
   // Fences and benches in the open parts
   fill(14,11,15,11,'b');fill(23,10,23,11,'b');fill(11,24,12,24,'b');
   return g;}
-const HR_GRID=hrBuildGrid();
+let HR_GRID=hrBuildGrid();const HR_GRID_FAIR=HR_GRID;
 const hrCell=(i,j)=>(i<0||j<0||i>=HR_N||j>=HR_N)?'#':HR_GRID[j][i];
 const hrSolidAt=(x,z,set)=>(set||HR_OPAQUE).includes(hrCell(hrI(x),hrJ(z)));
 /* points of interest */
-const HR_SPAWN={i:17.5,j:32.5};
-const HR_TICKETS=[[3,2],[10,4],[2,8],[5,10],[10,8],[17,1],[13,4],[22,4],[25,2],[33,3],[26,7],[33,9],[29,11],[3,15],[9,18],[1,21],[17,14],[21,21],[27,16],[28,19],[31,22],[4,27],[8,30],[17,30],[22,33],[26,28],[33,27],[29,31],[33,33],[12,33]];
-const HR_HIDES=[[1,12,'barrel'],[10,16,'trash'],[5,22,'crate'],[13,22,'trash'],[22,13,'barrel'],[34,13,'barrel'],[27,3,'wardrobe'],[31,9,'wardrobe'],[25,11,'wardrobe'],[26,21,'crate'],[32,17,'crate'],[9,26,'potty'],[3,31,'potty'],[18,27,'trash'],[25,27,'crate'],[33,30,'crate'],[2,4,'mirror'],[7,8,'mirror'],[15,9,'barrel'],[23,32,'barrel']];
-const HR_BATT=[[5,6],[19,9],[29,6],[1,18],[33,13],[11,28],[19,33],[27,33],[29,20],[8,12]];
-const HR_NOTES=[[6,4],[30,10],[15,27],[30,30],[10,21]];
+let HR_SPAWN={i:17.5,j:32.5};
+let HR_TICKETS=[[3,2],[10,4],[2,8],[5,10],[10,8],[17,1],[13,4],[22,4],[25,2],[33,3],[26,7],[33,9],[29,11],[3,15],[9,18],[1,21],[17,14],[21,21],[27,16],[28,19],[31,22],[4,27],[8,30],[17,30],[22,33],[26,28],[33,27],[29,31],[33,33],[12,33]];
+let HR_HIDES=[[1,12,'barrel'],[10,16,'trash'],[5,22,'crate'],[13,22,'trash'],[22,13,'barrel'],[34,13,'barrel'],[27,3,'wardrobe'],[31,9,'wardrobe'],[25,11,'wardrobe'],[26,21,'crate'],[32,17,'crate'],[9,26,'potty'],[3,31,'potty'],[18,27,'trash'],[25,27,'crate'],[33,30,'crate'],[2,4,'mirror'],[7,8,'mirror'],[15,9,'barrel'],[23,32,'barrel']];
+let HR_BATT=[[5,6],[19,9],[29,6],[1,18],[33,13],[11,28],[19,33],[27,33],[29,20],[8,12]];
+let HR_NOTES=[[6,4],[30,10],[15,27],[30,30],[10,21]];
 /* ---------- path finding ---------- */
 function hrWalk(i,j,open){const c=hrCell(i,j);if(c==='g')return !!open;return !HR_BLOCK.includes(c);}
 function hrPath(si,sj,ti,tj,open){if(!hrWalk(ti,tj,open))return null;const N=HR_N,key=(i,j)=>j*N+i,came=new Int32Array(N*N).fill(-1),cost=new Float32Array(N*N).fill(1e9);
@@ -9348,6 +9349,9 @@ function hrPath(si,sj,ti,tj,open){if(!hrWalk(ti,tj,open))return null;const N=HR_
   if(came[key(ti,tj)]<0)return null;const out=[];let k=key(ti,tj);while(k!==key(si,sj)){out.push(k);k=came[k];if(out.length>400)break;}out.reverse();return out.map(k=>new V3(hrX(k%N),0,hrZ(Math.floor(k/N))));}
 function hrLOS(x0,z0,x1,z1){const d=Math.hypot(x1-x0,z1-z0),n=Math.ceil(d/.7);for(let k=1;k<n;k++){const t=k/n;if(hrSolidAt(x0+(x1-x0)*t,z0+(z1-z0)*t))return false;}return true;}
 function hrRandCell(fn){for(let k=0;k<400;k++){const i=1+Math.floor(Math.random()*(HR_N-2)),j=1+Math.floor(Math.random()*(HR_N-2));if(hrWalk(i,j)&&(!fn||fn(i,j)))return [i,j];}return [17,30];}
+const HR_FAIR_PTS={tickets:HR_TICKETS,hides:HR_HIDES,batt:HR_BATT,notes:HR_NOTES};
+function hrUseMap(ch){if(ch===2){HR_GRID=HR2_GRID;HR_TICKETS=HR2_PTS.tickets;HR_HIDES=HR2_PTS.hides;HR_BATT=HR2_PTS.batt;HR_NOTES=HR_FAIR_PTS.notes.concat(HR2_PTS.notes);}
+  else{HR_GRID=HR_GRID_FAIR;HR_TICKETS=HR_FAIR_PTS.tickets;HR_HIDES=HR_FAIR_PTS.hides;HR_BATT=HR_FAIR_PTS.batt;HR_NOTES=HR_FAIR_PTS.notes;}}
 
 /* ---------- horror audio: everything is synthesized ---------- */
 const HA={on:false,nodes:[],beatT:0,mbT:0,mbI:0,chase:0,threat:0};
@@ -9497,17 +9501,17 @@ const HR_NOTE_TEXT=[
 const HRO={friends:false,players:['',''],fp:false,gentle:false,night:1,bots:0};
 function hrS(){S.horror=S.horror||{};const h=S.horror;h.best=h.best||{};h.unlocked=Math.max(1,h.unlocked||1);h.notes=h.notes||{};return h;}
 let HRUN=null;
-function hrBegin(n){const cfg=HR_NIGHTS[n];const names=HRO.friends?HRO.players.map((p,i)=>(p||'').trim()||('Player '+(i+1))):[S.name||'You'];
+function hrBegin(n){const cfg=HR_NIGHTS[n];hrUseMap(cfg.ch2?2:1);const names=HRO.friends?HRO.players.map((p,i)=>(p||'').trim()||('Player '+(i+1))):[S.name||'You'];
   HRUN={n,cfg,friends:HRO.friends,names,cur:0,lives:HRO.friends?names.length:cfg.lives,maxLives:HRO.friends?names.length:cfg.lives,tickets:0,stats:names.map(nm=>({name:nm,tickets:0,time:0,caught:false})),t0:0,caughtCount:0,usedLight:false,closest:99};
   closeSheets();if(mode==='title')play();fadeTo(()=>enterArea('horror'));}
 /* ---------- the park ---------- */
-AREA_BUILD.horror=a=>{const R=HRUN,cfg=R.cfg;a.horror=true;a.busy=true;a.silent=true;a.name='🎪 Night '+(cfg.n===6?'???':cfg.n)+': '+cfg.name;a.leaveLabel='Quit';
+AREA_BUILD.horror=a=>{const R=HRUN,cfg=R.cfg,CH2=!!cfg.ch2;a.horror=true;a.busy=true;a.silent=true;a.name=(CH2?'🏭 Factory Night '+(cfg.n-6):'🎪 Night '+(cfg.n===6?'???':cfg.n))+': '+cfg.name;a.leaveLabel='Quit';
   a.onLeave=()=>{hrFinish('quit');};a.fp=HRO.fp;a.camDist=HRO.fp?null:7.2;a.killY=-30;a.yaw=0;
   a.sky={top:0x04050a,bottom:0x0a0c16,fog:0x06070d,near:3,far:cfg.fog,hemi:.15,sun:.15,amb:.11,sunColor:0x7a8cc0,stars:.5};const SKY0=Object.assign({},a.sky);
   a.ground=(x,z)=>(Math.abs(x)<150&&z>-150&&z<220)?0:null;a.spawn=new V3(hrX(HR_SPAWN.i),0,hrZ(HR_SPAWN.j));
   const G=a.group;a.camTilt0=camTilt;if(!HRO.fp)camTilt=.26;
   /* ground */
-  const gt=hrCanvas(1024,1024,(g,w,h)=>{g.fillStyle='#1a1a1f';g.fillRect(0,0,w,h);const px=w/HR_N;
+  const gt=CH2?hr2Floor():hrCanvas(1024,1024,(g,w,h)=>{g.fillStyle='#1a1a1f';g.fillRect(0,0,w,h);const px=w/HR_N;
     for(let j=0;j<HR_N;j++)for(let i=0;i<HR_N;i++){let c=null;if(i<=11&&j<=11)c=(i+j)%2?'#22222c':'#2c2c3a';else if(i>=24&&j<=12)c='#2a1c16';else if(Math.hypot(i-28.5,j-19)<5)c='#3a2c1a';else if(i>=2&&i<=10&&j>=25&&j<=32)c='#262a30';else if(i>=24&&j>=26)c='#24221e';else if(i>=12&&i<=23&&j>=24)c=(i+j)%2?'#2a2826':'#232120';if(c){g.fillStyle=c;g.fillRect(i*px,j*px,px+1,px+1);}}
     for(let k=0;k<5000;k++){g.fillStyle='rgba('+(Math.random()<.5?'0,0,0':'80,80,90')+','+(Math.random()*.12)+')';g.fillRect(Math.random()*w,Math.random()*h,2+Math.random()*5,2+Math.random()*5);}
     g.strokeStyle='rgba(120,110,90,.25)';g.lineWidth=3;g.setLineDash([12,10]);g.beginPath();g.moveTo(w/2,h);g.lineTo(w/2,h*.55);g.stroke();g.setLineDash([]);
@@ -9524,7 +9528,7 @@ AREA_BUILD.horror=a=>{const R=HRUN,cfg=R.cfg;a.horror=true;a.busy=true;a.silent=
     T:new THREE.MeshStandardMaterial({map:hrRepTex(128,128,(g,w,h)=>{for(let k=0;k<4;k++){g.fillStyle=k%2?'#7a1a20':'#c8bca0';g.fillRect(k*32,0,32,h);}g.fillStyle='rgba(0,0,0,.25)';for(let k=0;k<60;k++)g.fillRect(Math.random()*w,Math.random()*h,4,4);}),roughness:.9}),
     b:new THREE.MeshStandardMaterial({map:hrRepTex(128,32,(g,w,h)=>{for(let k=0;k<8;k++){g.fillStyle=k%2?'#1a1a1a':'#c8a020';g.beginPath();g.moveTo(k*16,0);g.lineTo(k*16+16,0);g.lineTo(k*16,h);g.lineTo(k*16-16,h);g.fill();}}),roughness:.8}),
     g:HRM(0x2a2a30,{metalness:.7,roughness:.4})};
-  const H={'#':9,W:8,M:4.6,T:6.5,b:1.3,F:3,g:6};
+  if(CH2)hr2Tex(T);const H={'#':9,W:8,M:4.6,T:6.5,b:1.3,F:3,g:6};
   /* merge cells into boxes */
   const seen=new Set();for(const ch of ['#','W','M','T','b','F']){for(let j=0;j<HR_N;j++)for(let i=0;i<HR_N;i++){if(HR_GRID[j][i]!==ch||seen.has(i+','+j))continue;let i1=i;while(i1+1<HR_N&&HR_GRID[j][i1+1]===ch&&!seen.has((i1+1)+','+j))i1++;let j1=j;
       outer:while(j1+1<HR_N){for(let k=i;k<=i1;k++)if(HR_GRID[j1+1][k]!==ch||seen.has(k+','+(j1+1)))break outer;j1++;}
@@ -9536,9 +9540,10 @@ AREA_BUILD.horror=a=>{const R=HRUN,cfg=R.cfg;a.horror=true;a.busy=true;a.silent=
   const doors=[];for(const s of[-1,1]){const d=new THREE.Group();d.position.set(s*8,0,gz);G.add(d);for(let k=0;k<9;k++){const bar=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,7,6),T.g);bar.position.set(-s*(k*.9+.4),3.5,0);d.add(bar);const tip=new THREE.Mesh(new THREE.ConeGeometry(.16,.5,6),T.g);tip.position.set(-s*(k*.9+.4),7.2,0);d.add(tip);}
     for(const y of[1,4,6.5]){const rail=hrBox(8,.16,.16,T.g);rail.position.set(-s*4,y,0);d.add(rail);}doors.push({d,s});}a.doors=doors;a.gateBox=gateBox;
   for(const s of[-1,1]){const p=hrBox(1.2,11,1.2,HRM(0x3a2a2a));p.position.set(s*8.6,5.5,gz);G.add(p);}
-  const arch=hrSign("GRINNY'S FUN FAIR",{sw:17,col:'#ff3b52',edge:'#ffd23d',cracked:1,ei:1.1});arch.position.set(0,11.5,gz);arch.rotation.y=Math.PI;G.add(arch);const arch2=arch.clone();arch2.rotation.y=0;arch2.position.z=gz-.05;G.add(arch2);
+  const arch=hrSign(CH2?'THE COSTUME FACTORY':"GRINNY'S FUN FAIR",{sw:17,col:'#ff3b52',edge:'#ffd23d',cracked:1,ei:1.1});arch.position.set(0,11.5,gz);arch.rotation.y=Math.PI;G.add(arch);const arch2=arch.clone();arch2.rotation.y=0;arch2.position.z=gz-.05;G.add(arch2);
   const bulbs=[];for(let k=0;k<22;k++){const b=new THREE.Mesh(new THREE.SphereGeometry(.18,6,5),new THREE.MeshStandardMaterial({color:0xffe0a0,emissive:0xffb050,emissiveIntensity:1}));b.position.set(-8.6+k*17.2/21,13,gz);G.add(b);bulbs.push(b);}
   const exitSign=hrSign('EXIT →  STAY ON THE ROAD',{w:1024,h:140,sw:9,col:'#9affb0',edge:'#2a6a3a',ei:.7});exitSign.position.set(9,3,gz+10);exitSign.rotation.y=Math.PI;G.add(exitSign);
+  if(CH2)hr2Build(a,G,T);else{
   /* the Ferris wheel */
   const FW={x:0,z:hrZ(4)};{const w=new THREE.Group();w.position.set(FW.x,16,FW.z);G.add(w);const rim=new THREE.Mesh(new THREE.TorusGeometry(13,.25,6,48),HRM(0x6a6470,{metalness:.6}));w.add(rim);const rim2=rim.clone();rim2.scale.setScalar(.7);w.add(rim2);
     for(let k=0;k<12;k++){const sp=hrBox(.15,26,.15,HRM(0x55505a,{metalness:.5}));sp.rotation.z=k*Math.PI/12;w.add(sp);}
@@ -9587,10 +9592,11 @@ AREA_BUILD.horror=a=>{const R=HRUN,cfg=R.cfg;a.horror=true;a.busy=true;a.silent=
   /* tables with umbrellas */
   for(let j=0;j<HR_N;j++)for(let i=0;i<HR_N;i++)if(HR_GRID[j][i]==='k'){const x=hrX(i),z=hrZ(j);const t=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,.12,14),HRM(0x5a5a60));t.position.set(x,1.1,z);G.add(t);const leg=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,4,6),HRM(0x888888));leg.position.set(x,2,z);G.add(leg);
     const um=new THREE.Mesh(new THREE.ConeGeometry(2.2,.9,8,1,true),new THREE.MeshStandardMaterial({map:awn.map,side:THREE.DoubleSide}));um.position.set(x,4.2,z);G.add(um);a.boxes.push({x0:x-1.3,x1:x+1.3,z0:z-1.3,z1:z+1.3,top:1.2,bot:0});}
+  }
   /* lamps */
-  const lamps=[[0,52],[-26,34],[26,34],[-30,-6],[14,-30],[-14,-36],[20,10],[-44,-14],[56,-10],[-50,42]].map(([x,z])=>{const l=hrLamp();l.position.set(x,0,z);l.rotation.y=Math.random()*6;G.add(l);a.obs.push({x,z,r:.3,top:6});return{l,x,z,base:1.5,fl:0};});a.lamps=lamps;
+  const lamps=(CH2?HR2_PTS.lamps.map(([i,j])=>[hrX(i)+1.2,hrZ(j)+1.2]):[[0,52],[-26,34],[26,34],[-30,-6],[14,-30],[-14,-36],[20,10],[-44,-14],[56,-10],[-50,42]]).map(([x,z])=>{const l=hrLamp();l.position.set(x,0,z);l.rotation.y=Math.random()*6;G.add(l);a.obs.push({x,z,r:.3,top:6});return{l,x,z,base:1.5,fl:0};});a.lamps=lamps;
   /* balloons and dead trees */
-  const balloons=[];for(let k=0;k<16;k++){const[i,j]=hrRandCell();const b=hrBalloon();b.position.set(hrX(i)+(Math.random()-.5)*2,0,hrZ(j)+(Math.random()-.5)*2);G.add(b);balloons.push({b,ph:Math.random()*6,up:0});}a.balloons=balloons;
+  const balloons=[];for(let k=0;k<(CH2?0:16);k++){const[i,j]=hrRandCell();const b=hrBalloon();b.position.set(hrX(i)+(Math.random()-.5)*2,0,hrZ(j)+(Math.random()-.5)*2);G.add(b);balloons.push({b,ph:Math.random()*6,up:0});}a.balloons=balloons;
   for(let k=0;k<70;k++){const an=Math.random()*Math.PI*2,r=80+Math.random()*60;const x=Math.cos(an)*r,z=Math.sin(an)*r;if(Math.abs(x)<18&&z>60)continue;const tr=new THREE.Group();tr.position.set(x,0,z);const t2=new THREE.Mesh(new THREE.CylinderGeometry(.3,.6,9+Math.random()*6,6),HRM(0x14100c));t2.position.y=5;tr.add(t2);
     for(let b=0;b<4;b++){const br=new THREE.Mesh(new THREE.CylinderGeometry(.05,.15,4,4),HRM(0x14100c));br.position.set(0,7+b,0);br.rotation.set(Math.random()-.5,0,(Math.random()-.5)*2.4);tr.add(br);}G.add(tr);}
   for(let k=0;k<26;k++){const s=k%2?-1:1;const z=78+k*4.5;const tr=new THREE.Mesh(new THREE.CylinderGeometry(.3,.5,10,6),HRM(0x14100c));tr.position.set(s*(15+Math.random()*4),5,z);G.add(tr);}
@@ -9600,12 +9606,12 @@ AREA_BUILD.horror=a=>{const R=HRUN,cfg=R.cfg;a.horror=true;a.busy=true;a.silent=
   const pick=(list,n,minD)=>{const L=list.slice().sort(()=>Math.random()-.5),out=[];for(const p of L){if(out.length>=n)break;if(Math.hypot(hrX(p[0])-a.spawn.x,hrZ(p[1])-a.spawn.z)<18)continue;if(out.every(q=>Math.hypot(q[0]-p[0],q[1]-p[1])*HR_C>=minD))out.push(p);}return out;};
   a.tix=pick(HR_TICKETS,cfg.tickets,22).map(([i,j])=>{const g=hrTicket();g.position.set(hrX(i),1.4,hrZ(j));G.add(g);return{g,x:hrX(i),z:hrZ(j),got:false};});
   a.batts=pick(HR_BATT,cfg.batt,10).map(([i,j])=>{const g=hrBattery();g.position.set(hrX(i),.7,hrZ(j));G.add(g);return{g,x:hrX(i),z:hrZ(j),got:false};});
-  {const ni=Math.min(4,cfg.n-1),[i,j]=HR_NOTES[ni];const g=hrNote();g.position.set(hrX(i),.5,hrZ(j));G.add(g);a.note={g,i:ni};a.inter.push({pos:new V3(hrX(i),1,hrZ(j)),r:3,label:'📜 Read the note',act:()=>hrReadNote(a)});}
+  {const ni=CH2?5+cfg.n-7:Math.min(4,cfg.n-1),[i,j]=HR_NOTES[ni];const g=hrNote();g.position.set(hrX(i),.5,hrZ(j));G.add(g);a.note={g,i:ni};a.inter.push({pos:new V3(hrX(i),1,hrZ(j)),r:3,label:'📜 Read the note',act:()=>hrReadNote(a)});}
   /* hiding spots */
   a.hides=HR_HIDES.map(([i,j,kind])=>{const P=hrHideProp(kind);const x=hrX(i),z=hrZ(j);P.g.position.set(x,0,z);P.g.rotation.y=Math.atan2(-x,60-z)+(Math.random()-.5)*.4;G.add(P.g);a.obs.push({x,z,r:P.r,top:P.h});
     const H2={x,z,kind,g:P.g,r:P.r};a.inter.push({pos:new V3(x,1,z),r:P.r+2.2,on:()=>!a.scare&&!a.carried&&!H2.bot&&(!a.hide||a.hide===H2),label:()=>a.hide===H2?'🚪 Get out':'🫣 Hide in the '+({barrel:'barrel',trash:'trash can',crate:'crate',potty:'porta-potty',wardrobe:'wardrobe',mirror:'photo booth'}[kind]),act:()=>a.hide===H2?hrUnhide(a):hrHide(a,H2)});return H2;});
   /* Grinny */
-  const gm=hrGrinny();G.add(gm);const M={g:gm,pos:new V3(0,1.75,-40),vel:new V3(),r:1.4,yaw:0,state:'wait',path:null,pi:0,repath:0,target:null,lastSeen:null,lostT:0,chaseT:0,searchT:0,hop:0,hopV:0,stuckT:0,stuckP:new V3(),idle:0,patrolT:0,heardT:0,seenBy:0,sawHide:false,twitch:0,grace:0};a.M=M;
+  const gm=CH2?hrPatchwork():hrGrinny();G.add(gm);const M={g:gm,pos:new V3(0,1.75,-40),vel:new V3(),r:1.4,yaw:0,state:'wait',path:null,pi:0,repath:0,target:null,lastSeen:null,lostT:0,chaseT:0,searchT:0,hop:0,hopV:0,stuckT:0,stuckP:new V3(),idle:0,patrolT:0,heardT:0,seenBy:0,sawHide:false,twitch:0,grace:0};a.M=M;
   {const[i,j]=hrRandCell((i,j)=>Math.hypot(hrX(i)-a.spawn.x,hrZ(j)-a.spawn.z)>70);M.pos.set(hrX(i),1.75,hrZ(j));}
   a.smilers=[];for(let k=0;k<cfg.mann;k++){const s=hrSmiler();G.add(s);const[i,j]=hrRandCell((i,j)=>Math.hypot(hrX(i)-a.spawn.x,hrZ(j)-a.spawn.z)>40);s.position.set(hrX(i),0,hrZ(j));a.smilers.push({g:s,pos:s.position,path:null,pi:0,repath:0,moved:false,stingT:0,frozenT:0});}
   a.lils=[];for(let k=0;k<cfg.lil;k++){const l=hrGrinny(true);G.add(l);const[i,j]=hrRandCell((i,j)=>Math.hypot(hrX(i)-a.spawn.x,hrZ(j)-a.spawn.z)>35);a.lils.push({g:l,pos:new V3(hrX(i),.6,hrZ(j)),target:null,seeT:0,flee:0,gig:0,hop:Math.random()*6});}
@@ -9613,7 +9619,7 @@ AREA_BUILD.horror=a=>{const R=HRUN,cfg=R.cfg;a.horror=true;a.busy=true;a.silent=
   Object.assign(a,{stam:100,batt:100,light:false,outage:0,outageT:40+Math.random()*30,lightT:15+Math.random()*20,scareT:8+Math.random()*8,flashT:0,noiseT:0,wasAir:false,open:false,won:false,hideT:0,qte:null,qteCd:0,scare:null,paused:false,frust:new THREE.Frustum(),pm:new THREE.Matrix4(),startT:0,lastSeenHide:-9,firstSee:true,lightHint:false,introT:0,gaveTip:{}});
   R.t0=performance.now();hrHud(true);haStart();
   // intro card
-  const L=HR_INTRO[cfg.n].slice();if(cfg.n===1)L[2]="Find "+cfg.tickets+" golden tickets to open the gate. Don't let Grinny see you.";hrCard((cfg.n===6?'NIGHTMARE':'NIGHT '+cfg.n),L,R.friends?'👥 '+R.names[0]+' goes first':'');
+  const L=HR_INTRO[cfg.n].slice();if(cfg.n===1)L[2]="Find "+cfg.tickets+" golden tickets to open the gate. Don't let Grinny see you.";hrCard(CH2?'FACTORY · NIGHT '+(cfg.n-6):(cfg.n===6?'NIGHTMARE':'NIGHT '+cfg.n),L,R.friends?'👥 '+R.names[0]+' goes first':'');
   a.status=()=>{if(a.won)return'🏁 You escaped!';if(a.open)return'🚪 THE GATE IS OPEN. RUN to the exit road!';return'🎟️ '+R.tickets+' / '+cfg.tickets+' golden tickets · F flashlight · Shift sprint · E hide';};
   a.camClamp=o=>{if(a.hide)return;const p=player.pos;const dx=o.x-p.x,dz=o.z-p.z,d=Math.hypot(dx,dz);let k=1;for(let s=.5;s<=d;s+=.35){if(hrSolidAt(p.x+dx*s/d,p.z+dz*s/d,'#WMTg')){k=Math.max(.05,(s-.6)/d);break;}}o.x=p.x+dx*k;o.z=p.z+dz*k;
     for(const[x0,x1,z0,z1,y] of a.roofs)if(p.x>x0&&p.x<x1&&p.z>z0&&p.z<z1){o.y=Math.min(o.y,y-.5);break;}o.y=Math.max(o.y,p.y+.6);};
@@ -9803,7 +9809,7 @@ function hrAbBuild(a){const R=HRUN,cfg=R.cfg,M=a.M,G=a.group;
     const b={name:nm,col,g,pos:new V3(a.spawn.x+(k-1)*3.2,1,a.spawn.z-4-k),vel:new V3(),r:1,state:'roam',path:null,pi:0,repath:0,goal:null,goalKind:null,tk:null,hideH:null,hideT:0,fearT:0,talkT:3+k*2,alive:true,caged:false,carried:false,escaped:false,tickets:0,cageT:0,stuckT:0,stuckP:new V3(),seenHide:false,wait:7.5+k*1.2};
     g.position.set(b.pos.x,0,b.pos.z);a.bots.push(b);}
   if(nb)setTimeout(()=>{if(area===a)hrSay(a,a.bots[0],hrPick(HR_BOTSAY.start));},6000);
-  const c=$('#hrCard');if(c&&M.ab.list.length){const p=document.createElement('p');p.style.cssText='color:#ff8a9a;font-size:16px;animation-delay:1.4s';p.textContent="Grinny's tricks: "+M.ab.list.map(k=>HR_ABINFO[k][0]+' '+HR_ABINFO[k][1]).join(' · ');c.appendChild(p);}
+  const c=$('#hrCard');if(c&&M.ab.list.length){const p=document.createElement('p');p.style.cssText='color:#ff8a9a;font-size:16px;animation-delay:1.4s';p.textContent=(HRUN.cfg.ch2?"The Patchwork's tricks: ":"Grinny's tricks: ")+M.ab.list.map(k=>HR_ABINFO[k][0]+' '+HR_ABINFO[k][1]).join(' · ');c.appendChild(p);}
   $('#hrChat').innerHTML='';$('#hrHurt').className='';}
 /* ---------- little UI helpers ---------- */
 function hrSay(a,b,txt,creepy){const box=$('#hrChat');if(!box||area!==a)return;const d=document.createElement('div');d.className='hrMsg'+(creepy?' creepy':'');const n=document.createElement('b');n.textContent=b.name+': ';n.style.color='#'+new THREE.Color(b.col).getHexString();
@@ -9976,6 +9982,10 @@ function hrRenderMenu(){const h=hrS(),b=$('#hrBody');b.innerHTML='';
     const th=[N.mann?'🗿×'+N.mann:'',N.lil?'👶×'+N.lil:'',N.outage?'⚡':''].filter(Boolean).join(' ')+'<br>'+(HR_ABIL[n]||[]).map(k=>HR_ABINFO[k][0]).join('');
     c.innerHTML='<b>'+(n===6?'☠️':n)+'</b><span>'+(lock?'🔒 Locked':N.name)+'</span><small>'+(lock?'Beat night '+(n-1):'🎟️×'+N.tickets+' '+th)+'</small>'+(best?'<i>'+(best.alone?'🕯️ ':'👥 ')+'✓ '+Math.round(best.time)+'s</i>':'');
     if(!lock)c.addEventListener('click',()=>{HRO.night=n;sfx('blip');hrRenderMenu();});nights.appendChild(c);}b.appendChild(nights);
+  {const open2=!!h.best[2];const hd=el('div','hrCh2');hd.innerHTML='<b>🏭 CHAPTER 2: THE COSTUME FACTORY</b><small>'+(open2?'Something was sewn together in here…':'🔒 Survive Night 2 to unlock')+'</small>';b.appendChild(hd);
+    const n2=el('div','hrNights');for(let n=7;n<=9;n++){const N=HR_NIGHTS[n];const lock=!open2||n>(h.unlocked2||7);const best=h.best[n];const c=document.createElement('button');c.className='hrNight'+(lock?' lock':'')+(HRO.night===n?' sel':'');
+      c.innerHTML='<b>'+(n-6)+'</b><span>'+(lock?'🔒 Locked':N.name)+'</span><small>'+(lock?(open2?'Beat factory night '+(n-7):'Beat night 2'):'🎟️×'+N.tickets+' 🧵'+(N.outage?' ⚡':''))+'<br>'+HR_ABIL[n].map(k=>HR_ABINFO[k][0]).join('')+'</small>'+(best?'<i>✓ '+Math.round(best.time)+'s</i>':'');
+      if(!lock)c.addEventListener('click',()=>{HRO.night=n;sfx('blip');hrRenderMenu();});n2.appendChild(c);}b.appendChild(n2);}
   const row=(label,opts,cur,fn)=>{const r=el('div','hrRow');const l=el('span','hrLab',label);r.appendChild(l);opts.forEach(([v,t,sub])=>{const x=document.createElement('button');x.className='hrOpt'+(cur===v?' on':'');x.innerHTML=t+(sub?'<small>'+sub+'</small>':'');x.addEventListener('click',()=>{fn(v);sfx('blip');hrRenderMenu();});r.appendChild(x);});b.appendChild(r);};
   row('Who is playing?',[[false,'🕯️ Alone','The scariest way'],[true,'👥 With Friends','Pass the device']],HRO.friends,v=>HRO.friends=v);
   if(HRO.friends){const f=el('div','hrFriends');f.appendChild(el('p','hrSmall','Take turns on this device! When someone gets caught, pass it to the next friend. The team keeps every ticket, so you escape together… or not at all.'));
@@ -9985,7 +9995,7 @@ function hrRenderMenu(){const h=hrS(),b=$('#hrBody');b.innerHTML='';
   row('AI survivors',[[0,'🚫 None','Just you'],[1,'🤖 1','Bo'],[2,'🤖 2','Bo & Pip'],[3,'🤖 3','Bo, Pip & Rex']],HRO.bots|0,v=>HRO.bots=v);
   row('Camera',[[false,'🎥 Behind the ball',''],[true,'👀 First person','Even scarier']],HRO.fp,v=>HRO.fp=v);
   row('Scares',[[false,'😱 Full jumpscares',''],[true,'🙈 Less scary','No jumpscare faces']],HRO.gentle,v=>HRO.gentle=v);
-  const go=document.createElement('button');go.className='btn hrGo';go.textContent=HRO.night===6?'☠️ ENTER THE NIGHTMARE':'🎪 ENTER THE PARK · NIGHT '+HRO.night;go.addEventListener('click',()=>hrBegin(HRO.night));b.appendChild(go);
+  const go=document.createElement('button');go.className='btn hrGo';go.textContent=HRO.night===6?'☠️ ENTER THE NIGHTMARE':HRO.night>=7?'🏭 ENTER THE FACTORY · NIGHT '+(HRO.night-6):'🎪 ENTER THE PARK · NIGHT '+HRO.night;go.addEventListener('click',()=>hrBegin(HRO.night));b.appendChild(go);
   const how=el('div','hrHow');how.innerHTML='<b>How to survive</b><span>🎟️ Find the golden tickets, then escape through the gate</span><span>⇧ Shift to sprint (it makes noise!) · Space to jump over low fences</span><span>🔦 F for your flashlight. Light slows Grinny… but helps him see you</span><span>🫣 E to hide in barrels, crates and wardrobes. Hold your breath when he is close</span><span>🗿 Smilers only move when you are not looking at them</span><span>🤖 AI survivors hunt for tickets too. If Grinny cages one in the Big Top, go free them!</span><b style="margin-top:6px">Grinny\'s tricks</b>'+Object.keys(HR_ABINFO).map(k=>'<span>'+HR_ABINFO[k][0]+' <b style="color:#ff8a9a">'+HR_ABINFO[k][1]+'</b> · '+HR_ABINFO[k][2]+' <i style="opacity:.6">(from night '+[1,2,3,4,5,6].find(n=>HR_ABIL[n].includes(k))+')</i></span>').join('');b.appendChild(how);
   const rw=el('div','hrRew');rw.innerHTML='<b>Rewards</b>'+[['1','🎉 Grinny Hat'],['2','🧵 Stitched pattern'],['3','👻 Ectoplasm trail'],['4','🌫️ Haunted aura'],['5',"🎈 Lil' Grinny pet"],['6','🌑 Midnight color']].map(([n,t])=>'<span class="'+(h.best[n]?'got':'')+'">'+(n==='6'?'☠️':'N'+n)+' · '+t+'</span>').join('');b.appendChild(rw);}
 /* ---------- ending a night ---------- */
@@ -9996,12 +10006,12 @@ function hrFinish(result){const R=HRUN,a=area;if(!R)return;const cfg=R.cfg,h=hrS
   if(result==='quit'){back();return;}
   const BR=hrBotResult(a);const list=R.stats.map(s=>({a:(s.caught?'💀 ':'✅ ')+s.name,b:'🎟️ '+s.tickets+' · '+Math.round(s.time)+'s'})).concat(BR.rows);const showList=R.friends||BR.rows.length>0;
   if(result==='win'){const first=!h.best[cfg.n];const coins=addCoins((first?600*cfg.n:150*cfg.n)+BR.bonus);if(BR.all)award('hr_squad');
-    h.best[cfg.n]={time:Math.min(time,(h.best[cfg.n]||{}).time||1e9),alone:!R.friends||(h.best[cfg.n]||{}).alone};h.unlocked=Math.max(h.unlocked,cfg.n+1);
+    h.best[cfg.n]={time:Math.min(time,(h.best[cfg.n]||{}).time||1e9),alone:!R.friends||(h.best[cfg.n]||{}).alone};if(cfg.ch2){h.unlocked2=Math.max(h.unlocked2||7,cfg.n+1);if(typeof qsS==='function'){if(cfg.n===7)qsS().titles.night_shift=1;if(cfg.n===9)qsS().titles.unstitched=1;}}else h.unlocked=Math.max(h.unlocked,cfg.n+1);
     const rw=HR_REW[cfg.n];let got='';if(rw&&!S.owned[rw[0]]){S.owned[rw[0]]=1;got=' You unlocked '+rw[1]+'!';}
     award(cfg.n===6?'hr_nm':'hr_n'+cfg.n);if(!R.friends&&R.caughtCount===0)award('hr_alone');if(R.friends)award('hr_team');if(R.closest<3.2)award('hr_close');if(!R.usedLight)award('hr_dark');save();updateCoinsUI(true);
     const mvp=R.friends?R.stats.slice().sort((p,q)=>q.tickets-p.tickets||q.time-p.time)[0]:null;
     showResult({title:cfg.n===5?'YOU SURVIVED CLOSING TIME':(cfg.n===6?'YOU SURVIVED THE NIGHTMARE':'NIGHT '+cfg.n+' SURVIVED'),big:'🎪',line:'You escaped in '+Math.round(time)+' seconds'+(R.caughtCount?' (caught '+R.caughtCount+'×)':' without getting caught!')+'.'+got+(mvp?' MVP: '+mvp.name+'!':'')+BR.line+(cfg.n===5?' But Grinny is still in there… waiting. ☠️ NIGHTMARE unlocked.':''),coins,list:showList?list:null,
-      buttons:[cfg.n<6&&HR_NIGHTS[cfg.n+1]&&h.unlocked>cfg.n?{label:'Next night ▸',cls:'gold',fn:()=>again(cfg.n+1)}:null,{label:'Play again',fn:()=>again(cfg.n)},{label:'Leave the park',fn:back}].filter(Boolean)});}
+      buttons:[((cfg.n<6&&h.unlocked>cfg.n)||(cfg.ch2&&cfg.n<9))&&HR_NIGHTS[cfg.n+1]?{label:'Next night ▸',cls:'gold',fn:()=>again(cfg.n+1)}:null,{label:'Play again',fn:()=>again(cfg.n)},{label:'Leave the park',fn:back}].filter(Boolean)});}
   else{showResult({title:'GRINNY GOT YOU',big:'🎈',line:R.friends?'The whole team was caught! You found '+R.tickets+' of '+cfg.tickets+' tickets.':'You found '+R.tickets+' of '+cfg.tickets+' tickets before Grinny caught you.',coins:null,list:showList?list:null,
       buttons:[{label:'Try again',cls:'gold',fn:()=>again(cfg.n)},{label:'Leave the park',fn:back}]});}}
 $('#hrPassGo').addEventListener('click',()=>{const a=area;$('#hrPass').hidden=true;if(a&&a.horror){a.paused=false;hrCard('YOUR TURN',[HRUN.names[HRUN.cur]+', the park is all yours.','Grinny is waiting.'],'',2600);}});
@@ -10792,6 +10802,78 @@ function dpWin(a){const D=dpS();a.tent.forEach(T=>T.st='hurt');sfx('badge');awar
 {const nav=$('#tSer')||$('#tPlay');const b=document.createElement('button');b.className='btn';b.id='tDeep';b.style.cssText='background:linear-gradient(135deg,#02304a,#3ad8c8);color:#fff';b.innerHTML='🌊 Chapter 6: The Deep <small>Dive under the sea</small>';nav.after(b);b.addEventListener('click',dpEnter);}
 {const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const body=$('#bagBody');body.appendChild(el('div','sec-h','🌊 Chapter 6: The Deep'));const l=el('div','list');const D=dpS();
   l.appendChild(rowItem('🌊','The Deep','🔵 '+Object.keys(D.pearls).length+'/5 Glow Pearls'+(D.beat?' · 🦑 Kraken defeated':''),'Dive',()=>{closeSheets();setTimeout(dpEnter,60);},mode!=='world'));body.appendChild(l);};}
+
+const HR2_GRID=["####################################", "#WWWWWWWWWWWW..........WWWWWWWWWWWW#", "#W..........W..........W..........W#", "#W.BBB..BBB.W..........W.BBB..BBB.W#", "#W..........W.MM....MM.W..........W#", "#W..........W.MM....MM.W..........W#", "#W.BBB..BBB...MM....MM...BBB..BBB.W#", "#W................................W#", "#W..........W..........W..........W#", "#W.BBB..BBB.WMM.b..b.MMW.BBB..BBB.W#", "#W..........WMM......MMW..........W#", "#W..........W..........W..........W#", "#WWWWW..WWWWW..........WWWWW..WWWWW#", "#..................................#", "#.............MMM..MMM.............#", "#WWWW.WWWWW.b.M......M...WWWWWWWWWW#", "#W........W...M......M.b.W....W...W#", "#W........W......CC......W........W#", "#W........W......CC......W....W...W#", "#W............M......M........WW..W#", "#W............M......M........W...W#", "#W........W.b.MMMMMMMM.b.W....W...W#", "#W........W..............W........W#", "#W........WMM..........MMW....W...W#", "#WWWW.WWWWWMM..........MMWWWWWWWWWW#", "#..................................#", "#.MM............................MM.#", "#.MMbbbbb..bbbbb....bbbbb..bbbbbMM.#", "#.MM............................MM.#", "#...vvvvvvvvvvvvvvvvvvvvvvvvvvvv...#", "#..................................#", "#...vvvvvvvvvv........vvvvvvvvvv...#", "#..................................#", "#.....b......................b.....#", "#..................................#", "################gggg################"];
+const HR2_PTS={tickets:[[14, 3], [7, 10], [26, 20], [3, 17], [33, 8], [5, 13], [23, 28], [3, 31], [20, 22], [9, 25], [2, 34], [18, 4], [10, 31], [5, 7], [22, 14], [33, 16], [9, 34], [4, 2], [23, 18], [6, 22], [17, 23], [7, 3], [22, 1], [23, 6]],hides:[[11, 17, "barrel"], [32, 29, "trash"], [9, 8, "crate"], [2, 10, "potty"], [30, 5, "wardrobe"], [17, 13, "mirror"], [16, 16, "barrel"], [29, 32, "trash"], [21, 11, "crate"], [9, 20, "potty"], [16, 7, "wardrobe"], [30, 10, "mirror"], [20, 17, "barrel"], [25, 26, "trash"], [31, 34, "crate"], [11, 6, "potty"], [26, 14, "wardrobe"], [13, 24, "mirror"], [6, 16, "barrel"], [28, 23, "trash"]],batt:[[1, 14], [1, 27], [33, 21], [33, 2], [7, 28], [25, 33], [14, 11], [10, 13], [28, 17], [26, 2]],notes:[[14, 26], [12, 22], [34, 14]],lamps:[[20, 11], [8, 26], [9, 7], [11, 17], [20, 26], [5, 21], [34, 27], [28, 25], [5, 2], [32, 20]]};
+
+/* ================= HORROR CHAPTER 2: THE COSTUME FACTORY ================= */
+HR_NIGHTS[7]={n:7,ch2:1,name:'Night Shift',tickets:5,lives:2,gSpeed:13.4,sight:28,mann:2,lil:2,outage:0,batt:3,drain:1.6,fog:44};
+HR_NIGHTS[8]={n:8,ch2:1,name:'Overtime',tickets:6,lives:2,gSpeed:14.2,sight:30,mann:3,lil:3,outage:1,batt:4,drain:2,fog:40};
+HR_NIGHTS[9]={n:9,ch2:1,name:'Closing Down',tickets:7,lives:1,gSpeed:15,sight:34,mann:4,lil:4,outage:1,batt:3,drain:2.4,fog:36};
+HR_INTRO[7]=["You escaped the fair. You thought it was over.","The trail of golden tickets led to an old factory.","This is where the Grinny costumes were made. Something else was made here too…"];
+HR_INTRO[8]=["The machines started by themselves tonight.","Ride the conveyor belts. Don't get dragged into the dark."];
+HR_INTRO[9]=["The factory is closing down. Forever.","Find every ticket. Get out before the lights die."];
+HR_NOTE_TEXT.push("FACTORY MEMO — We had extra fabric, so we sewed the leftover costumes together into one big one. We called it THE PATCHWORK. Nobody has worn it. So why does it move?",
+  "Gus here. The Patchwork keeps showing up next to the sewing machines. It hums the carousel song. I am locking the Freight Gate.",
+  "If you are reading this, Grinny is not the worst thing here. The Patchwork wears every costume at once. Run. Find the tickets. And DON'T look at the mannequins.");
+HR_ABIL[7]=['slash','crawl','grab'];HR_ABIL[8]=['slash','crawl','ghost','grab','mimic'];HR_ABIL[9]=['slash','crawl','ghost','grab','mimic','rage'];
+HR_REW[7]=['trail_thread','🧵 the Loose Thread trail'];HR_REW[8]=['hat_patch','🧷 the Patchwork Hat'];HR_REW[9]=['col_patch','🎨 the Patchwork color'];
+TRAILS.push({id:'trail_thread',name:'Loose Thread',price:0,special:1,cols:['#c8243a','#e8c84a','#3a6ad8'],shape:'box',sz:.16,life:1.4,grav:1,vary:1});
+HATS.push({id:'hat_patch',name:'Patchwork Hat',price:0,special:1});
+{const _mh=makeHat;makeHat=function(id){if(id!=='hat_patch')return _mh(id);const g=new THREE.Group();const m=new THREE.MeshStandardMaterial({map:hr2PatchTex(),roughness:.9});
+  const c=new THREE.Mesh(new THREE.CylinderGeometry(.34,.4,.55,14),m);c.position.y=.32;const br=new THREE.Mesh(new THREE.CylinderGeometry(.62,.62,.07,18),m);br.position.y=.05;const b=new THREE.Mesh(new THREE.SphereGeometry(.09,8,6),HRM(0x222222));b.position.set(.2,.4,.3);g.add(c,br,b);return g;};}
+try{if(typeof COLORS!=='undefined'&&!COLORS.find(c=>c.id==='col_patch'))COLORS.push({id:'col_patch',name:'Patchwork',hex:'#8a5a6a',price:0,special:1});}catch(e){}
+BADGES.push({id:'hr_n7',icon:'🏭',name:'Night Shift',desc:'Survive Factory Night 1'},{id:'hr_n8',icon:'⚙️',name:'Overtime',desc:'Survive Factory Night 2'},{id:'hr_n9',icon:'🧵',name:'Unstitched',desc:'Survive Factory Night 3 and escape the Costume Factory'},
+  {id:'hr_conveyor',icon:'📦',name:'Special Delivery',desc:'Ride a conveyor belt all the way across'});
+TITLES.night_shift=['🏭 NIGHT SHIFT','rgba(40,30,30,.95)','#ffd8a8'];TITLES.unstitched=['🧵 UNSTITCHED','rgba(60,20,40,.95)','#ffc8d8'];
+/* ---------- looks ---------- */
+let HR2_PT=null;function hr2PatchTex(){return HR2_PT||(HR2_PT=hrCanvas(256,256,(g,w,h)=>{const cols=['#8a2a3a','#d8c8a0','#3a5a8a','#c8a020','#5a7a3a','#7a4a8a','#b8242c','#e8e0cc'];
+  for(let y=0;y<h;y+=32)for(let x=0;x<w;x+=32){g.fillStyle=cols[(x/32*3+y/32*5)%cols.length];g.fillRect(x,y,32,32);}g.strokeStyle='#1a0a0a';g.lineWidth=2;g.setLineDash([5,4]);for(let k=0;k<=w;k+=32){g.beginPath();g.moveTo(k,0);g.lineTo(k,h);g.stroke();g.beginPath();g.moveTo(0,k);g.lineTo(w,k);g.stroke();}}));}
+function hr2FaceTex(){const draw=(g,w,h,emis)=>{const fx=256,fy=h/2;
+  if(!emis){const cols=['#8a2a3a','#d8c8a0','#3a5a8a','#c8a020','#5a7a3a','#7a4a8a','#b8242c','#e8e0cc'];for(let y=0;y<h;y+=64)for(let x=0;x<w;x+=64){g.fillStyle=cols[((x/64)*3+(y/64)*5)%8];g.fillRect(x,y,64,64);}
+    g.strokeStyle='#14080a';g.lineWidth=4;g.setLineDash([10,8]);for(let k=0;k<=w;k+=64){g.beginPath();g.moveTo(k,0);g.lineTo(k,h);g.stroke();}for(let k=0;k<=h;k+=64){g.beginPath();g.moveTo(0,k);g.lineTo(w,k);g.stroke();}g.setLineDash([]);
+    for(let k=0;k<220;k++){g.fillStyle='rgba(30,15,5,'+Math.random()*.2+')';g.beginPath();g.arc(Math.random()*w,Math.random()*h,4+Math.random()*24,0,7);g.fill();}
+    g.fillStyle='#ece2c8';g.beginPath();g.ellipse(fx,fy+8,150,120,0,0,7);g.fill();
+    // a zipper mouth
+    g.fillStyle='#14080a';g.fillRect(fx-120,fy+40,240,22);g.fillStyle='#c8c8c8';for(let k=0;k<20;k++){g.fillRect(fx-118+k*12,fy+(k%2?40:52),8,10);}g.fillStyle='#d8d8d8';g.fillRect(fx+112,fy+30,16,40);
+    // three mismatched eyes: two buttons, one glowing hole
+    [[fx-70,fy-40,32],[fx+64,fy-48,24]].forEach(([x,y,r])=>{g.fillStyle='#2a2430';g.beginPath();g.arc(x,y,r,0,7);g.fill();g.fillStyle='#0a0a0a';[[-7,-7],[7,-7],[-7,7],[7,7]].forEach(([dx,dy])=>{g.beginPath();g.arc(x+dx,y+dy,4,0,7);g.fill();});});
+    g.fillStyle='#050002';g.beginPath();g.ellipse(fx,fy-78,22,26,0,0,7);g.fill();}
+  else{g.fillStyle='#000';g.fillRect(0,0,w,h);const r=g.createRadialGradient(fx,fy-78,0,fx,fy-78,24);r.addColorStop(0,'#ffffff');r.addColorStop(.4,'#ff6a3a');r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,w,h);}};
+  return{map:hrCanvas(1024,512,(g,w,h)=>draw(g,w,h,false)),emis:hrCanvas(1024,512,(g,w,h)=>draw(g,w,h,true))};}
+let HR2_FACE=null;function hrPatchwork(){const g=hrGrinny();const U=g.userData;HR2_FACE=HR2_FACE||hr2FaceTex();U.mat.map=HR2_FACE.map;U.mat.emissiveMap=HR2_FACE.emis;U.mat.needsUpdate=true;
+  if(U.hat){U.hat.material=new THREE.MeshStandardMaterial({map:hr2PatchTex(),side:THREE.DoubleSide,roughness:.9});}g.scale.setScalar(1.08);return g;}
+function hr2Floor(){return hrCanvas(1024,1024,(g,w,h)=>{g.fillStyle='#2a2a2e';g.fillRect(0,0,w,h);const px=w/HR_N;for(let j=0;j<HR_N;j++)for(let i=0;i<HR_N;i++){g.fillStyle=(i+j)%2?'rgba(255,255,255,.025)':'rgba(0,0,0,.08)';g.fillRect(i*px,j*px,px,px);if(HR_GRID[j][i]==='v'){g.fillStyle='#1a1a1a';g.fillRect(i*px,j*px+3,px,px-6);g.fillStyle='#3a3a3a';for(let k=0;k<4;k++)g.fillRect(i*px+k*px/4+2,j*px+5,3,px-10);}}
+  g.strokeStyle='rgba(220,180,40,.5)';g.lineWidth=6;g.setLineDash([20,14]);g.strokeRect(px*4,px*26,px*28,px*6);g.setLineDash([]);
+  for(let k=0;k<4000;k++){g.fillStyle='rgba('+(Math.random()<.5?'0,0,0':'90,90,100')+','+Math.random()*.12+')';g.fillRect(Math.random()*w,Math.random()*h,2+Math.random()*4,2+Math.random()*4);}
+  for(let k=0;k<40;k++){g.fillStyle='rgba(60,40,20,.35)';g.beginPath();g.ellipse(Math.random()*w,Math.random()*h,10+Math.random()*30,6+Math.random()*12,Math.random()*3,0,7);g.fill();}});}
+function hr2Tex(T){T['#']=new THREE.MeshStandardMaterial({map:hrRepTex(128,128,(g,w,h)=>{g.fillStyle='#3a1e18';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=16)for(let x=-(y/16%2)*16;x<w;x+=32){g.fillStyle='#4a2a20';g.fillRect(x+1,y+1,30,14);}}),roughness:.95});
+  T.W=new THREE.MeshStandardMaterial({map:hrRepTex(128,128,(g,w,h)=>{g.fillStyle='#4a4a52';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=16)for(let x=-(y/16%2)*16;x<w;x+=32){g.fillStyle='#5a5a62';g.fillRect(x+1,y+1,30,14);}g.fillStyle='rgba(30,20,10,.3)';for(let k=0;k<20;k++)g.fillRect(Math.random()*w,Math.random()*h,2,20);}),roughness:.9});
+  T.M=new THREE.MeshStandardMaterial({map:hrRepTex(128,128,(g,w,h)=>{g.fillStyle='#5a4a3a';g.fillRect(0,0,w,h);g.fillStyle='#3a2e24';for(let k=0;k<6;k++)g.fillRect(0,k*22,w,4);g.fillStyle='#8a5a2a';for(let k=0;k<40;k++){g.globalAlpha=.4;g.beginPath();g.arc(Math.random()*w,Math.random()*h,3+Math.random()*8,0,7);g.fill();}g.globalAlpha=1;g.fillStyle='#1a1a1a';for(let k=0;k<8;k++){g.beginPath();g.arc(8+k*16,8,2.5,0,7);g.fill();}}),metalness:.5,roughness:.6});}
+function hr2Build(a,G,T){a.ferris={w:new THREE.Group(),gonds:[],lamp:{material:{emissiveIntensity:0}}};a.carousel={spin:new THREE.Group(),cb:[],L:new THREE.PointLight(),spinV:0};a.roofs=[];a.cars=[{c:new THREE.Group(),x:0,z:0,v:0}];
+  /* sewing tables + storage shelves */
+  const seen=new Set();for(let j=0;j<HR_N;j++)for(let i=0;i<HR_N;i++){if(HR_GRID[j][i]!=='B'||seen.has(i+','+j))continue;let i1=i;while(HR_GRID[j][i1+1]==='B')i1++;for(let k=i;k<=i1;k++)seen.add(k+','+j);
+    const x0=hrX(i)-2,x1=hrX(i1)+2,z=hrZ(j),w=x1-x0,cx=(x0+x1)/2,store=i>=23;a.boxes.push({x0:x0+.3,x1:x1-.3,z0:z-1.5,z1:z+1.5,top:store?5:2.2,bot:0});
+    if(store){const s=hrBox(w-.6,5,3,HRM(0x3a3026));s.position.set(cx,2.5,z);G.add(s);for(let k=0;k<Math.floor(w/1.5);k++){const bx=hrBox(1.1,1.1,1.1,HRM([0x8a6a4a,0x6a5a3a,0x9a7a52][k%3]));bx.position.set(x0+1.1+k*1.5,5.55,z+(k%2?.5:-.5));G.add(bx);}
+      for(let k=0;k<Math.floor(w/1.6);k++){const hd=new THREE.Mesh(new THREE.SphereGeometry(.42,10,8),new THREE.MeshStandardMaterial({map:hr2PatchTex(),roughness:.9}));hd.position.set(x0+1+k*1.6,2.2,z+(k%2?.7:-.7));G.add(hd);}}
+    else{const tb=hrBox(w-.6,1.6,3,HRM(0x5a4030));tb.position.set(cx,.8,z);G.add(tb);for(let k=0;k<Math.floor(w/2.6);k++){const mx=x0+1.6+k*2.6;const m=new THREE.Group();const base=hrBox(1.4,.5,.8,HRM(0x1a1a20,{metalness:.5}));base.position.y=1.85;const arm=hrBox(.3,.9,.6,HRM(0x1a1a20,{metalness:.5}));arm.position.set(-.5,2.4,0);const top=hrBox(1.3,.32,.6,HRM(0x1a1a20,{metalness:.5}));top.position.set(-.05,2.8,0);m.add(base,arm,top);m.position.set(mx,0,z);G.add(m);
+      const cloth=new THREE.Mesh(new THREE.PlaneGeometry(1.4,1),new THREE.MeshStandardMaterial({map:hr2PatchTex(),side:THREE.DoubleSide}));cloth.rotation.x=-Math.PI/2;cloth.position.set(mx+.3,1.62,z+.6);G.add(cloth);}}}
+  /* the boiler */
+  {const x=hrX(17.5),z=hrZ(17.5);const b=new THREE.Mesh(new THREE.CylinderGeometry(3.6,3.8,7,24),HRM(0x4a3a2a,{metalness:.6,roughness:.5}));b.position.set(x,3.5,z);G.add(b);
+    const win=new THREE.Mesh(new THREE.CircleGeometry(1,20),new THREE.MeshBasicMaterial({color:0xff6a1f}));win.position.set(x,2.2,z+3.82);G.add(win);const L=new THREE.PointLight(0xff6a1f,1.6,18,2);L.position.set(x,2.5,z+5);G.add(L);a.candle=L;
+    for(let k=0;k<4;k++){const p=new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,12,10),HRM(0x6a5a4a,{metalness:.7}));p.position.set(x+Math.cos(k*1.57)*2.4,10,z+Math.sin(k*1.57)*2.4);G.add(p);}a.obs.push({x,z,r:3.9,top:30});}
+  /* conveyor belts (v cells push you) */
+  a.belts=[];for(let j=0;j<HR_N;j++){let run=null;for(let i=0;i<=HR_N;i++){const v=i<HR_N&&HR_GRID[j][i]==='v';if(v&&!run)run={i0:i,j};if(!v&&run){run.i1=i-1;a.belts.push(run);run=null;}}}
+  a.belts.forEach(r=>{const x0=hrX(r.i0)-2,x1=hrX(r.i1)+2,z=hrZ(r.j);const belt=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,.25,3.4),new THREE.MeshStandardMaterial({map:hrRepTex(64,64,(g,w,h)=>{g.fillStyle='#1a1a1a';g.fillRect(0,0,w,h);g.fillStyle='#3a3a3a';g.fillRect(0,0,10,h);g.fillStyle='#c8a020';g.fillRect(w/2,h/2-3,20,6);}),roughness:.7}));
+    belt.material.map.repeat.set((x1-x0)/3,1);belt.position.set((x0+x1)/2,.12,z);G.add(belt);r.mat=belt.material;r.dir=r.j%4===1?1:-1;});
+  /* mannequin decor in the gallery */
+  for(let k=0;k<10;k++){const sm=hrSmiler();sm.position.set(hrX(2+Math.floor(k/2)*1.7)+(k%2)*3,0,hrZ(16+(k%2)*6)+(k%3));sm.rotation.y=Math.random()*6;G.add(sm);}
+  /* signs */
+  [['SEWING ROOM',hrX(6.5),hrZ(12)+2.2,0,'#ffd23d'],['STORAGE',hrX(28.5),hrZ(12)+2.2,0,'#5ac8ff'],['BOILER',hrX(17.5),hrZ(14)-2.2,Math.PI,'#ff6a1f'],['MANNEQUINS',hrX(5),hrZ(24)+2.2,0,'#ff6ad5'],['OFFICE',hrX(25)-2.2,hrZ(19.5),-Math.PI/2,'#9affb0'],['CONVEYORS',hrX(17.5),hrZ(26)-1,Math.PI,'#ffd23d']].forEach(([t,x,z,ry,c])=>{const s=hrSign(t,{w:768,h:120,sw:6,col:c,cracked:1});s.position.set(x,6,z);s.rotation.y=ry;G.add(s);});
+  /* the tick add-on: belts move things */
+  a.hr2=true;}
+{const _t=hrTick;hrTick=function(a,dt){_t(a,dt);if(!a.hr2||a.scare||a.paused||a.hide||a.carried)return;const P=player.pos;const i=hrI(P.x),j=hrJ(P.z);
+  if(a.belts)a.belts.forEach(r=>{r.mat.map.offset.x-=dt*r.dir*.8;});if(HR_GRID[j]&&HR_GRID[j][i]==='v'&&P.y<2.5){const r=a.belts.find(r=>r.j===j&&i>=r.i0&&i<=r.i1);if(r){player.vel.x+=r.dir*30*dt;a.beltRide=(a.beltRide||0)+dt;if(!a.beltStart)a.beltStart=P.x;if(Math.abs(P.x-a.beltStart)>80)award('hr_conveyor');}}else{a.beltRide=0;a.beltStart=null;}};}
 
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
