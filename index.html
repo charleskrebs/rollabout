@@ -494,6 +494,18 @@ body.mpSplit #ktMap{left:50%;right:auto;transform:translateX(-50%)}
 #dpCard{position:fixed;left:50%;top:28%;transform:translate(-50%,-50%);z-index:20;text-align:center;pointer-events:none;color:#fff;width:min(700px,calc(100% - 32px))}
 #dpCard h2{margin:0;font-size:clamp(34px,7vw,68px);letter-spacing:3px;color:#dffaff;text-shadow:0 0 22px #3ad8c8,0 4px 0 #02304a;animation:hrIn 1s}#dpCard p{margin:6px 0;font-weight:800;font-size:clamp(15px,2.6vw,20px);text-shadow:0 2px 6px #000;animation:hrIn 1s}
 #dpBig{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:20;font-size:clamp(30px,6vw,60px);font-weight:900;color:#fff;text-shadow:0 4px 0 #02304a,0 0 20px #3ad8c8;pointer-events:none;white-space:nowrap}#dpBig.go{animation:mpBigA 1.4s}
+.svTitle{margin:0;font-size:28px;color:#14213d}.svTitle span{color:#2bb673}
+.svNote{color:#5a6a84;font-weight:700;font-size:14px}.svOnline{font-weight:900;color:#2bb673;margin-bottom:10px}
+.svBig{display:block;width:100%;padding:14px;font-size:18px;margin-bottom:10px}
+.svJoin{display:flex;gap:8px}.svJoin input{flex:1;padding:10px 12px;border:2.5px solid #14213d;border-radius:12px;font:inherit;font-weight:800;text-transform:uppercase}
+.svCur{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 14px;border-radius:16px;border:3px solid #14213d;background:linear-gradient(135deg,#d4ffe0,#d8f0ff);margin-bottom:8px}
+.svCur small{flex-basis:100%;font-weight:900;letter-spacing:2px;color:#2bb673}.svCur b{font-size:32px;letter-spacing:3px;color:#14213d;margin-right:auto}
+.svPlayers{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.svP{background:#fff;border:2px solid #14213d;border-radius:10px;padding:3px 9px;font-weight:800;font-size:13px}.svP.me{background:#fff3c4}
+#svChip{position:fixed;right:14px;top:calc(92px + env(safe-area-inset-top,0px));z-index:15;padding:5px 12px;border-radius:12px;border:2.5px solid #14213d;background:#d4ffe0;font:inherit;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #14213d}
+#svChatBar{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:15;width:min(460px,calc(100% - 120px));display:flex;flex-direction:column;gap:4px;pointer-events:none}
+#svLog{display:flex;flex-direction:column;gap:3px}#svLog div{align-self:flex-start;background:rgba(20,33,61,.75);color:#fff;font-weight:800;font-size:13px;border-radius:10px;padding:3px 10px;transition:opacity .6s}#svLog div.me{background:rgba(43,182,115,.85)}#svLog div.out{opacity:0}
+.svRow{display:flex;gap:6px;pointer-events:auto}.svRow input{flex:1;padding:6px 10px;border:2px solid #14213d;border-radius:10px;font:inherit;font-weight:700;background:rgba(255,255,255,.85)}.svRow button{border:2px solid #14213d;border-radius:10px;background:#fff;cursor:pointer}
+body.party #svChatBar,body.horror #svChatBar{display:none}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
 #c3holdBtn{touch-action:none;user-select:none;-webkit-user-select:none}
@@ -597,6 +609,8 @@ body.mpSplit #ktMap{left:50%;right:auto;transform:translateX(-50%)}
 <div id="dpHud" hidden><div id="dpPearls"></div><div id="dpAir"><span>🫧 AIR</span><b><i></i></b></div></div>
 <div id="dpTalk" hidden><b>🐚 Captain Clam</b><p id="dpTalkTxt"></p><small>Click or press E ▸</small></div>
 <div id="dpInk" hidden></div><div id="dpCard" hidden></div><div id="dpBig" hidden></div>
+<button id="svChip" hidden></button>
+<div id="svChatBar" hidden><div id="svLog"></div><div class="svRow"><input id="svInput" maxlength="80" placeholder="Press T to chat…"><button id="svSend">💬</button></div></div>
 
 
 <!-- Sheets -->
@@ -831,6 +845,10 @@ body.mpSplit #ktMap{left:50%;right:auto;transform:translateX(-50%)}
   <section class="sheet" id="qsSheet" hidden aria-label="Quests and Season" style="max-width:820px">
     <header><h2 class="qsTitle">🏆 QUESTS <span>&amp; SEASON</span></h2><button class="btn x" data-close aria-label="Close">✕</button></header>
     <div id="qsBody"></div>
+  </section>
+  <section class="sheet" id="svSheet" hidden aria-label="Servers" style="max-width:640px">
+    <header><h2 class="svTitle">🌐 <span>SERVERS</span></h2><button class="btn x" data-close aria-label="Close">✕</button></header>
+    <div id="svBody"></div>
   </section>
   <section class="sheet" id="gardenSheet" hidden aria-label="Your garden" style="max-width:720px">
     <header><h2>🌻 <span id="gTitle">Your Garden</span></h2><button class="btn x" data-close aria-label="Close">✕</button></header>
@@ -9273,6 +9291,13 @@ BADGES.push({id:'owner',icon:'👑',name:'Owner',desc:'The owner of Rollabout. Y
 {const _sl=setPlayerLabel;setPlayerLabel=function(){_sl.apply(this,arguments);const T=typeof TITLES!=='undefined'&&S.title?TITLES[S.title]:null;if(!T)return;if(playerLabel)scene.remove(playerLabel);
   const nm=S.name||'Rollie';playerLabel=makeLabel(T[0]+' · '+nm,{scale:.9,bg:T[1],color:T[2]});scene.add(playerLabel);$('#nameTxt').textContent=T[0]+' · '+nm;};}
 try{setPlayerLabel();}catch(e){}
+/* ---------- too much stuff in a room: put it all away ---------- */
+function rbHereList(){const id=typeof inRoom==='function'?inRoom():null;return id?roomPlaced(id):S.decor.placed;}
+function rbRefreshDecor(){try{if(typeof inRoom==='function'&&inRoom())roomRefresh();else refreshHouseDecor();}catch(e){}}
+{const _rd=renderDecor;renderDecor=function(){_rd.apply(this,arguments);const body=$('#decorBody');if(!body)return;const here=rbHereList(),n=here.length;let all=S.decor.placed.length;try{const R=S.decor.rooms||{};for(const k in R)all+=R[k].length;}catch(e){}
+  if(!all)return;const box=el('div','list');box.appendChild(rowItem('📦','Pick up everything in this room',n+' item'+(n===1?'':'s')+' placed here','Pick up all',()=>{here.length=0;save();rbRefreshDecor();toast('📦 Everything here went back into storage','badge','📦');renderDecor();},!n));
+  box.appendChild(rowItem('🧹','Pick up ALL decor everywhere','Every room and the main house · '+all+' items','Clean up',()=>{S.decor.placed.length=0;try{const R=S.decor.rooms||{};for(const k in R)R[k].length=0;}catch(e){}save();rbRefreshDecor();toast('🧹 All your decor went back into storage','badge','🧹');renderDecor();}));
+  body.prepend(box);body.prepend(el('div','sec-h','📦 Too full? Put things away'));};}
 
 /* ================= HORROR MODE: GRINNY'S FUN FAIR ================= */
 /* ---------- the map: a 36x36 grid of 4m cells ---------- */
@@ -10654,7 +10679,7 @@ const DP_CLAM=["Well, blow me down! A rolling ball, down here?","I'm Captain Cla
   "Find the 5 Glow Pearls: in my Coral Garden, the sunken ship, the Kelp Forest, the Glow Caves and the bottom of the Trench.","Bring them to the Abyss Gate, north of here. Then… go bonk that Kraken!","Hold SPACE to swim up. Watch your AIR. Bubble vents and air domes fill you back up!"];
 function dpTerrain(x,z){let h=1.4*Math.sin(x*.045)*Math.cos(z*.05)+.8*Math.sin(x*.11+z*.07);if(x>128){const k=Math.min(1,(x-128)/22);h-=k*Math.min(68,(x-128)*2.4);}
   const r=Math.hypot(x,z);if(r>230)h+=(r-230)*1.5;return h;}
-function dpEnter(){play();dpS();closeSheets();fadeTo(()=>enterArea('deep'));}
+function dpEnter(){if(mode==='title')play();dpS();closeSheets();fadeTo(()=>enterArea('deep'));}
 AREA_BUILD.deep=a=>{const D=dpS(),G=a.group;a.name='🌊 The Deep';a.grav=.38;a.deep=true;a.killY=-200;a.camDist=9;
   a.sky={top:0x02304a,bottom:0x0a6a8a,fog:0x0a4a6a,near:4,far:110,hemi:.5,sun:.55,amb:.3,sunColor:0x7fc8ff,stars:0};
   /* floor */
@@ -10799,7 +10824,13 @@ function dpWin(a){const D=dpS();a.tent.forEach(T=>T.st='hurt');sfx('badge');awar
   if(first){S.owned.hat_diver=1;S.owned.trail_deep=1;if(typeof qsS==='function')qsS().titles.deep_diver=1;}const coins=addCoins(first?5000:800);save();updateCoinsUI(true);a.busy=false;
   setTimeout(()=>{if(area!==a)return;showResult({title:'THE KRAKEN IS DEFEATED!',big:'🦑',line:'The Pearl of Tides glows again, and light returns to the sea. Captain Clam is SO proud.'+(first?' You got the 🤿 Diving Helmet, the Deep Glow trail and the 🌊 DEEP DIVER title!':''),coins,
     buttons:[{label:'Back to the Deep',cls:'gold',fn:()=>{closeSheets();fadeTo(()=>enterArea('deep'));}},{label:'Go home',fn:()=>{closeSheets();fadeTo(()=>exitToWorld(new V3(SPAWN.x,0,SPAWN.z)));}}]});},1600);}
-{const nav=$('#tSer')||$('#tPlay');const b=document.createElement('button');b.className='btn';b.id='tDeep';b.style.cssText='background:linear-gradient(135deg,#02304a,#3ad8c8);color:#fff';b.innerHTML='🌊 Chapter 6: The Deep <small>Dive under the sea</small>';nav.after(b);b.addEventListener('click',dpEnter);}
+/* the way in: a diving bell next to the lighthouse */
+(function dpBell(){if(LIGHT.x==null||typeof worldGroup==='undefined'){setTimeout(dpBell,500);return;}const dx=LIGHT.dx||1,dz=LIGHT.dz||0;const x=LIGHT.x+dx*8+dz*7,z=LIGHT.z+dz*8-dx*7;const y=groundAt(x,z);
+  const g=new THREE.Group();const bell=new THREE.Mesh(new THREE.SphereGeometry(1.8,20,14,0,Math.PI*2,0,Math.PI*.6),new THREE.MeshStandardMaterial({color:0xc8963a,metalness:.8,roughness:.3}));bell.position.y=1.6;
+  const win=new THREE.Mesh(new THREE.CircleGeometry(.6,18),new THREE.MeshStandardMaterial({color:0x9fe8ff,emissive:0x3ad8c8,emissiveIntensity:.6}));win.position.set(0,2.2,1.55);
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(1.9,2.1,.5,18),new THREE.MeshStandardMaterial({color:0x5a5a6a,metalness:.6}));base.position.y=.25;g.add(bell,win,base);
+  const sg=makeLabel('🤿 The Deep · Chapter 6',{scale:.85,bg:'rgba(190,240,255,.97)'});sg.position.y=4.6;g.add(sg);g.position.set(x,y,z);worldGroup.add(g);
+  addInter({pos:new V3(x,y+1,z),r:4,label:'🤿 Dive into The Deep',act:()=>dpEnter()});})();
 {const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const body=$('#bagBody');body.appendChild(el('div','sec-h','🌊 Chapter 6: The Deep'));const l=el('div','list');const D=dpS();
   l.appendChild(rowItem('🌊','The Deep','🔵 '+Object.keys(D.pearls).length+'/5 Glow Pearls'+(D.beat?' · 🦑 Kraken defeated':''),'Dive',()=>{closeSheets();setTimeout(dpEnter,60);},mode!=='world'));body.appendChild(l);};}
 
@@ -10874,6 +10905,78 @@ function hr2Build(a,G,T){a.ferris={w:new THREE.Group(),gonds:[],lamp:{material:{
   a.hr2=true;}
 {const _t=hrTick;hrTick=function(a,dt){_t(a,dt);if(!a.hr2||a.scare||a.paused||a.hide||a.carried)return;const P=player.pos;const i=hrI(P.x),j=hrJ(P.z);
   if(a.belts)a.belts.forEach(r=>{r.mat.map.offset.x-=dt*r.dir*.8;});if(HR_GRID[j]&&HR_GRID[j][i]==='v'&&P.y<2.5){const r=a.belts.find(r=>r.j===j&&i>=r.i0&&i<=r.i1);if(r){player.vel.x+=r.dir*30*dt;a.beltRide=(a.beltRide||0)+dt;if(!a.beltStart)a.beltStart=P.x;if(Math.abs(P.x-a.beltStart)>80)award('hr_conveyor');}}else{a.beltRide=0;a.beltStart=null;}};}
+
+/* ================= SERVERS: play together with server codes ================= */
+const SV={room:undefined,srv:null,code:null,remote:new Map(),timer:0,msg:null,msgT:0,unsub:null,lobbyUnsub:null};
+BADGES.push({id:'sv_host',icon:'🌐',name:'Server Host',desc:'Create a Rollabout server'},{id:'sv_join',icon:'🤝',name:'Joined In',desc:"Join someone else's server"},
+  {id:'sv_chat',icon:'💬',name:'Chatterbox',desc:'Send a chat message on a server'},{id:'sv_bump',icon:'💥',name:'Hey, Watch It!',desc:'Bump into another player on a server'},{id:'sv_party',icon:'🎉',name:'Full House',desc:'Be on a server with 4 or more players'});
+const SV_CH='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+function svNewCode(){let c='';for(let i=0;i<5;i++)c+=SV_CH[Math.floor(Math.random()*SV_CH.length)];return c;}
+function svClean(c){return String(c||'').toUpperCase().replace(/^RB-?/,'').replace(/[^A-Z0-9]/g,'').slice(0,8);}
+async function svRoom(){if(SV.room!==undefined)return SV.room;try{SV.room=(window.claude&&typeof window.claude.use==='function')?await window.claude.use('room'):null;}catch(e){SV.room=null;}
+  if(SV.room){try{SV.lobbyUnsub=SV.room.onPeers(()=>{if(sheetOpen==='svSheet')svRender();},()=>{});}catch(e){}}return SV.room;}
+function svLook(){const e=S.equip;const c=(COLORS.find(x=>x.id===e.color)||COLORS[0]).hex;return{color:c,secondary:e.secondary,pattern:e.pattern,hat:e.hat};}
+function svArea(){if(mode==='world'||mode==='title')return'world';if(mode==='area'&&area&&!area.busy&&!area.party)return area.id;return null;}
+async function svJoin(code,host){code=svClean(code);if(code.length<4){toast('🌐 Server codes are 4-8 letters','bad','🌐');return;}const room=await svRoom();
+  if(!room){toast('🌐 Servers only work in the Claude version of Rollabout','bad','🌐');return;}
+  if(SV.srv)await svLeave(true);let r;try{r=await room.join('rb-'+code.toLowerCase());}catch(e){toast('🌐 Could not join: '+((e&&e.code)||'error'),'bad','🌐');return;}
+  SV.srv=r;SV.code=code;SV.unsub=r.onPeers(ch=>svPeers(ch),err=>{toast('🌐 Lost the server','bad','🌐');svLeave(true);});
+  try{r.on('hi',()=>{},()=>{});}catch(e){}
+  clearInterval(SV.timer);SV.timer=setInterval(svSend,80);svSend();try{room.presence({srv:code,host:!!host,n:(S.name||'Rollie').slice(0,16)});}catch(e){}
+  award(host?'sv_host':'sv_join');sfx('badge');toast('🌐 '+(host?'Server created':'Joined server')+' RB-'+code,'badge','🌐');svHud();if(sheetOpen==='svSheet')svRender();}
+async function svLeave(quiet){const r=SV.srv;SV.srv=null;clearInterval(SV.timer);if(SV.unsub)try{SV.unsub();}catch(e){}SV.unsub=null;if(r)try{await r.leave();}catch(e){}
+  SV.remote.forEach(p=>svDrop(p));SV.remote.clear();const old=SV.code;SV.code=null;try{if(SV.room)SV.room.presence({srv:null,host:null});}catch(e){}svHud();if(!quiet&&old)toast('🌐 Left server RB-'+old,'','🌐');if(sheetOpen==='svSheet')svRender();}
+function svSend(){const r=SV.srv;if(!r)return;const p=player.pos,v=player.vel;const ar=svArea();
+  r.presence({p:[+p.x.toFixed(2),+p.y.toFixed(2),+p.z.toFixed(2)],v:[+v.x.toFixed(1),+v.y.toFixed(1),+v.z.toFixed(1)],a:ar,n:(S.name||'Rollie').slice(0,16),l:svLook(),t:(typeof TITLES!=='undefined'&&S.title&&TITLES[S.title])?TITLES[S.title][0]:null,m:SV.msg,mt:SV.msgT,ts:Date.now()}).catch(()=>{});}
+function svPeers(ch){(ch.left||[]).forEach(pe=>{const R=SV.remote.get(pe.peer);if(R){svDrop(R);SV.remote.delete(pe.peer);svChatLine('👋 '+(R.name||'Someone')+' left');}});
+  ch.peers.forEach(pe=>{if(pe.isMe)return;const pr=pe.presence||{};let R=SV.remote.get(pe.peer);if(!pr.p)return;
+    if(!R){R={peer:pe.peer,name:'',lookKey:'',ball:null,label:null,bub:null,bubT:0,mt:pr.mt||0};SV.remote.set(pe.peer,R);svChatLine('👋 '+String(pr.n||'Someone').slice(0,16)+' joined');sfx('blip');}
+    R.pr=pr;R.at=performance.now();const nm=String(pr.n||'Rollie').slice(0,16)+(pe.guest?' (guest)':'');const title=typeof pr.t==='string'?pr.t.slice(0,24):'';
+    const lk=JSON.stringify(pr.l||{});if(!R.ball||lk!==R.lookKey){if(R.ball)R.ball.dispose();let look=pr.l||{};look={color:/^#[0-9a-fA-F]{6}$/.test(look.color)?look.color:'#e8413c',secondary:ACCENTS.some(a=>a.id===look.secondary)?look.secondary:'sec_white',pattern:PATTERNS.some(a=>a.id===look.pattern)?look.pattern:'pat_solid',hat:HATS.some(a=>a.id===look.hat)?look.hat:'hat_none'};
+      R.ball=new Ball(look);R.ball.pos.set(pr.p[0],pr.p[1],pr.p[2]);R.lookKey=lk;}
+    if(nm+title!==R.name+R.title){R.name=nm;R.title=title;if(R.label)scene.remove(R.label);R.label=makeLabel((title?title+' · ':'')+nm,{scale:.7,bg:'rgba(214,246,255,.97)'});scene.add(R.label);}
+    if(pr.mt&&pr.mt!==R.mt&&typeof pr.m==='string'){R.mt=pr.mt;const txt=pr.m.slice(0,80);svChatLine(R.name+': '+txt);if(R.bub)scene.remove(R.bub);R.bub=makeLabel('💬 '+txt,{scale:.62});scene.add(R.bub);R.bubT=6;}});
+  const n=SV.remote.size+1;if(n>=4)award('sv_party');svHud();if(sheetOpen==='svSheet')svRender();}
+function svDrop(R){if(R.ball)R.ball.dispose();if(R.label)scene.remove(R.label);if(R.bub)scene.remove(R.bub);}
+function svFrame(dt){if(!SV.srv||!SV.remote.size)return;const me=svArea();const now=performance.now();
+  SV.remote.forEach(R=>{const pr=R.pr,b=R.ball;if(!b||!pr||!pr.p)return;const vis=me!==null&&pr.a===me;b.setVisible(vis);if(R.label)R.label.visible=vis;if(R.bub)R.bub.visible=vis&&R.bubT>0;if(!vis)return;
+    const age=Math.min(.35,(now-R.at)/1000),v=pr.v||[0,0,0];const tx=pr.p[0]+v[0]*age,ty=pr.p[1]+v[1]*age*.5,tz=pr.p[2]+v[2]*age;const k=1-Math.exp(-dt*12);
+    if(b.pos.distanceTo(new V3(tx,ty,tz))>25)b.pos.set(tx,ty,tz);else{b.pos.x+=(tx-b.pos.x)*k;b.pos.y+=(ty-b.pos.y)*k;b.pos.z+=(tz-b.pos.z)*k;}b.vel.set(v[0],v[1],v[2]);b.sync(dt);
+    if(R.label)R.label.position.set(b.pos.x,b.pos.y+2.2,b.pos.z);if(R.bub){R.bubT-=dt;R.bub.position.set(b.pos.x,b.pos.y+3.2,b.pos.z);}
+    /* bump into each other (each side pushes itself) */
+    const P=player.pos,dx=P.x-b.pos.x,dz=P.z-b.pos.z,d=Math.hypot(dx,dz);if(d<2&&d>.01&&Math.abs(P.y-b.pos.y)<2){const nx=dx/d,nz=dz/d;P.x=b.pos.x+nx*2;P.z=b.pos.z+nz*2;const rv=(player.vel.x-v[0])*nx+(player.vel.z-v[2])*nz;if(rv<0){player.vel.x-=nx*rv*1.4;player.vel.z-=nz*rv*1.4;}
+      if(!R.bumpT||now-R.bumpT>800){R.bumpT=now;sfx('bump');award('sv_bump');}}});}
+{const _u=updateV3;updateV3=function(dt,t){_u.apply(this,arguments);try{svFrame(dt);}catch(e){}};}
+/* chat */
+function svSay(txt){txt=String(txt||'').replace(/[\u0000-\u001f]/g,'').trim().slice(0,80);if(!txt||!SV.srv)return;SV.msg=txt;SV.msgT=Date.now();svSend();svChatLine((S.name||'You')+': '+txt,true);award('sv_chat');
+  if(playerLabel){if(SV.myBub)scene.remove(SV.myBub);SV.myBub=makeLabel('💬 '+txt,{scale:.62});scene.add(SV.myBub);SV.myBubT=6;}}
+{const _u=updateV3;updateV3=function(dt,t){_u.apply(this,arguments);if(SV.myBub){SV.myBubT-=dt;SV.myBub.visible=SV.myBubT>0;SV.myBub.position.set(player.pos.x,player.pos.y+3.2,player.pos.z);if(SV.myBubT<=0){scene.remove(SV.myBub);SV.myBub=null;}}};}
+function svChatLine(t,me){const L=$('#svLog');if(!L)return;const d=document.createElement('div');d.textContent=t;if(me)d.className='me';L.appendChild(d);while(L.children.length>6)L.firstChild.remove();setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),600);},9000);}
+function svHud(){const c=$('#svChip');if(!c)return;c.hidden=!SV.srv;$('#svChatBar').hidden=!SV.srv;if(SV.srv)c.textContent='🌐 RB-'+SV.code+' · '+(SV.remote.size+1)+' 👥';}
+addEventListener('keydown',e=>{if(!SV.srv||sheetOpen||e.repeat)return;const inp=$('#svInput');if(document.activeElement===inp)return;if(e.code==='KeyT'||e.code==='Slash'&&!MP){e.preventDefault();inp.focus();}});
+/* ---------- the server screen ---------- */
+async function svOpen(){openSheet('svSheet');svRender();await svRoom();svRender();}
+function svRender(){const b=$('#svBody');if(!b)return;b.innerHTML='';const room=SV.room;
+  if(room===undefined){b.appendChild(el('p','svNote','Connecting…'));return;}
+  if(!room){b.appendChild(el('p','svNote','🌐 Servers only work in the Claude version of Rollabout (claude.ai). On GitHub, this button can\'t connect to anyone.'));return;}
+  let peers=[];try{peers=room.peers();}catch(e){}
+  b.appendChild(el('div','svOnline','🟢 '+peers.length+' '+(peers.length===1?'person':'people')+' online in Rollabout right now'));
+  if(SV.srv){const box=el('div','svCur');box.innerHTML='<small>YOU ARE ON SERVER</small><b>RB-'+SV.code+'</b>';const cp=document.createElement('button');cp.className='btn small';cp.textContent='📋 Copy code';cp.addEventListener('click',()=>{try{navigator.clipboard.writeText('RB-'+SV.code).then(()=>toast('📋 Copied RB-'+SV.code,'badge','📋'),()=>{});}catch(e){}});
+    const lv=document.createElement('button');lv.className='btn small';lv.textContent='🚪 Leave';lv.addEventListener('click',()=>svLeave());box.append(cp,lv);b.appendChild(box);
+    const pl=el('div','svPlayers');pl.appendChild(el('span','svP me','🙂 '+(S.name||'You')+' (you)'));SV.remote.forEach(R=>pl.appendChild(el('span','svP','🔴 '+R.name+(R.pr&&R.pr.a&&R.pr.a!==svArea()?' · somewhere else':''))));b.appendChild(pl);}
+  else{const mk=document.createElement('button');mk.className='btn gold svBig';mk.textContent='➕ Create a server';mk.addEventListener('click',()=>svJoin(svNewCode(),true));b.appendChild(mk);
+    const jr=el('div','svJoin');const inp=document.createElement('input');inp.placeholder='Server code, like RB-7F3KQ';inp.maxLength=12;inp.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')svJoin(inp.value);});
+    const jb=document.createElement('button');jb.className='btn';jb.textContent='Join';jb.addEventListener('click',()=>svJoin(inp.value));jr.append(inp,jb);b.appendChild(jr);}
+  const servers={};peers.forEach(p=>{const pr=p.presence||{};if(pr.srv&&typeof pr.srv==='string'){const c=svClean(pr.srv);if(c.length<4)return;servers[c]=servers[c]||{n:0,host:''};servers[c].n++;if(pr.host)servers[c].host=String(pr.n||'').slice(0,16);}});
+  b.appendChild(el('div','sec-h','🗺️ Open servers'));const ls=el('div','list');const ks=Object.keys(servers);if(!ks.length)ls.appendChild(el('p','svNote','No servers open right now. Create one and share the code!'));
+  ks.forEach(c=>{const s=servers[c];ls.appendChild(rowItem('🌐','RB-'+c,(s.host?s.host+"'s server · ":'')+s.n+' player'+(s.n===1?'':'s'),c===SV.code?'You are here':'Join',()=>svJoin(c),c===SV.code));});b.appendChild(ls);
+  b.appendChild(el('p','svNote','💡 Friends need to be able to open this Rollabout page in Claude to join. Share it with them from the Share button on its page. Press T to chat. You can see each other in the world and in the shops and houses (not in Horror or Party modes).'));}
+$('#svChip').addEventListener('click',svOpen);
+$('#svInput').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){svSay(e.target.value);e.target.value='';e.target.blur();}if(e.key==='Escape')e.target.blur();});
+$('#svSend').addEventListener('click',()=>{const i=$('#svInput');svSay(i.value);i.value='';});
+{const b=document.createElement('button');b.className='btn';b.id='tServers';b.style.cssText='background:linear-gradient(135deg,#2bb673,#3ab0ff);color:#fff';b.innerHTML='🌐 Servers <small>Play with friends using a code</small>';($('#tPlay')).after(b);b.addEventListener('click',()=>{play();setTimeout(svOpen,300);});}
+{const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const body=$('#bagBody');body.appendChild(el('div','sec-h','🌐 Servers'));const l=el('div','list');
+  l.appendChild(rowItem('🌐','Servers',SV.srv?'On RB-'+SV.code+' · '+(SV.remote.size+1)+' players':'Create or join a server with a code','Open',()=>{closeSheets();setTimeout(svOpen,60);},false));body.appendChild(l);};}
 
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
