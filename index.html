@@ -484,6 +484,15 @@ body.mpSplit #ktMap{left:50%;right:auto;transform:translateX(-50%)}
 .qsTierC small{font-weight:900;color:#9a5cff}.qsTierC b{font-size:28px}.qsTierC.big{background:#fff6d8}.qsTierC.lock{opacity:.5}.qsTierC.can{cursor:pointer;border-color:#2bb673;box-shadow:0 0 0 3px #7dff9a;animation:hrPop .6s infinite alternate}.qsTierC.got{background:#eaffef}.qsTierC i{position:absolute;top:4px;right:6px;font-style:normal;color:#2bb673;font-weight:900}
 .qsTitles{display:flex;flex-wrap:wrap;gap:8px}.qsTi{padding:7px 12px;border-radius:12px;border:2.5px solid #14213d;font-family:inherit;font-weight:900;cursor:pointer;background:#fff}.qsTi.on{outline:3px solid #ff7a3d;outline-offset:2px}.qsNone{color:#5a6a84;font-weight:700}
 #tQuest{position:relative}#tQuest[data-n]:not([data-n=""])::after{content:attr(data-n);position:absolute;top:-6px;right:-6px;background:#ff3b52;color:#fff;border:2px solid #14213d;border-radius:12px;padding:0 7px;font-size:13px;font-weight:900}
+#dpHud{position:fixed;left:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:14;display:flex;flex-direction:column;gap:6px;pointer-events:none;color:#fff;font-weight:900;text-shadow:0 2px 4px #000}
+#dpPearls{font-size:22px;letter-spacing:2px}#dpAir{display:flex;align-items:center;gap:8px}#dpAir b{width:180px;height:14px;border-radius:8px;background:rgba(0,0,0,.35);border:2px solid #fff;overflow:hidden}#dpAir i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#9fe8ff,#ffffff);transition:width .2s}
+#dpAir.low i{background:#ff4a5a;animation:hrBl .4s infinite}
+#dpTalk{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:22;width:min(620px,calc(100% - 24px));background:#fff8ec;border:3px solid #14213d;border-radius:18px;box-shadow:0 6px 0 #14213d;padding:12px 16px;cursor:pointer}
+#dpTalk b{color:#c8506a}#dpTalk p{margin:6px 0;font-weight:700;font-size:17px;color:#14213d}#dpTalk small{color:#5a6a84;font-weight:800}
+#dpInk{position:fixed;inset:0;z-index:8;pointer-events:none}#dpInk.ink{background:radial-gradient(ellipse at center,rgba(5,5,15,.35) 15%,rgba(5,5,15,.97) 60%);animation:hrIn .4s}#dpInk.zap{background:rgba(255,120,240,.35)}
+#dpCard{position:fixed;left:50%;top:28%;transform:translate(-50%,-50%);z-index:20;text-align:center;pointer-events:none;color:#fff;width:min(700px,calc(100% - 32px))}
+#dpCard h2{margin:0;font-size:clamp(34px,7vw,68px);letter-spacing:3px;color:#dffaff;text-shadow:0 0 22px #3ad8c8,0 4px 0 #02304a;animation:hrIn 1s}#dpCard p{margin:6px 0;font-weight:800;font-size:clamp(15px,2.6vw,20px);text-shadow:0 2px 6px #000;animation:hrIn 1s}
+#dpBig{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:20;font-size:clamp(30px,6vw,60px);font-weight:900;color:#fff;text-shadow:0 4px 0 #02304a,0 0 20px #3ad8c8;pointer-events:none;white-space:nowrap}#dpBig.go{animation:mpBigA 1.4s}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
 #c3holdBtn{touch-action:none;user-select:none;-webkit-user-select:none}
@@ -584,6 +593,9 @@ body.mpSplit #ktMap{left:50%;right:auto;transform:translateX(-50%)}
 <div id="mpHud" hidden><div id="mpHud1" class="mpBox"></div><div id="mpHud2" class="mpBox" hidden></div><div id="mpFeed"></div><div id="mpBig" hidden></div></div>
 <div id="mpTouch" hidden><button id="mpTAlt">🌀</button><button id="mpTAct">⚡</button></div>
 <canvas id="ktMap" width="140" height="140" hidden></canvas>
+<div id="dpHud" hidden><div id="dpPearls"></div><div id="dpAir"><span>🫧 AIR</span><b><i></i></b></div></div>
+<div id="dpTalk" hidden><b>🐚 Captain Clam</b><p id="dpTalkTxt"></p><small>Click or press E ▸</small></div>
+<div id="dpInk" hidden></div><div id="dpCard" hidden></div><div id="dpBig" hidden></div>
 
 
 <!-- Sheets -->
@@ -10614,6 +10626,172 @@ function qsClaimTier(t){const Q=qsS();if(Q.claimed[t]||t>qsTier())return;Q.claim
 {const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const body=$('#bagBody');body.appendChild(el('div','sec-h','🏆 Quests & Season'));const l=el('div','list');const n=qsClaimable();
   l.appendChild(rowItem('🏆','Quests & Season','Tier '+qsTier()+' / '+QS_TIERS+(n?' · '+n+' to claim!':''),'Open',()=>{closeSheets();setTimeout(qsOpen,60);},false));body.appendChild(l);};}
 setTimeout(()=>{try{qsS();qsDot();}catch(e){}},1500);
+
+/* ================= CHAPTER 6: THE DEEP ================= */
+BADGES.push({id:'dp_enter',icon:'🤿',name:'Into the Deep',desc:'Dive into Chapter 6: The Deep'},{id:'dp_pearl',icon:'🔵',name:'Glow Pearl',desc:'Find your first Glow Pearl'},
+  {id:'dp_all',icon:'💠',name:'Pearl Diver',desc:'Find all 5 Glow Pearls'},{id:'dp_kraken',icon:'🦑',name:'Kraken Slayer',desc:'Defeat the Kraken of the Deep'},
+  {id:'dp_log',icon:'📔',name:"Captain's Log",desc:'Read the log in the sunken ship'},{id:'dp_chest',icon:'🏴‍☠️',name:'Sunken Treasure',desc:'Find the hidden treasure chest'},
+  {id:'dp_fast',icon:'⏱️',name:'Calamari Rush',desc:'Defeat the Kraken in under 2 minutes'},{id:'dp_noair',icon:'🫧',name:'Deep Breath',desc:'Defeat the Kraken without running out of air in the whole chapter'},
+  {id:'dp_zap',icon:'⚡',name:'Shocking!',desc:'Get zapped by a jellyfish'});
+HATS.push({id:'hat_diver',name:'Diving Helmet',price:0,special:1});
+TRAILS.push({id:'trail_deep',name:'Deep Glow',price:0,special:1,cols:['#5affd8','#3ab0ff','#c8fff4'],shape:'sph',sz:.3,life:1.5,grav:-2.5,glow:1.2,trans:1});
+TITLES.deep_diver=['🌊 DEEP DIVER','rgba(190,240,255,.97)','#0a3a5a'];
+{const _mh=makeHat;makeHat=function(id){if(id!=='hat_diver')return _mh(id);const g=new THREE.Group();const gl=new THREE.Mesh(new THREE.SphereGeometry(.62,20,14,0,Math.PI*2,0,Math.PI*.62),new THREE.MeshStandardMaterial({color:0xbfe8ff,transparent:true,opacity:.35,roughness:.05,metalness:.3}));gl.position.y=.05;g.add(gl);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.5,.1,8,20),new THREE.MeshStandardMaterial({color:0xc8963a,metalness:.8,roughness:.3}));ring.rotation.x=Math.PI/2;ring.position.y=-.12;g.add(ring);const top=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,.2,10),ring.material);top.position.y=.68;g.add(top);return g;};}
+function dpS(){S.deep=S.deep||{};const d=S.deep;d.pearls=d.pearls||{};d.seen=d.seen||0;return d;}
+const DP_PEARLS=[{x:-25,z:-20,y:25,zone:'Coral Garden'},{x:110,z:42,y:2,zone:'Sunken Ship'},{x:-92,z:44,y:2,zone:'Kelp Forest'},{x:-52,z:-128,y:2,zone:'Glow Caves'},{x:172,z:0,y:-66,zone:'The Trench'}];
+const DP_CLAM=["Well, blow me down! A rolling ball, down here?","I'm Captain Clam. I've guarded these waters for three hundred years.","The Kraken stole the Pearl of Tides, and now the whole sea is going dark.",
+  "Find the 5 Glow Pearls: in my Coral Garden, the sunken ship, the Kelp Forest, the Glow Caves and the bottom of the Trench.","Bring them to the Abyss Gate, north of here. Then… go bonk that Kraken!","Hold SPACE to swim up. Watch your AIR. Bubble vents and air domes fill you back up!"];
+function dpTerrain(x,z){let h=1.4*Math.sin(x*.045)*Math.cos(z*.05)+.8*Math.sin(x*.11+z*.07);if(x>128){const k=Math.min(1,(x-128)/22);h-=k*Math.min(68,(x-128)*2.4);}
+  const r=Math.hypot(x,z);if(r>230)h+=(r-230)*1.5;return h;}
+function dpEnter(){play();dpS();closeSheets();fadeTo(()=>enterArea('deep'));}
+AREA_BUILD.deep=a=>{const D=dpS(),G=a.group;a.name='🌊 The Deep';a.grav=.38;a.deep=true;a.killY=-200;a.camDist=9;
+  a.sky={top:0x02304a,bottom:0x0a6a8a,fog:0x0a4a6a,near:4,far:110,hemi:.5,sun:.55,amb:.3,sunColor:0x7fc8ff,stars:0};
+  /* floor */
+  const tex=hrRepTex(256,256,(g,w,h)=>{g.fillStyle='#a89870';g.fillRect(0,0,w,h);for(let i=0;i<900;i++){g.fillStyle='rgba('+(150+Math.random()*80|0)+','+(130+Math.random()*60|0)+',90,.35)';g.fillRect(Math.random()*w,Math.random()*h,3,3);}});tex.repeat.set(60,60);
+  const fg=new THREE.PlaneGeometry(560,560,140,140);fg.rotateX(-Math.PI/2);const P=fg.attributes.position;for(let i=0;i<P.count;i++)P.setY(i,dpTerrain(P.getX(i),P.getZ(i)));fg.computeVertexNormals();
+  const floor=new THREE.Mesh(fg,new THREE.MeshStandardMaterial({map:tex,roughness:.95}));floor.receiveShadow=true;G.add(floor);
+  a.plats=[];a.ground=(x,z,fy)=>{let g=dpTerrain(x,z);for(const p of a.plats){if(Math.hypot(x-p.x,z-p.z)<p.r&&p.top<=(fy==null?1e9:fy+.6)&&p.top>g)g=p.top;}for(const p of a.decks||[]){if(x>p.x0&&x<p.x1&&z>p.z0&&z<p.z1&&p.top<=(fy==null?1e9:fy+.6)&&p.top>g)g=p.top;}return g;};
+  a.clamp=b=>{const r=Math.hypot(b.pos.x,b.pos.z);if(r>250){b.pos.x*=250/r;b.pos.z*=250/r;}if(b.pos.y>60)b.vel.y=Math.min(b.vel.y,0);};
+  /* light rays, bubbles, fish */
+  for(let i=0;i<14;i++){const r=new THREE.Mesh(new THREE.PlaneGeometry(6,70),new THREE.MeshBasicMaterial({color:0x9fe8ff,transparent:true,opacity:.07,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));r.position.set((Math.random()-.5)*300,30,(Math.random()-.5)*300);r.rotation.z=.3;r.rotation.y=Math.random()*3;G.add(r);}
+  a.fish=[];for(let s=0;s<6;s++){const c=new THREE.Vector3((Math.random()-.5)*300,6+Math.random()*12,(Math.random()-.5)*300),col=[0xffb030,0x3ab0ff,0xff6ad5,0xffffff,0x7dff9a][s%5];
+    for(let i=0;i<10;i++){const f=new THREE.Mesh(new THREE.ConeGeometry(.35,1.1,6),HRM(col,{emissive:col,emissiveIntensity:.2}));f.rotation.x=Math.PI/2;const g2=new THREE.Group();g2.add(f);G.add(g2);a.fish.push({g:g2,c,r:6+Math.random()*6,ph:Math.random()*6,sp:.4+Math.random()*.3,dy:Math.random()*3});}}
+  a.bubbles=[];/* vents: columns of air bubbles */
+  a.vents=[[8,10],[-40,-8],[96,20],[-78,30],[-60,-96],[-40,-140],[150,-20],[160,30],[176,-8],[0,-100],[40,60],[-120,0]].map(([x,z])=>{const y=a.ground(x,z);const base=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.6,.8,10),HRM(0x5a5a6a));base.position.set(x,y+.3,z);G.add(base);
+    const ps=[];for(let i=0;i<10;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.25+Math.random()*.25,8,6),new THREE.MeshBasicMaterial({color:0xdffaff,transparent:true,opacity:.6}));s.position.set(x+(Math.random()-.5),y+Math.random()*18,z+(Math.random()-.5));G.add(s);ps.push(s);}return{x,z,y,ps};});
+  /* air domes = checkpoints */
+  a.domes=[[0,14],[100,-10],[-70,60],[-30,-90],[150,40]].map(([x,z])=>{const y=a.ground(x,z);const d=new THREE.Mesh(new THREE.SphereGeometry(6,24,14,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xbff4ff,transparent:true,opacity:.18,roughness:.05,side:THREE.DoubleSide,depthWrite:false}));d.position.set(x,y,z);G.add(d);
+    const rim=new THREE.Mesh(new THREE.TorusGeometry(6,.25,8,32),HRM(0xc8963a,{metalness:.7}));rim.rotation.x=Math.PI/2;rim.position.set(x,y+.1,z);G.add(rim);return{x,z,y};});
+  /* corals and rocks */
+  const CC=[0xff5a8a,0xffb030,0x9a5cff,0x3ad8c8,0xff7a3d,0xffe14d];for(let i=0;i<220;i++){const x=(Math.random()-.5)*440,z=(Math.random()-.5)*440;if(Math.hypot(x,z)<10||x>125)continue;const y=dpTerrain(x,z);const k=Math.random();let m;
+    if(k<.4){m=new THREE.Mesh(new THREE.ConeGeometry(.5+Math.random(),2+Math.random()*4,6),HRM(CC[i%6],{emissive:CC[i%6],emissiveIntensity:.15}));m.position.set(x,y+1.5,z);}
+    else if(k<.7){m=new THREE.Mesh(new THREE.SphereGeometry(.8+Math.random()*1.5,10,8),HRM(CC[(i+2)%6],{roughness:1}));m.scale.y=.6;m.position.set(x,y+.4,z);}
+    else{m=new THREE.Mesh(new THREE.DodecahedronGeometry(1.5+Math.random()*3,0),HRM(0x6a6a7a));m.position.set(x,y+.6,z);a.obs.push({x,z,r:m.geometry.parameters.radius*.8,top:y+m.geometry.parameters.radius});}G.add(m);}
+  /* ---- zone 1: the coral tower (pearl on top) ---- */
+  [[-25,-20,5,3],[-18,-24,3,7],[-24,-30,2.6,11],[-31,-26,2.6,15],[-30,-17,2.4,19],[-25,-20,2.2,23]].forEach(([x,z,r,top],i)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r*1.1,top-dpTerrain(x,z)+1,12),HRM(CC[i%6],{emissive:CC[i%6],emissiveIntensity:.25}));m.position.set(x,(top+dpTerrain(x,z))/2-.5,z);G.add(m);a.plats.push({x,z,r,top});a.obs.push({x,z,r,top});});
+  /* ---- zone 2: the sunken ship ---- */
+  {const W=HRM(0x5a3a22,{roughness:.9}),y0=dpTerrain(92,40);a.decks=[];const wb=(x0,x1,z0,z1,h,yb)=>wallBox(a,x0,x1,z0,z1,h,W,yb==null?y0-1:yb);
+    wb(70,116,29,30,15);wb(70,116,50,51,15);wb(115,116,30,50,15);wb(70,71,30,37,15);wb(70,71,43,50,15);wb(70,71,37,43,8,y0+7);wb(95,96,30,44,15);wb(95,96,48,50,15);
+    const deck=new THREE.Mesh(new THREE.BoxGeometry(46,1,22),W);deck.position.set(93,y0+14.5,40);G.add(deck);a.decks.push({x0:70,x1:116,z0:29,z1:51,top:y0+15});
+    const mast=new THREE.Mesh(new THREE.CylinderGeometry(.6,.7,26,8),W);mast.position.set(88,y0+27,40);mast.rotation.z=.15;G.add(mast);
+    const sail=new THREE.Mesh(new THREE.PlaneGeometry(12,9),HRM(0xd8d0b8,{side:THREE.DoubleSide,transparent:true,opacity:.8}));sail.position.set(90,y0+30,40);sail.rotation.y=Math.PI/2;G.add(sail);
+    const sg=hrSign('THE SALTY ROLLER',{w:768,h:120,col:'#ffd23d',bg:'#3a2412'});sg.position.set(69.4,y0+11,40);sg.rotation.y=-Math.PI/2;sg.scale.setScalar(.8);G.add(sg);
+    const lamp=new THREE.PointLight(0xffb060,1.2,30,2);lamp.position.set(105,y0+9,40);G.add(lamp);
+    a.inter.push({pos:new V3(112,y0+1,33),r:3,label:"📔 Read the captain's log",act:()=>{award('dp_log');hrCardDP('📔 CAPTAIN\'S LOG',['Day 41: The Kraken took our cargo. Not gold — the PEARL OF TIDES.','I hid one Glow Pearl in my cabin. If you find this… finish what I could not.','— Captain Clam (yes, the same one. I got better.)']);}});}
+  /* ---- zone 3: kelp forest ---- */
+  a.kelp=[];for(let i=0;i<170;i++){const an=Math.random()*6.28,r=6+Math.random()*44,x=-92+Math.cos(an)*r,z=44+Math.sin(an)*r;const y=dpTerrain(x,z),h=10+Math.random()*16;
+    const k=new THREE.Mesh(new THREE.CylinderGeometry(.18,.35,h,5),HRM(0x2a8a3a,{emissive:0x0a3a10}));k.position.set(x,y+h/2,z);k.geometry.translate(0,0,0);G.add(k);a.kelp.push({m:k,ph:Math.random()*6});a.obs.push({x,z,r:.7,top:y+h});}
+  /* ---- zone 4: the glow caves (dark canyon) ---- */
+  {const R2=HRM(0x2a2a3a,{roughness:1});const path=[[-30,-80],[-45,-95],[-38,-112],[-55,-120],[-52,-128]];
+    for(let i=0;i<path.length-1;i++){const[x0,z0]=path[i],[x1,z1]=path[i+1];const n=8;for(let k=0;k<=n;k++){const t=k/n,x=x0+(x1-x0)*t,z=z0+(z1-z0)*t,dx=x1-x0,dz=z1-z0,l=Math.hypot(dx,dz),nx=-dz/l,nz=dx/l;
+      [1,-1].forEach(sd=>{const bx=x+nx*7*sd,bz=z+nz*7*sd;const y=dpTerrain(bx,bz);wallBox(a,bx-2,bx+2,bz-2,bz+2,22,R2,y-1);});}}
+    for(let i=0;i<10;i++){const p=path[Math.floor(Math.random()*path.length)];const m=new THREE.Mesh(new THREE.OctahedronGeometry(.8,0),new THREE.MeshBasicMaterial({color:i%2?0x5affd8:0xc05aff}));m.position.set(p[0]+(Math.random()-.5)*8,dpTerrain(p[0],p[1])+1+Math.random()*6,p[1]+(Math.random()-.5)*8);G.add(m);m.add(hrGlow(i%2?0x5affd8:0xc05aff,4,.6));}
+    a.cave={x0:-70,x1:-20,z0:-140,z1:-74};}
+  /* ---- zone 5: the trench ---- */
+  {const eel=new THREE.Group();const em=HRM(0x3a5a2a,{emissive:0x0a2a0a});for(let i=0;i<9;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(1.3-i*.09,10,8),em);s.position.z=-i*1.8;eel.add(s);}
+    const eye=new THREE.Mesh(new THREE.SphereGeometry(.3,8,6),new THREE.MeshBasicMaterial({color:0xffe030}));eye.position.set(.7,.5,.6);const eye2=eye.clone();eye2.position.x=-.7;eel.add(eye,eye2);G.add(eel);a.eel={g:eel,home:new V3(186,dpTerrain(186,6)+1.5,6),st:'hide',t:0,dir:new V3()};eel.position.copy(a.eel.home);}
+  /* the Abyss Gate */
+  {const x=0,z=-150,y=dpTerrain(x,z);const shell=new THREE.Mesh(new THREE.SphereGeometry(9,24,14,0,Math.PI*2,0,Math.PI/2),HRM(0xf0d8c8,{roughness:.5}));shell.scale.z=.35;shell.position.set(x,y,z);G.add(shell);a.gate=shell;
+    a.sockets=DP_PEARLS.map((p,i)=>{const s=new THREE.Mesh(new THREE.SphereGeometry(.7,12,10),new THREE.MeshStandardMaterial({color:0x223344,emissive:0x5affd8,emissiveIntensity:0}));s.position.set(x-6+i*3,y+9.5,z+2.5);G.add(s);return s;});
+    const sg=hrSign('THE ABYSS GATE',{w:768,h:120,col:'#5affd8',bg:'#0a1a2a'});sg.position.set(x,y+12.5,z+2);sg.scale.setScalar(.8);G.add(sg);a.obs.push({x,z,r:8,top:y+9});
+    a.inter.push({pos:new V3(x,y+1,z+6),r:6,label:()=>Object.keys(dpS().pearls).length>=5?'🦑 Open the Abyss Gate':'🔒 The gate needs 5 Glow Pearls ('+Object.keys(dpS().pearls).length+'/5)',act:()=>{if(Object.keys(dpS().pearls).length>=5){fadeTo(()=>enterArea('kraken'));}else{sfx('bad');}}});}
+  /* pearls */
+  a.pearls=DP_PEARLS.map((p,i)=>{if(D.pearls[i])return null;const m=new THREE.Mesh(new THREE.SphereGeometry(.8,16,12),new THREE.MeshStandardMaterial({color:0xdffaff,emissive:0x5affd8,emissiveIntensity:1.4}));const y=p.y+(i===0?1.4:dpTerrain(p.x,p.z)-p.y+1.6+(i===4?0:0));m.position.set(p.x,i===0?p.y+1.4:dpTerrain(p.x,p.z)+1.6,p.z);G.add(m);m.add(hrGlow(0x5affd8,6,.7));const L=new THREE.PointLight(0x5affd8,1.4,16,2);m.add(L);return{m,i};}).filter(Boolean);
+  /* hazards */
+  a.jelly=[];[[-60,40],[-100,30],[-85,60],[-40,-100],[-50,-118],[-36,-88],[150,10],[165,-20],[20,-60],[60,30]].forEach(([x,z])=>{const g=new THREE.Group();const b=new THREE.Mesh(new THREE.SphereGeometry(1.1,14,10,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xff9ae8,emissive:0xff4fd8,emissiveIntensity:.6,transparent:true,opacity:.75}));g.add(b);
+    for(let i=0;i<6;i++){const t=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,2.4,4),new THREE.MeshBasicMaterial({color:0xffc8f0}));t.position.set(Math.cos(i)*.6,-1.2,Math.sin(i)*.6);g.add(t);}G.add(g);a.jelly.push({g,x,z,y:dpTerrain(x,z)+4+Math.random()*5,ph:Math.random()*6,cd:0});});
+  a.urch=[];for(let i=0;i<26;i++){const x=(Math.random()-.5)*360,z=(Math.random()-.5)*360;if(Math.hypot(x,z)<18)continue;const y=dpTerrain(x,z);const u=new THREE.Mesh(new THREE.IcosahedronGeometry(.9,0),HRM(0x2a1040));const sp=new THREE.Mesh(new THREE.OctahedronGeometry(1.5,0),HRM(0x4a1a6a,{wireframe:true}));u.add(sp);u.position.set(x,y+.8,z);G.add(u);a.urch.push({x,z,y});}
+  /* Captain Clam */
+  {const c=new THREE.Group();const sh=new THREE.Mesh(new THREE.SphereGeometry(1.6,16,10,0,Math.PI*2,0,Math.PI/2),HRM(0xf0a8b8));const sh2=sh.clone();sh2.rotation.x=Math.PI;sh2.position.y=.1;const top=sh.clone();top.rotation.x=-1.1;top.position.set(0,.2,-.5);
+    const pearl=new THREE.Mesh(new THREE.SphereGeometry(.5,12,10),HRM(0xffffff,{emissive:0x9fe8ff,emissiveIntensity:.4}));pearl.position.y=.6;const hat=new THREE.Mesh(new THREE.CylinderGeometry(.5,.6,.5,10),HRM(0x14213d));hat.position.set(0,1.9,-.5);
+    [-.3,.3].forEach(ex=>{const e=new THREE.Mesh(new THREE.SphereGeometry(.18,8,6),HRM(0x111111));e.position.set(ex,1.1,.5);c.add(e);});c.add(sh2,top,pearl,hat);const y=dpTerrain(10,-8);c.position.set(10,y+1.2,-8);G.add(c);a.clam=c;
+    const lb=makeLabel('Captain Clam',{scale:.7});lb.position.set(10,y+4.2,-8);G.add(lb);
+    a.inter.push({pos:new V3(10,y+1,-8),r:4,label:'💬 Talk to Captain Clam',act:()=>dpTalk(a,Object.keys(dpS().pearls).length>=5?["You found them all! The Abyss Gate is north of here.","Go get that Kraken! Bonk his glowing tentacle tips!"]:DP_CLAM)});}
+  {const x=-160,z=150,y=dpTerrain(x,z);const ch=new THREE.Group();const bx=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.4,1.6),HRM(0x7a4a22));const lid=new THREE.Mesh(new THREE.CylinderGeometry(.8,.8,2.4,10,1,false,0,Math.PI),HRM(0x8a5a2a));lid.rotation.z=Math.PI/2;lid.position.y=.7;ch.add(bx,lid);ch.add(hrGlow(0xffd23d,4,.5));ch.position.set(x,y+.7,z);a.group.add(ch);
+    a.inter.push({pos:new V3(x,y+1,z),r:3.2,on:()=>!dpS().chest,label:'🏴‍☠️ Open the treasure chest',act:()=>{dpS().chest=1;award('dp_chest');addCoins(1500);lid.rotation.x=-1;sfx('badge');hrCardDP('🏴‍☠️ SUNKEN TREASURE!',['+1500 coins! Arrr!']);save();}});}
+  a.spawn=new V3(0,dpTerrain(0,14)+2,14);a.yaw=Math.PI;a.air=100;a.cp=a.spawn.clone();a.status=()=>'🔵 '+Object.keys(dpS().pearls).length+'/5 Glow Pearls · SPACE swim up · find air!';
+  a.tick=dt=>dpTick(a,dt);a.cleanup=()=>{$('#dpHud').hidden=true;$('#dpTalk').hidden=true;$('#dpInk').hidden=true;};$('#dpHud').hidden=false;award('dp_enter');
+  if(!D.seen){D.seen=1;save();setTimeout(()=>{if(area===a){hrCardDP('CHAPTER 6',['THE DEEP'],2600);setTimeout(()=>{if(area===a)dpTalk(a,DP_CLAM);},2800);}},400);}else setTimeout(()=>{if(area===a)hrCardDP('THE DEEP',['🔵 '+Object.keys(D.pearls).length+' / 5 Glow Pearls'],1800);},300);};
+function hrCardDP(t,lines,ms){const c=$('#dpCard');c.innerHTML='';const h=document.createElement('h2');h.textContent=t;c.appendChild(h);lines.forEach(l=>{const p=document.createElement('p');p.textContent=l;c.appendChild(p);});c.hidden=false;clearTimeout(hrCardDP.t);hrCardDP.t=setTimeout(()=>c.hidden=true,ms||4200);}
+function dpTalk(a,lines){const t=$('#dpTalk');let i=0;const show=()=>{if(i>=lines.length){t.hidden=true;return;}$('#dpTalkTxt').textContent=lines[i];t.hidden=false;sfx('blip');};a.talk={next:()=>{i++;show();}};show();}
+$('#dpTalk').addEventListener('click',()=>{if(area&&area.talk)area.talk.next();});
+function dpSwim(a,dt){const sw=keys.Space||(isTouch&&$('#jumpBtn')&&$('#jumpBtn').matches(':active'));if(sw&&a.air>0){player.vel.y=Math.min(9,player.vel.y+28*dt);}player.vel.multiplyScalar(Math.exp(-.55*dt));}
+function dpAir(a,dt,drain){const P=player.pos;let refill=false;for(const v of a.vents||[])if(Math.hypot(P.x-v.x,P.z-v.z)<3.2&&P.y<v.y+24){refill=true;break;}
+  for(const d of a.domes||[])if(Math.hypot(P.x-d.x,P.z-d.z)<6&&P.y<d.y+6){refill=true;if(a.cp&&a.cp.distanceTo(new V3(d.x,d.y,d.z))>3){a.cp=new V3(d.x,d.y+2,d.z);toast('🫧 Checkpoint! Air dome reached.','badge','🫧');}a.air=Math.min(100,a.air+80*dt);}
+  if(refill)a.air=Math.min(100,a.air+45*dt);else a.air-=drain*dt;
+  if(a.air<=0&&!a.blackout){a.blackout=1.6;S.deep.ranOut=1;save();mpBig2('😵 OUT OF AIR!');sfx('bad');}
+  if(a.blackout){a.blackout-=dt;player.vel.multiplyScalar(.9);if(a.blackout<=0){a.blackout=0;player.pos.copy(a.cp);player.vel.set(0,0,0);a.air=100;snapCamera();}}
+  const b=$('#dpAir i');b.style.width=Math.max(0,a.air)+'%';$('#dpAir').classList.toggle('low',a.air<25);}
+function mpBig2(t){const e=$('#dpBig');e.textContent=t;e.hidden=false;e.classList.remove('go');void e.offsetWidth;e.classList.add('go');clearTimeout(mpBig2.t);mpBig2.t=setTimeout(()=>e.hidden=true,1400);}
+function dpHurt(a,from,k,air){const P=player.pos;const dx=P.x-from.x,dz=P.z-from.z,d=Math.hypot(dx,dz)||1;player.vel.x+=dx/d*k;player.vel.z+=dz/d*k;player.vel.y+=4;a.air=Math.max(0,a.air-air);camShake=Math.max(camShake,.5);sfx('bump');
+  const f=$('#dpInk');f.className='zap';f.hidden=false;setTimeout(()=>{f.hidden=true;f.className='';},250);}
+function dpTick(a,dt){const P=player.pos,t=a.t,D=dpS();dpSwim(a,dt);
+  const inCave=a.cave&&P.x>a.cave.x0&&P.x<a.cave.x1&&P.z>a.cave.z0&&P.z<a.cave.z1;const deep=P.y<-20;a.sky.far+=((inCave||deep?42:120)-a.sky.far)*Math.min(1,dt*2);a.sky.hemi+=((inCave||deep?.22:.5)-a.sky.hemi)*Math.min(1,dt*2);
+  dpAir(a,dt,deep?2.6:inCave?2.2:1.6);
+  a.fish.forEach(f=>{f.ph+=dt*f.sp;f.g.position.set(f.c.x+Math.cos(f.ph)*f.r,f.c.y+Math.sin(f.ph*2)*1.2+f.dy,f.c.z+Math.sin(f.ph)*f.r);f.g.rotation.y=-f.ph;});
+  a.vents.forEach(v=>v.ps.forEach(s=>{s.position.y+=dt*(4+s.geometry.parameters.radius*6);if(s.position.y>v.y+20)s.position.y=v.y;}));
+  a.kelp.forEach(k=>{k.m.rotation.z=Math.sin(t*.8+k.ph)*.08;k.m.rotation.x=Math.cos(t*.7+k.ph)*.06;});
+  if(a.clam)a.clam.children[1].rotation.x=-1.1-Math.abs(Math.sin(t*1.2))*.3;
+  /* pearls */
+  a.pearls=a.pearls.filter(p=>{p.m.position.y+=Math.sin(t*2+p.i)*.01;p.m.rotation.y+=dt;if(P.distanceTo(p.m.position)<2.4){D.pearls[p.i]=1;save();a.group.remove(p.m);const n=Object.keys(D.pearls).length;award('dp_pearl');if(n>=5)award('dp_all');sfx('badge');
+      hrCardDP('🔵 GLOW PEARL '+n+'/5',[DP_PEARLS[p.i].zone,n>=5?'All 5! Go to the Abyss Gate in the north!':'']);addCoins(300);return false;}return true;});
+  a.sockets.forEach((s,i)=>{s.material.emissiveIntensity=D.pearls[i]?1.5+Math.sin(t*3+i)*.4:0;});
+  /* hazards */
+  a.jelly.forEach(j=>{j.ph+=dt;j.g.position.set(j.x+Math.sin(j.ph*.3)*3,j.y+Math.sin(j.ph*1.2)*1.5,j.z+Math.cos(j.ph*.3)*3);j.g.scale.y=1+Math.sin(j.ph*3)*.15;j.cd-=dt;if(j.cd<=0&&P.distanceTo(j.g.position)<2.2){j.cd=1.5;dpHurt(a,j.g.position,14,15);award('dp_zap');mpBig2('⚡ ZAP!');}});
+  a.urch.forEach(u=>{if(Math.hypot(P.x-u.x,P.z-u.z)<2.1&&P.y<u.y+2.2){dpHurt(a,new V3(u.x,u.y,u.z),12,8);}});
+  const E=a.eel;if(E){E.t-=dt;const dh=P.distanceTo(E.home);if(E.st==='hide'){E.g.position.lerp(E.home,Math.min(1,dt*3));if(dh<20&&E.t<=0){E.st='warn';E.t=.9;E.g.lookAt(P);sfx('beep');}}
+    else if(E.st==='warn'){E.g.lookAt(P);E.g.position.x+=(Math.random()-.5)*.2;if(E.t<=0){E.st='lunge';E.t=.7;E.dir.copy(P).sub(E.g.position).normalize();}}
+    else if(E.st==='lunge'){E.g.position.addScaledVector(E.dir,dt*38);if(E.g.position.distanceTo(P)<2.6){dpHurt(a,E.g.position,20,20);E.st='back';E.t=1.5;mpBig2('🐍 EEL!');}if(E.t<=0){E.st='back';E.t=2.5;}}
+    else{E.g.position.lerp(E.home,Math.min(1,dt*2));if(E.t<=0){E.st='hide';E.t=1.5;}}}
+  /* currents in the trench push you around */
+  if(P.x>140&&P.y<-15){player.vel.z+=Math.sin(t*.4)*9*dt;}
+  if(a.talk&&!$('#dpTalk').hidden&&keys.KeyE&&!a.talkKey){a.talk.next();}a.talkKey=keys.KeyE;
+  $('#dpPearls').textContent='🔵'.repeat(Object.keys(D.pearls).length)+'⚪'.repeat(5-Object.keys(D.pearls).length);}
+/* ---------- the Kraken ---------- */
+AREA_BUILD.kraken=a=>{const G=a.group;a.name='🦑 The Kraken';a.grav=.38;a.deep=true;a.busy=true;a.camDist=12;a.leaveLabel='Run away';a.onLeave=()=>fadeTo(()=>enterArea('deep'));
+  a.sky={top:0x01101a,bottom:0x0a3a5a,fog:0x06304a,near:10,far:170,hemi:.55,sun:.5,amb:.3,sunColor:0x7fd8ff,stars:0};
+  const fl=new THREE.Mesh(new THREE.CircleGeometry(48,48),HRM(0x9a8a6a,{roughness:1}));fl.rotation.x=-Math.PI/2;G.add(fl);const ring=new THREE.Mesh(new THREE.TorusGeometry(48,2,8,48),HRM(0x3a3a4a));ring.rotation.x=Math.PI/2;G.add(ring);
+  a.ground=(x,z)=>Math.hypot(x,z)<50?0:null;a.clamp=b=>{const r=Math.hypot(b.pos.x,b.pos.z);if(r>46){b.pos.x*=46/r;b.pos.z*=46/r;}if(b.pos.y>30)b.vel.y=Math.min(0,b.vel.y);};
+  a.vents=[[38,0],[-38,0],[0,38],[0,-38]].map(([x,z])=>{const ps=[];for(let i=0;i<10;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.3,8,6),new THREE.MeshBasicMaterial({color:0xdffaff,transparent:true,opacity:.6}));s.position.set(x,Math.random()*18,z);G.add(s);ps.push(s);}return{x,z,y:0,ps};});a.domes=[];
+  /* the beast */
+  const K=new THREE.Group();const hm=HRM(0x8a2a4a,{emissive:0x3a0a1a,roughness:.6});const head=new THREE.Mesh(new THREE.SphereGeometry(9,24,18),hm);head.scale.set(1,1.3,.9);K.add(head);
+  [-3.5,3.5].forEach(ex=>{const e=new THREE.Mesh(new THREE.SphereGeometry(1.8,14,10),HRM(0xffe060,{emissive:0xffa000,emissiveIntensity:.8}));e.position.set(ex,2,7.4);const pu=new THREE.Mesh(new THREE.SphereGeometry(.8,10,8),HRM(0x111111));pu.position.set(ex,2,8.9);K.add(e,pu);});
+  K.scale.setScalar(1.5);K.position.set(0,8,-52);G.add(K);a.K={g:K,head};
+  a.tent=[];for(let i=0;i<6;i++){const tg=new THREE.Group();const segs=[];for(let s=0;s<14;s++){const m=new THREE.Mesh(new THREE.SphereGeometry(2.3-s*.1,12,10),hm);tg.add(m);segs.push(m);}
+    const tip=new THREE.Mesh(new THREE.SphereGeometry(1.5,14,12),new THREE.MeshStandardMaterial({color:0xffe0f0,emissive:0x5affd8,emissiveIntensity:0}));tg.add(tip);G.add(tg);
+    const an=-Math.PI*.15-i/5*Math.PI*.7;const base=new V3(Math.cos(an+Math.PI/2)*30,0,-52+Math.sin(an+Math.PI/2)*8);a.tent.push({g:tg,segs,tip,base,st:'idle',t:Math.random()*2,tgt:new V3(),ph:Math.random()*6});}
+  a.shadow=new THREE.Mesh(new THREE.CircleGeometry(3.6,24),new THREE.MeshBasicMaterial({color:0xff2030,transparent:true,opacity:.35,depthWrite:false}));a.shadow.rotation.x=-Math.PI/2;a.shadow.position.y=.05;a.shadow.visible=false;G.add(a.shadow);
+  a.hp=9;a.hearts=5;a.phase=1;a.atkT=3;a.inkT=0;a.whirl=0;a.air=100;a.cp=new V3(0,2,30);a.t0=0;a.hitCd=0;
+  a.spawn=new V3(0,2,30);a.yaw=0;a.status=()=>'🦑 Bonk the glowing tentacle tips after they slam down! (dash with Q/Shift)';
+  a.tick=dt=>dpBoss(a,dt);a.cleanup=()=>{$('#dpHud').hidden=true;$('#dpInk').hidden=true;$('#boss').hidden=true;};$('#dpHud').hidden=false;
+  setTimeout(()=>{if(area===a){hrCardDP('THE KRAKEN',['Bonk the glowing tentacle tips!'],2400);sfx('boom');}},300);};
+function dpTentPose(T,target,lift,t){const n=T.segs.length;for(let s=0;s<n;s++){const k=s/(n-1);const x=T.base.x+(target.x-T.base.x)*k,z=T.base.z+(target.z-T.base.z)*k;const y=Math.sin(k*Math.PI)*lift+target.y*k+Math.sin(t*3+s*.6+T.ph)*.4*(1-k);T.segs[s].position.set(x,y,z);}T.tip.position.copy(T.segs[n-1].position);}
+function dpBoss(a,dt){const P=player.pos,t=a.t;a.t0+=dt;dpSwim(a,dt);dpAir(a,dt,1.1);a.hitCd-=dt;
+  a.vents.forEach(v=>v.ps.forEach(s=>{s.position.y+=dt*6;if(s.position.y>18)s.position.y=0;}));
+  a.K.g.position.y=8+Math.sin(t)*1.2;a.K.g.lookAt(P.x,6,P.z);a.K.g.rotation.x=0;
+  /* attacks */
+  a.atkT-=dt;const busy=a.tent.filter(T=>T.st!=='idle').length;if(a.atkT<=0&&busy<a.phase){a.atkT=Math.max(1.2,3-a.phase*.6);const free=a.tent.filter(T=>T.st==='idle');if(free.length){const T=free[Math.floor(Math.random()*free.length)];T.st='raise';T.t=1.3-a.phase*.15;T.tgt.set(P.x,0,P.z);a.shadow.visible=true;a.shadow.position.set(P.x,.05,P.z);sfx('beep');}}
+  if(a.phase>=2){a.inkT-=dt;if(a.inkT<=0){a.inkT=9;$('#dpInk').className='ink';$('#dpInk').hidden=false;sfx('splash');setTimeout(()=>{if(area===a){$('#dpInk').hidden=true;$('#dpInk').className='';}},3500);}}
+  if(a.phase>=3){const r=Math.hypot(P.x,P.z)||1;player.vel.x-=P.x/r*7*dt;player.vel.z-=P.z/r*7*dt;player.vel.x+=-P.z/r*5*dt;player.vel.z+=P.x/r*5*dt;}
+  a.tent.forEach(T=>{T.t-=dt;if(T.st==='idle'){const rest=new V3(T.base.x*.7,6+Math.sin(t+T.ph)*2,T.base.z+10);dpTentPose(T,rest,8,t);T.tip.material.emissiveIntensity=0;}
+    else if(T.st==='raise'){dpTentPose(T,new V3(T.tgt.x,14,T.tgt.z),14,t);a.shadow.material.opacity=.25+.25*Math.sin(t*20);if(T.t<=0){T.st='slam';T.t=.18;}}
+    else if(T.st==='slam'){dpTentPose(T,new V3(T.tgt.x,.8,T.tgt.z),4,t);if(T.t<=0){T.st='down';T.t=3.2-a.phase*.4;a.shadow.visible=false;sfx('boom');camShake=Math.max(camShake,.6);
+        if(Math.hypot(P.x-T.tgt.x,P.z-T.tgt.z)<4&&P.y<4){dpBossHurt(a,T.tgt);}}}
+    else if(T.st==='down'){dpTentPose(T,new V3(T.tgt.x,.8,T.tgt.z),2,t);T.tip.material.emissiveIntensity=1.2+Math.sin(t*10)*.6;
+      if(a.hitCd<=0&&P.distanceTo(T.tip.position)<2.6){const sp=Math.hypot(player.vel.x,player.vel.z);if(sp>12||DASH.cd>0){a.hitCd=.6;a.hp--;T.st='hurt';T.t=.6;sfx('boom');mpBig2('💥 BONK!');camShake=.7;const d=P.clone().sub(T.tip.position).normalize();player.vel.set(d.x*18,8,d.z*18);
+        if(a.hp<=0){dpWin(a);return;}if(a.hp<=6&&a.phase===1){a.phase=2;hrCardDP('PHASE 2',['The Kraken spits INK!'],1800);}if(a.hp<=3&&a.phase===2){a.phase=3;hrCardDP('PHASE 3',['WHIRLPOOL! Keep rolling!'],1800);}}
+        else if(sp<12){mpBig2('Go FASTER! Dash into it!');a.hitCd=.8;}}if(T.t<=0)T.st='idle';}
+    else if(T.st==='hurt'){T.g.position.y=Math.sin(t*40)*.3;if(T.t<=0){T.st='idle';T.g.position.y=0;}}});
+  $('#dpPearls').textContent='❤️'.repeat(Math.max(0,a.hearts))+'🖤'.repeat(Math.max(0,5-a.hearts));$('#boss').hidden=false;const bn=$('#boss .nm');if(bn)bn.textContent='🦑 THE KRAKEN';const bf=$('#bossBar i');if(bf)bf.style.width=(a.hp/9*100)+'%';$('#hearts').textContent='';}
+function dpBossHurt(a,from){a.hearts--;dpHurt(a,from,22,10);mpBig2('💔 OUCH!');if(a.hearts<=0){a.busy=false;hrCardDP('THE KRAKEN WINS',['Try again! Watch for the red shadow.'],2400);setTimeout(()=>{if(area===a)fadeTo(()=>enterArea('kraken'));},2200);}}
+function dpWin(a){const D=dpS();a.tent.forEach(T=>T.st='hurt');sfx('badge');award('dp_kraken');if(a.t0<120)award('dp_fast');if(!D.ranOut)award('dp_noair');const first=!D.beat;D.beat=1;
+  if(first){S.owned.hat_diver=1;S.owned.trail_deep=1;if(typeof qsS==='function')qsS().titles.deep_diver=1;}const coins=addCoins(first?5000:800);save();updateCoinsUI(true);a.busy=false;
+  setTimeout(()=>{if(area!==a)return;showResult({title:'THE KRAKEN IS DEFEATED!',big:'🦑',line:'The Pearl of Tides glows again, and light returns to the sea. Captain Clam is SO proud.'+(first?' You got the 🤿 Diving Helmet, the Deep Glow trail and the 🌊 DEEP DIVER title!':''),coins,
+    buttons:[{label:'Back to the Deep',cls:'gold',fn:()=>{closeSheets();fadeTo(()=>enterArea('deep'));}},{label:'Go home',fn:()=>{closeSheets();fadeTo(()=>exitToWorld(new V3(SPAWN.x,0,SPAWN.z)));}}]});},1600);}
+{const nav=$('#tSer')||$('#tPlay');const b=document.createElement('button');b.className='btn';b.id='tDeep';b.style.cssText='background:linear-gradient(135deg,#02304a,#3ad8c8);color:#fff';b.innerHTML='🌊 Chapter 6: The Deep <small>Dive under the sea</small>';nav.after(b);b.addEventListener('click',dpEnter);}
+{const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const body=$('#bagBody');body.appendChild(el('div','sec-h','🌊 Chapter 6: The Deep'));const l=el('div','list');const D=dpS();
+  l.appendChild(rowItem('🌊','The Deep','🔵 '+Object.keys(D.pearls).length+'/5 Glow Pearls'+(D.beat?' · 🦑 Kraken defeated':''),'Dive',()=>{closeSheets();setTimeout(dpEnter,60);},mode!=='world'));body.appendChild(l);};}
 
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
