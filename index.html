@@ -765,7 +765,7 @@ body.horror #clockChip,body.horror #biomeChip,body.horror #hint{display:none!imp
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
+<script type="text/plain" id="rbMain">
 (() => {
 'use strict';
 const $ = s => document.querySelector(s);
@@ -787,12 +787,12 @@ const SAVE_KEY=accKey(ACCS.current);
 function saveAccs(){try{localStorage.setItem(ACC_KEY,JSON.stringify(ACCS));}catch(e){}}
 function freshSave(){return{coins:0,earned:0,owned:{hat_none:1,col_red:1,pat_solid:1,sec_white:1,trail_none:1},equip:{hat:'hat_none',color:'col_red',pattern:'pat_solid',secondary:'sec_white',pet:null,trail:'trail_none'},badges:{},stars:{},stats:{hoops:0,raceWins:0,jumps:0,dist:0,biomes:{},played:{},best:{}},name:'',inv:{},keys:{},quest:null,questsDone:{},talked:{},trades:{},snacks:0,weatherSeen:{},decor:{owned:{},placed:[]},sec:{btn:[0,0,0,0,0],moonOrder:null,dwarf:{},dwarfPlaced:0,gyro:0,boss:0,orbTaken:0,blueShroom:-1}};}
 let S=freshSave();
-try{const raw=localStorage.getItem(SAVE_KEY);if(raw){const o=JSON.parse(raw);const f=freshSave();S=Object.assign(f,o);S.owned=Object.assign(freshSave().owned,o.owned||{});S.equip=Object.assign(freshSave().equip,o.equip||{});S.stats=Object.assign(freshSave().stats,o.stats||{});S.badges=o.badges||{};S.stars=o.stars||{};const F=freshSave();S.decor=Object.assign(F.decor,o.decor||{});S.sec=Object.assign(F.sec,o.sec||{});}}catch(e){}
+try{let raw=null;try{raw=localStorage.getItem(SAVE_KEY);}catch(e){}raw=rbCloudPick(raw);if(raw){const o=JSON.parse(raw);const f=freshSave();S=Object.assign(f,o);S.owned=Object.assign(freshSave().owned,o.owned||{});S.equip=Object.assign(freshSave().equip,o.equip||{});S.stats=Object.assign(freshSave().stats,o.stats||{});S.badges=o.badges||{};S.stars=o.stars||{};const F=freshSave();S.decor=Object.assign(F.decor,o.decor||{});S.sec=Object.assign(F.sec,o.sec||{});}}catch(e){}
 if(S.badges&&S.badges.neon_night)S.owned.hat_lightstick=1;if(S.badges&&S.badges.secret_void)S.owned.pat_cube=1;
 let saveTimer=null;
-function save(){if(saveTimer)return;saveTimer=setTimeout(()=>{saveTimer=null;if(noSave)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));}catch(e){}},400);}
+function save(){if(saveTimer)return;saveTimer=setTimeout(()=>{saveTimer=null;if(noSave)return;S._t=Date.now();const j=JSON.stringify(S);rbCloudPush(j);try{localStorage.setItem(SAVE_KEY,j);}catch(e){}},400);}
 let noSave=false;
-function saveNow(){clearTimeout(saveTimer);saveTimer=null;if(noSave)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));}catch(e){}}
+function saveNow(){clearTimeout(saveTimer);saveTimer=null;if(noSave)return;S._t=Date.now();const j=JSON.stringify(S);rbCloudPush(j,true);try{localStorage.setItem(SAVE_KEY,j);}catch(e){}}
 addEventListener('pagehide',saveNow);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveNow();});setInterval(saveNow,15000);
 
 /* ================= CATALOG ================= */
@@ -2360,7 +2360,7 @@ $('#hTravel').addEventListener('click',()=>{blurBtn();openTravel();});
 function saveCode(){const j=JSON.stringify(S);return 'RB1:'+btoa(unescape(encodeURIComponent(j)));}
 function parseSaveCode(t){t=(t||'').trim().replace(/\s+/g,'');if(t.startsWith('RB1:'))t=t.slice(4);const o=JSON.parse(decodeURIComponent(escape(atob(t))));if(!o||typeof o!=='object'||typeof o.coins!=='number'||!o.equip)throw new Error('bad');return o;}
 function openSaveSheet(){openSheet('saveSheet');$('#saveOut').value=saveCode();$('#saveMsg').textContent='';$('#loadMsg').textContent='';$('#saveIn').value='';}
-function applySave(o){const m=$('#loadMsg');try{clearTimeout(saveTimer);saveTimer=null;noSave=true;localStorage.setItem(SAVE_KEY,JSON.stringify(o));m.className='sv-msg';m.textContent='Loaded! Restarting…';setTimeout(()=>location.reload(),700);}catch(e){m.className='sv-msg bad';noSave=false;m.textContent='This browser blocked saving. Try a normal (not private) window.';}}
+function applySave(o){const m=$('#loadMsg');try{clearTimeout(saveTimer);saveTimer=null;noSave=true;o._t=Date.now();const j=JSON.stringify(o);const cl=!!RB_CLOUD.ref;if(cl){RB_CLOUD.pend=j;rbCloudFlush();}try{localStorage.setItem(SAVE_KEY,j);}catch(e){if(!cl)throw e;}m.className='sv-msg';m.textContent='Loaded! Restarting…';setTimeout(()=>location.reload(),cl?2200:700);}catch(e){m.className='sv-msg bad';noSave=false;m.textContent='This browser blocked saving. Try a normal (not private) window.';}}
 $('#tSave').addEventListener('click',openSaveSheet);
 function accInfo(id){let o=null;if(id===ACCS.current)o=S;else{try{o=JSON.parse(localStorage.getItem(accKey(id))||'null');}catch(e){}}o=o||{};const col=(COLORS.find(c=>c.id===(o.equip&&o.equip.color))||COLORS[0]).hex;
   return{name:o.name||'Rollie',coins:o.coins||0,badges:Object.keys(o.badges||{}).length,col};}
@@ -9999,3 +9999,24 @@ if(!S.name)setTimeout(()=>{openSheet('nameSheet');setTimeout(()=>$('#nameInput')
 requestAnimationFrame(t=>{last=t;frame(t);});
 })();
 </script>
+<script>
+/* Cloud save: inside the Claude artifact, progress is also kept in your Claude account,
+   so it survives browsers that block local saves. Elsewhere (GitHub Pages) the game uses local saves only. */
+window.RB_CLOUD={ref:null,data:null,busy:false,last:'',pend:null,tm:0,late:false};
+function rbCloudPick(raw){const c=RB_CLOUD.data;if(!c||typeof c.save!=='string')return raw;let lt=0;try{lt=raw?(JSON.parse(raw)._t||0):0;}catch(e){}if(!raw||(c.t||0)>lt){RB_CLOUD.used=true;return c.save;}return raw;}
+function rbCloudPush(j,now){const C=RB_CLOUD;if(!C.ref||j===C.last)return;C.pend=j;if(C.busy)return;clearTimeout(C.tm);C.tm=setTimeout(rbCloudFlush,now?0:2500);}
+async function rbCloudFlush(){const C=RB_CLOUD;if(!C.ref||C.busy||!C.pend)return;const j=C.pend;C.pend=null;if(j.length>250000)return;C.busy=true;
+  try{await C.ref.set({save:j,t:Date.now()});C.last=j;C.ok=true;}catch(e){C.err=(e&&e.code)||'error';if(e&&(e.code==='unavailable')){C.pend=C.pend||j;}}
+  C.busy=false;if(C.pend){clearTimeout(C.tm);C.tm=setTimeout(rbCloudFlush,2500);}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)rbCloudFlush();});
+(function(){let booted=false;const boot=()=>{if(booted)return;booted=true;const s=document.createElement('script');s.textContent=document.getElementById('rbMain').textContent;document.body.appendChild(s);};
+  if(!(window.claude&&typeof window.claude.use==='function')){boot();return;}
+  const to=setTimeout(boot,6000);
+  (async()=>{try{const db=await window.claude.use('db'),u=await window.claude.use('user');if(db&&u){const id=await u.id();if(id){let acc='main';try{const a=JSON.parse(localStorage.getItem('rollabout-accounts'));if(a&&a.current)acc=a.current;}catch(e){}
+      const ref=db.doc('data/users/'+id+'/save_'+String(acc).replace(/[^A-Za-z0-9_\-]/g,''));const snap=await ref.get();const data=snap.exists?snap.data():null;
+      if(!booted){RB_CLOUD.data=data;RB_CLOUD.ref=ref;}
+      else{RB_CLOUD.late=true;let lt=0;try{lt=(window.S&&S._t)||0;}catch(e){}if(!data||lt>=(data.t||0))RB_CLOUD.ref=ref;}}}}catch(e){}
+    clearTimeout(to);boot();
+    setTimeout(()=>{try{if(RB_CLOUD.ref&&typeof toast==='function')toast(RB_CLOUD.used?'☁️ Loaded your cloud save!':'☁️ Cloud save is on','badge','☁️');else if(RB_CLOUD.late&&typeof toast==='function')toast('☁️ Your cloud save loaded late. Reload the page to use it.','bad','☁️');}catch(e){}},4500);})();})();
+</script>
+
