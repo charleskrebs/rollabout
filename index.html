@@ -360,7 +360,7 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
 .hrNight.sel{border-color:#ff3b52;box-shadow:0 0 18px rgba(255,59,82,.45);background:linear-gradient(160deg,#3a0a18,#140810)}
 .hrNight.lock{opacity:.45;cursor:default}.hrNight.nm{border-color:#7a1a2a;background:linear-gradient(160deg,#200006,#000)}
 .hrRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0}.hrLab{width:130px;font-weight:800;color:#c8b8d8}
-.hrOpt{flex:1 1 150px;padding:9px 12px;border-radius:12px;border:2px solid #3a2a40;background:#1a1420;color:#e8e0f0;font-family:inherit;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start}
+.hrOpt{flex:1 1 96px;padding:9px 12px;border-radius:12px;border:2px solid #3a2a40;background:#1a1420;color:#e8e0f0;font-family:inherit;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start}
 .hrOpt small{font-weight:600;color:#a898b8;font-size:11px}.hrOpt.on{border-color:#ffd23d;background:#2a2010;box-shadow:0 0 12px rgba(255,210,61,.3)}
 .hrFriends{background:#15101c;border:2px dashed #3a2a40;border-radius:14px;padding:10px;margin:6px 0 10px;display:flex;flex-direction:column;gap:6px}
 .hrSmall{margin:0 0 4px;color:#a898b8;font-size:13px}.hrPl{display:flex;align-items:center;gap:8px}.hrPl input{flex:1;padding:8px 10px;border-radius:10px;border:2px solid #3a2a40;background:#0d0a12;color:#fff;font:inherit;font-weight:700}
@@ -397,6 +397,16 @@ body.glitch canvas{filter:hue-rotate(40deg) saturate(.4) brightness(1.3) contras
 #hrTouch{position:fixed;right:20px;bottom:calc(150px + env(safe-area-inset-bottom,0px));z-index:13;display:flex;flex-direction:column;gap:12px}
 #hrTouch button{width:64px;height:64px;border-radius:50%;font-size:28px;border:3px solid #000;background:rgba(40,30,50,.85);touch-action:none}
 body.horror #clockChip,body.horror #biomeChip,body.horror #hint{display:none!important}
+#hrChat{position:fixed;left:14px;bottom:calc(150px + env(safe-area-inset-bottom,0px));z-index:14;display:flex;flex-direction:column;gap:4px;pointer-events:none;max-width:min(440px,72vw)}
+.hrMsg{background:rgba(10,6,14,.8);color:#e8e0f0;border-radius:10px;padding:5px 10px;font-weight:700;font-size:14px;transition:opacity .7s;animation:hrIn .4s}.hrMsg.out{opacity:0}.hrMsg.creepy{color:#d8b0b8;font-style:italic;letter-spacing:.5px}
+#hrAb{position:fixed;left:50%;top:36%;transform:translateX(-50%);z-index:16;pointer-events:none;white-space:nowrap;font-size:clamp(22px,4.5vw,40px);font-weight:900;letter-spacing:3px;color:#ff3b52;text-shadow:0 0 18px #ff0020,0 3px 0 #000}
+#hrAb.go{animation:hrAbA 2.4s forwards}@keyframes hrAbA{0%{opacity:0;transform:translateX(-50%) scale(1.6)}10%{opacity:1;transform:translateX(-50%) scale(1)}75%{opacity:1}100%{opacity:0}}
+#hrHurt{position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 35%,rgba(220,0,20,.85) 100%)}
+#hrHurt.wound{opacity:.5;animation:hrWd 1s infinite alternate}@keyframes hrWd{to{opacity:.22}}#hrHurt.flash{animation:hrFl .5s}@keyframes hrFl{0%{opacity:1}100%{opacity:.5}}
+#hrTeam{font-size:14px;min-height:0}
+#hrStruggle{position:fixed;left:50%;top:60%;transform:translate(-50%,-50%);z-index:21;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;font-weight:900;text-shadow:0 2px 8px #000;pointer-events:auto;cursor:pointer;user-select:none}
+#hrStruggle small{font-size:22px;letter-spacing:2px;color:#ffb0b8}#hrStruggle b{padding:10px 18px;border-radius:14px;background:#fff;color:#14213d;font-size:26px;text-shadow:none;box-shadow:0 0 30px #ff3b52;animation:hrPop .15s infinite alternate}
+#hrStruggle .qbar{width:240px;height:12px;background:rgba(255,255,255,.2);border-radius:8px;overflow:hidden}#hrStruggle .qbar i{display:block;height:100%;width:0;background:#7dff9a}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
 #c3holdBtn{touch-action:none;user-select:none;-webkit-user-select:none}
@@ -487,11 +497,13 @@ body.horror #clockChip,body.horror #biomeChip,body.horror #hint{display:none!imp
 <div id="hrFx" hidden><div id="hrVig"></div><div id="hrPulse"></div><div id="hrGrain"></div></div>
 <div id="hrHide" hidden><div class="slats"></div><button class="btn" id="hrHideOut">🚪 Get out</button></div>
 <div id="hrScare" hidden></div><div id="hrBlack" hidden></div>
-<div id="hrHud" hidden><div id="hrLives"></div><div id="hrEye"></div><div class="bars"><div id="hrBatt" class="bar"><span>🔦</span><b><i></i></b></div><div id="hrStam" class="bar"><span>🏃</span><b><i></i></b></div></div></div>
+<div id="hrHud" hidden><div id="hrLives"></div><div id="hrTeam"></div><div id="hrEye"></div><div class="bars"><div id="hrBatt" class="bar"><span>🔦</span><b><i></i></b></div><div id="hrStam" class="bar"><span>🏃</span><b><i></i></b></div></div></div>
 <div id="hrCard" hidden></div><div id="hrTip" hidden></div>
 <div id="hrQte" hidden><small>HOLD YOUR BREATH!</small><b id="hrQteKey">W</b><div class="qbar"><i id="hrQteBar"></i></div></div>
 <div id="hrPass" hidden><div><small>📱 PASS THE DEVICE TO</small><h2 id="hrPassName">Player</h2><p id="hrPassInfo"></p><button class="btn gold" id="hrPassGo">I'm ready… 😰</button></div></div>
 <div id="hrTouch" hidden><button id="hrTLight">🔦</button><button id="hrTSprint">🏃</button></div>
+<div id="hrChat"></div><div id="hrAb" hidden></div><div id="hrHurt"></div>
+<div id="hrStruggle" hidden><small>HE GRABBED YOU!</small><b id="hrStrKey">MASH SPACE!</b><div class="qbar"><i id="hrStrBar"></i></div></div>
 
 
 <!-- Sheets -->
@@ -9368,7 +9380,7 @@ const HR_NOTE_TEXT=[
  "The carousel plays music at night. Nobody turns it on. I unplugged it. It still plays. — Gus",
  "Someone moved the mannequins again. I counted four of them this morning. We only ever bought two. — Gus",
  "We closed the park for good. Grinny wouldn't leave. If you are reading this: find the tickets, open the gate, and DON'T LOOK BACK."];
-const HRO={friends:false,players:['',''],fp:false,gentle:false,night:1};
+const HRO={friends:false,players:['',''],fp:false,gentle:false,night:1,bots:0};
 function hrS(){S.horror=S.horror||{};const h=S.horror;h.best=h.best||{};h.unlocked=Math.max(1,h.unlocked||1);h.notes=h.notes||{};return h;}
 let HRUN=null;
 function hrBegin(n){const cfg=HR_NIGHTS[n];const names=HRO.friends?HRO.players.map((p,i)=>(p||'').trim()||('Player '+(i+1))):[S.name||'You'];
@@ -9477,7 +9489,7 @@ AREA_BUILD.horror=a=>{const R=HRUN,cfg=R.cfg;a.horror=true;a.busy=true;a.silent=
   {const ni=Math.min(4,cfg.n-1),[i,j]=HR_NOTES[ni];const g=hrNote();g.position.set(hrX(i),.5,hrZ(j));G.add(g);a.note={g,i:ni};a.inter.push({pos:new V3(hrX(i),1,hrZ(j)),r:3,label:'📜 Read the note',act:()=>hrReadNote(a)});}
   /* hiding spots */
   a.hides=HR_HIDES.map(([i,j,kind])=>{const P=hrHideProp(kind);const x=hrX(i),z=hrZ(j);P.g.position.set(x,0,z);P.g.rotation.y=Math.atan2(-x,60-z)+(Math.random()-.5)*.4;G.add(P.g);a.obs.push({x,z,r:P.r,top:P.h});
-    const H2={x,z,kind,g:P.g,r:P.r};a.inter.push({pos:new V3(x,1,z),r:P.r+2.2,on:()=>!a.scare&&(!a.hide||a.hide===H2),label:()=>a.hide===H2?'🚪 Get out':'🫣 Hide in the '+({barrel:'barrel',trash:'trash can',crate:'crate',potty:'porta-potty',wardrobe:'wardrobe',mirror:'photo booth'}[kind]),act:()=>a.hide===H2?hrUnhide(a):hrHide(a,H2)});return H2;});
+    const H2={x,z,kind,g:P.g,r:P.r};a.inter.push({pos:new V3(x,1,z),r:P.r+2.2,on:()=>!a.scare&&!a.carried&&!H2.bot&&(!a.hide||a.hide===H2),label:()=>a.hide===H2?'🚪 Get out':'🫣 Hide in the '+({barrel:'barrel',trash:'trash can',crate:'crate',potty:'porta-potty',wardrobe:'wardrobe',mirror:'photo booth'}[kind]),act:()=>a.hide===H2?hrUnhide(a):hrHide(a,H2)});return H2;});
   /* Grinny */
   const gm=hrGrinny();G.add(gm);const M={g:gm,pos:new V3(0,1.75,-40),vel:new V3(),r:1.4,yaw:0,state:'wait',path:null,pi:0,repath:0,target:null,lastSeen:null,lostT:0,chaseT:0,searchT:0,hop:0,hopV:0,stuckT:0,stuckP:new V3(),idle:0,patrolT:0,heardT:0,seenBy:0,sawHide:false,twitch:0,grace:0};a.M=M;
   {const[i,j]=hrRandCell((i,j)=>Math.hypot(hrX(i)-a.spawn.x,hrZ(j)-a.spawn.z)>70);M.pos.set(hrX(i),1.75,hrZ(j));}
@@ -9496,7 +9508,7 @@ AREA_BUILD.horror=a=>{const R=HRUN,cfg=R.cfg;a.horror=true;a.busy=true;a.silent=
   a.cleanup=()=>{haStop();hrHud(false);camTilt=a.camTilt0;if(player)player.setVisible(true);try{renderer.domElement.style.filter='';}catch(e){}};};
 /* ---------- helpers ---------- */
 function hrOnScreen(a,p){return a.frust.containsPoint(p);}
-function hrNoise(a,x,z,rad){const M=a.M;if(M.state==='chase'||M.state==='wait'||a.scare)return;if(Math.hypot(M.pos.x-x,M.pos.z-z)<rad){M.state='investigate';M.target=new V3(x,0,z);M.path=null;M.heardT=a.t;}}
+function hrNoise(a,x,z,rad){const M=a.M;if(M.state==='chase'||M.state==='wait'||M.state==='carry'||M.state==='mimic'||(M.ab&&M.ab.slash)||a.scare)return;if(Math.hypot(M.pos.x-x,M.pos.z-z)<rad){M.state='investigate';M.target=new V3(x,0,z);M.path=null;M.heardT=a.t;}}
 function hrSetPath(M,tx,tz,open){const p=hrPath(hrI(M.pos.x),hrJ(M.pos.z),hrI(tx),hrJ(tz),open);M.path=p;M.pi=0;if(p&&p.length)p[p.length-1]=new V3(tx,0,tz);}
 function hrTeleportFar(a,o,min,max){const P=player.pos;for(let k=0;k<200;k++){const[i,j]=hrRandCell();const x=hrX(i),z=hrZ(j),d=Math.hypot(x-P.x,z-P.z);if(d<min||d>(max||999))continue;if(hrLOS(P.x,P.z,x,z)&&d<50)continue;o.pos.x=x;o.pos.z=z;return true;}return false;}
 function hrLit(a,x,z){if(a.outage>0)return false;return a.lamps.some(l=>Math.hypot(l.x-x,l.z-z)<10);}
@@ -9511,7 +9523,7 @@ function hrTick(a,dt){const R=HRUN;if(!R)return;const cfg=R.cfg,M=a.M,P=player.p
   /* --- moving: walk, sprint, small jumps --- */
   const spr=!!(keys.ShiftLeft||keys.ShiftRight||a.touchSprint),hs=Math.hypot(player.vel.x,player.vel.z);const sprinting=spr&&a.stam>0&&hs>3&&!a.hide;
   a.stam=Math.max(0,Math.min(100,a.stam+(sprinting?-24:(spr?4:15))*dt));if(a.stam<=0)a.tired=true;if(a.stam>35)a.tired=false;
-  const cap=a.hide?0:(sprinting&&!a.tired?22:(a.tired?10:14));if(hs>cap&&hs>0){player.vel.x*=cap/hs;player.vel.z*=cap/hs;}if(player.vel.y>13)player.vel.y=13;
+  let cap=(a.hide||a.carried)?0:(sprinting&&!a.tired?22:(a.tired?10:14));if(a.wounded>0){a.wounded-=dt;cap=Math.min(cap,9.5);if(a.wounded<=0)$('#hrHurt').className='';}if(hs>cap&&hs>0){player.vel.x*=cap/hs;player.vel.z*=cap/hs;}if(player.vel.y>13)player.vel.y=13;
   if(a.hide){P.set(a.hide.x,1.5,a.hide.z);player.vel.set(0,0,0);}
   a.noiseT-=dt;if(sprinting&&hs>15&&player.grounded&&a.noiseT<=0){a.noiseT=.45;hrNoise(a,P.x,P.z,21);}
   if(!player.grounded)a.wasAir=true;else if(a.wasAir){a.wasAir=false;hrNoise(a,P.x,P.z,12);}
@@ -9546,47 +9558,16 @@ function hrTick(a,dt){const R=HRUN;if(!R)return;const cfg=R.cfg,M=a.M,P=player.p
   if(a.note)a.note.g.children[1].material.opacity=.25+Math.sin(t*3)*.12;
   /* --- gate --- */
   if(a.open){a.gateK=Math.min(1,(a.gateK||0)+dt*.6);a.doors.forEach(({d,s})=>{d.rotation.y=-s*a.gateK*1.4;});if(P.z>112&&!a.won)hrWin(a);}
-  hrMonster(a,dt);hrSmilers(a,dt);hrLils(a,dt);
+  hrMonster(a,dt);if(a.scare)return;hrSmilers(a,dt);hrLils(a,dt);hrBots(a,dt);
   /* --- hiding: hold your breath --- */
   if(a.hide){a.hideT+=dt;a.qteCd-=dt;const d=Math.hypot(M.pos.x-a.hide.x,M.pos.z-a.hide.z);
     if(a.qte){a.qte.t-=dt;$('#hrQteBar').style.width=(a.qte.t/a.qte.max*100)+'%';if(a.qte.t<=0)hrQteEnd(a,false);}
-    else if(!M.sawHide&&d<7&&a.qteCd<=0&&M.state!=='wait')hrQteStart(a);}
+    else if(!M.sawHide&&d<7&&a.qteCd<=0&&M.state!=='wait'&&M.state!=='carry'&&M.state!=='mimic')hrQteStart(a);}
   /* --- threat, sound and screen --- */
-  const dM=M.pos.distanceTo(P);R.closest=Math.min(R.closest,dM);let threat=Math.max(0,1-dM/38);if(M.state==='chase')threat=Math.max(threat,.75);a.smilers.forEach(s=>{threat=Math.max(threat,Math.max(0,1-s.pos.distanceTo(P)/18)*.6);});a.threat=threat;
+  const dM=M.pos.distanceTo(P);R.closest=Math.min(R.closest,dM);let threat=Math.max(0,1-dM/38);if(M.state==='chase')threat=Math.max(threat,.75);if(M.ab&&M.ab.rage>0&&dM<45)threat=Math.max(threat,.9);if(a.carried)threat=1;if(M.state==='mimic')threat=Math.max(0,1-dM/60)*.25;a.smilers.forEach(s=>{threat=Math.max(threat,Math.max(0,1-s.pos.distanceTo(P)/18)*.6);});a.threat=threat;
   haTick(dt,{chase:M.state==='chase'||a.open,threat,mb:{x:0,z:0}});hrHud();}
 /* ---------- Grinny's brain ---------- */
-function hrMonster(a,dt){const R=HRUN,cfg=R.cfg,M=a.M,P=player.pos;M.grace=Math.max(0,M.grace-dt);
-  if(M.state==='wait'){if(a.introT>7){M.state='patrol';M.patrolT=0;}hrGrinnyAnim(a,dt,0);return;}
-  // can he see you?
-  const dx=P.x-M.pos.x,dz=P.z-M.pos.z,d=Math.hypot(dx,dz);let sight=cfg.sight*(a.light&&a.outage<=0?1.2:(hrLit(a,P.x,P.z)?1:.62));if(a.open)sight*=1.4;
-  const ang=Math.abs(wrapA(Math.atan2(dx,dz)-M.yaw));const sees=!a.hide&&M.grace<=0&&d<sight&&(ang<1.3||d<8)&&hrLOS(M.pos.x,M.pos.z,P.x,P.z);
-  if(sees){if(M.state!=='chase'){M.chaseT=0;HAS.sting();setTimeout(()=>{if(area===a)HAS.laugh(M.pos.x,M.pos.z);},300);camShake=Math.max(camShake,.25);if(a.firstSee){a.firstSee=false;hrTip(a,'run','He sees you! RUN and break his line of sight, then HIDE.');}}M.state='chase';M.lastSeen=P.clone();M.lostT=0;a.lastSeenT=a.t;}
-  if(a.open&&M.state!=='chase'&&!a.hide){M.state='chase';M.lastSeen=P.clone();}
-  let speed=6.5,goal=null;
-  if(M.state==='chase'){M.chaseT+=dt;if(!sees){M.lostT+=dt;if(a.open&&!a.hide)M.lastSeen=P.clone();if(M.lostT>3.4&&!a.open){M.state='search';M.searchT=0;M.target=M.lastSeen;M.path=null;}}
-    speed=cfg.gSpeed+Math.min(4,M.chaseT*.22)+(a.open?2.6:0);goal=sees?P:M.lastSeen;}
-  else if(M.state==='investigate'){speed=9.5;goal=M.target;if(goal&&Math.hypot(goal.x-M.pos.x,goal.z-M.pos.z)<2.5){M.state='search';M.searchT=0;}}
-  else if(M.state==='search'){speed=7.5;goal=M.target;if(!goal||Math.hypot(goal.x-M.pos.x,goal.z-M.pos.z)<2.5){M.searchT+=dt;goal=null;M.yaw+=dt*1.6;if(M.searchT>5){M.state='patrol';M.patrolT=0;M.target=null;}}}
-  else if(M.state==='check'){speed=cfg.gSpeed;goal=a.hide?new V3(a.hide.x,0,a.hide.z):null;if(!a.hide){M.state='search';M.target=P.clone();}
-    else if(Math.hypot(a.hide.x-M.pos.x,a.hide.z-M.pos.z)<a.hide.r+2.2){hrCaught(a,'drag');return;}}
-  else{ // patrol: wander, but the "director" keeps him close
-    M.patrolT+=dt;if(!M.target||Math.hypot(M.target.x-M.pos.x,M.target.z-M.pos.z)<2.5){M.idle-=dt;if(M.idle<=0){M.idle=.8+Math.random()*1.5;const near=Math.random()<.65;const[i,j]=hrRandCell((i,j)=>{const dd=Math.hypot(hrX(i)-P.x,hrZ(j)-P.z);return near?dd>10&&dd<34:true;});M.target=new V3(hrX(i),0,hrZ(j));M.path=null;}}
-    goal=M.target;if(d>62&&M.patrolT>14){if(hrTeleportFar(a,M,32,48)){M.patrolT=0;M.target=null;M.path=null;}}
-    if(a.hide&&a.hideT>28&&Math.random()<dt*.1){M.state='investigate';M.target=new V3(a.hide.x,0,a.hide.z);M.path=null;}}
-  // light makes him flinch
-  let slow=1;if(hrBeamOn(a,M.pos.x,M.pos.z,18)){slow=.6;M.twitch=.3;if(!a.lightHint){a.lightHint=true;hrTip(a,'light','Grinny hates your flashlight! It slows him down.');}}
-  // move
-  if(goal){const direct=M.state==='chase'&&sees&&d<16;let wx,wz;
-    if(direct){wx=goal.x;wz=goal.z;}else{M.repath-=dt;if(!M.path||M.repath<=0){M.repath=M.state==='chase'?.45:2.5;hrSetPath(M,goal.x,goal.z,false);}
-      if(M.path&&M.pi<M.path.length){const w=M.path[M.pi];wx=w.x;wz=w.z;if(Math.hypot(wx-M.pos.x,wz-M.pos.z)<1.3)M.pi++;}else{wx=goal.x;wz=goal.z;}}
-    const vx=wx-M.pos.x,vz=wz-M.pos.z,vd=Math.hypot(vx,vz)||1;M.vel.set(vx/vd*speed*slow,0,vz/vd*speed*slow);M.pos.x+=M.vel.x*dt;M.pos.z+=M.vel.z*dt;M.yaw+=wrapA(Math.atan2(vx,vz)-M.yaw)*Math.min(1,dt*8);
-    M.pos.y=M.r;collideBoxes(M,a.boxes);M.pos.y=1.75;
-    M.stuckT+=dt;if(M.stuckT>2){if(M.pos.distanceTo(M.stuckP)<1.2){M.path=null;M.repath=0;if(M.state==='patrol')M.target=null;}M.stuckT=0;M.stuckP.copy(M.pos);}}
-  else M.vel.set(0,0,0);
-  hrGrinnyAnim(a,dt,Math.hypot(M.vel.x,M.vel.z));
-  // caught?
-  if(!a.hide&&M.grace<=0&&Math.hypot(P.x-M.pos.x,P.z-M.pos.z)<M.r+1.15&&P.y<4.5)hrCaught(a,'grinny');}
-function hrGrinnyAnim(a,dt,sp){const M=a.M,U=M.g.userData;M.hop+=dt*(2.2+sp*.32);const h=Math.abs(Math.sin(M.hop));if(h<.12&&!M.landed&&sp>1){M.landed=true;HAS.step(M.pos.x,M.pos.z);}if(h>.3)M.landed=false;
+function hrGrinnyAnim(a,dt,sp){const M=a.M,U=M.g.userData;M.hop+=dt*(2.2+sp*.32);const h=Math.abs(Math.sin(M.hop));if(h<.12&&!M.landed&&sp>1){M.landed=true;if(!(M.ab&&(M.ab.ghost>0||M.ab.crawl>0)))HAS.step(M.pos.x,M.pos.z);}if(h>.3)M.landed=false;
   M.g.position.set(M.pos.x,(sp>1?h*.7:Math.sin(a.t*1.5)*.15)+.1,M.pos.z);M.g.rotation.y=M.yaw;U.head.position.y=U.R;M.twitch-=dt;
   U.head.rotation.z=Math.sin(a.t*.9)*.18+(M.twitch>0?(Math.random()-.5)*.5:0);U.head.rotation.x=M.state==='chase'?.18:Math.sin(a.t*.6)*.05;if(Math.random()<dt*.3)M.twitch=.2;
   const chase=M.state==='chase'||M.state==='check';U.mat.emissive.setHex(chase?0xff3020:0xffffff);U.mat.emissiveIntensity=chase?1.8:1.1;U.eyeGlow.material.color.setHex(chase?0xff3020:0xffe9a0);U.eyeGlow.scale.setScalar(chase?3.2:2.2);
@@ -9600,7 +9581,7 @@ function hrSmilers(a,dt){const R=HRUN,P=player.pos;a.smilers.forEach(s=>{const h
   s.repath-=dt;if(!s.path||s.repath<=0){s.repath=1.2;s.path=hrPath(hrI(s.pos.x),hrJ(s.pos.z),hrI(P.x),hrJ(P.z));s.pi=0;}
   let wx=P.x,wz=P.z;if(s.path&&s.pi<s.path.length&&d>5){wx=s.path[s.pi].x;wz=s.path[s.pi].z;if(Math.hypot(wx-s.pos.x,wz-s.pos.z)<1)s.pi++;}
   const sp=(d<7?3.4:7+R.cfg.n*.4)*dt,vx=wx-s.pos.x,vz=wz-s.pos.z,vd=Math.hypot(vx,vz)||1;s.pos.x+=vx/vd*sp;s.pos.z+=vz/vd*sp;s.moved=true;
-  if(d<1.9&&!a.scare)hrCaught(a,'smiler',s);});}
+  if(d<1.9&&!a.scare&&!a.carried)hrCaught(a,'smiler',s);});}
 /* ---------- Lil' Grinnies: they snitch ---------- */
 function hrLils(a,dt){const M=a.M,P=player.pos;a.lils.forEach(l=>{l.hop+=dt*5;l.gig-=dt;const dx=P.x-l.pos.x,dz=P.z-l.pos.z,d=Math.hypot(dx,dz);let sp=5;
   if(hrBeamOn(a,l.pos.x,l.pos.z,13)&&l.flee<=0){l.flee=5;HAS.giggle(l.pos.x,l.pos.z,true);l.target=null;}
@@ -9612,7 +9593,7 @@ function hrLils(a,dt){const M=a.M,P=player.pos;a.lils.forEach(l=>{l.hop+=dt*5;l.
   l.g.position.set(l.pos.x,.6+Math.abs(Math.sin(l.hop))*.6,l.pos.z);l.g.rotation.y=Math.atan2(dx,dz);});}
 /* ---------- hiding ---------- */
 function hrHide(a,H){const M=a.M;a.hide=H;a.hideT=0;a.qteCd=2;a.prevFp=a.fp;a.fp=true;a.prevYaw=camYaw;camYaw=Math.atan2(player.pos.x-H.x,player.pos.z-H.z);player.setVisible(false);HAS.door();$('#hrHideOut').hidden=!isTouch;
-  M.sawHide=M.state==='chase'&&a.t-(a.lastSeenT||-9)<1.6&&M.pos.distanceTo(player.pos)<24;if(M.sawHide){M.state='check';M.path=null;}
+  M.sawHide=M.state==='chase'&&!M.prey&&a.t-(a.lastSeenT||-9)<1.6&&M.pos.distanceTo(player.pos)<24;if(M.sawHide){M.state='check';M.path=null;}
   $('#hrHide').hidden=false;if(!a.gaveTip.hide)hrTip(a,'hide','You are hiding. Turn with A/D to peek. If Grinny comes close, HOLD YOUR BREATH!');}
 function hrUnhide(a){if(!a.hide)return;const H=a.hide;a.hide=null;a.fp=a.prevFp;const out=new V3(Math.sin(camYaw),0,Math.cos(camYaw));player.pos.set(H.x-out.x*(H.r+1.3),1,H.z-out.z*(H.r+1.3));
   if(hrSolidAt(player.pos.x,player.pos.z,HR_BLOCK))player.pos.set(H.x+out.x*(H.r+1.3),1,H.z+out.z*(H.r+1.3));player.vel.set(0,0,0);if(!a.fp)camYaw=Math.atan2(-out.x,-out.z)+Math.PI;player.setVisible(true);snapCamera();$('#hrHide').hidden=true;if(a.qte)hrQteEnd(a,null);HAS.door();}
@@ -9635,7 +9616,7 @@ function hrOpenGate(a){a.open=true;const gi=a.boxes.indexOf(a.gateBox);if(gi>=0)
 function hrWin(a){const R=HRUN;a.won=true;a.locked=true;HAS.chime();hrCard('YOU ESCAPED!',['You made it out of the park…','…for tonight.'],'',3000);
   setTimeout(()=>{if(area===a)HAS.giggle(a.M.pos.x,a.M.pos.z);},1500);setTimeout(()=>{if(area===a)hrFinish('win');},3200);}
 /* ---------- getting caught ---------- */
-function hrCaught(a,kind,who){if(a.scare||a.won)return;const R=HRUN;if(a.hide){a.hide=null;a.fp=a.prevFp;$('#hrHide').hidden=true;if(a.qte)hrQteEnd(a,null);}
+function hrCaught(a,kind,who){if(a.scare||a.won)return;const R=HRUN;hrAbClear(a);a.wounded=0;$('#hrHurt').className='';{const v={name:R.names[R.cur],col:hrPlayerCol()};if(!a.dead.some(d=>d.name===v.name))a.dead.push(v);}if(a.hide){a.hide=null;a.fp=a.prevFp;$('#hrHide').hidden=true;if(a.qte)hrQteEnd(a,null);}
   a.scare={t:0,kind,who,phase:0};a.locked=true;R.caughtCount++;R.stats[R.cur].caught=true;a.light=false;player.vel.set(0,0,0);
   if(!HRO.gentle){HAS.scream();$('#hrScare').hidden=false;$('#hrScare').className='go';camShake=1.4;}else{HAS.sting();}}
 function hrCamHook(a,dt){if(playerLabel)playerLabel.visible=false;const S2=a.scare;if(!S2||HRO.gentle||S2.t>1.3)return;const fwd=new V3();camera.getWorldDirection(fwd);const cp=camera.position;
@@ -9648,21 +9629,237 @@ function hrScareTick(a,dt){const S2=a.scare,R=HRUN;S2.t+=dt;
   if(S2.t>3.2&&S2.phase===1){S2.phase=2;if(R.lives<=0){hrFinish('lose');return;}
     // respawn
     const P=player.pos;P.copy(a.spawn);player.vel.set(0,0,0);snapToGround(player,a.ground);camYaw=0;snapCamera();a.locked=false;a.scare=null;$('#hrBlack').hidden=true;
-    const M=a.M;hrTeleportFar(a,M,48);M.state='patrol';M.target=null;M.path=null;M.grace=6;M.chaseT=0;M.sawHide=false;M.g.scale.setScalar(1);
+    const M=a.M;hrAbClear(a);hrTeleportFar(a,M,48);M.state='patrol';M.target=null;M.path=null;M.grace=6;M.chaseT=0;M.sawHide=false;M.g.scale.setScalar(1);
     a.smilers.forEach(s=>{hrTeleportFar(a,s,36);s.moved=false;});a.stam=100;a.introT=Math.min(a.introT,8);
     if(R.friends){R.cur=(R.cur+1)%R.names.length;while(R.stats[R.cur].caught&&R.stats.some(s=>!s.caught))R.cur=(R.cur+1)%R.names.length;a.paused=true;a.pauseP=P.clone();const p=$('#hrPass');$('#hrPassName').textContent=R.names[R.cur];$('#hrPassInfo').textContent='🎟️ The team has '+R.tickets+' / '+R.cfg.tickets+' tickets. '+R.lives+' player'+(R.lives===1?'':'s')+' left.';p.hidden=false;}}}
 /* ---------- the HUD ---------- */
-function hrHud(on){const hud=$('#hrHud');document.body.classList.toggle('horror',on===true||(on!==false&&document.body.classList.contains('horror')));if(on===true){hud.hidden=false;$('#hrFx').hidden=false;$('#hrTouch').hidden=!isTouch;}if(on===false){['#hrHud','#hrFx','#hrHide','#hrScare','#hrCard','#hrQte','#hrPass','#hrBlack','#hrTip','#hrTouch'].forEach(s=>$(s).hidden=true);return;}
+function hrHud(on){const hud=$('#hrHud');document.body.classList.toggle('horror',on===true||(on!==false&&document.body.classList.contains('horror')));if(on===true){hud.hidden=false;$('#hrFx').hidden=false;$('#hrTouch').hidden=!isTouch;}if(on===false){['#hrHud','#hrFx','#hrHide','#hrScare','#hrCard','#hrQte','#hrPass','#hrBlack','#hrTip','#hrTouch','#hrStruggle','#hrAb'].forEach(s=>$(s).hidden=true);$('#hrChat').innerHTML='';$('#hrHurt').className='';[].forEach(s=>$(s).hidden=true);return;}
   const a=area;if(!a||!a.horror)return;const R=HRUN;$('#hrBatt i').style.width=a.batt+'%';$('#hrBatt').classList.toggle('low',a.batt<20);$('#hrBatt').classList.toggle('on',a.light&&a.outage<=0);$('#hrStam i').style.width=a.stam+'%';$('#hrStam').classList.toggle('tired',!!a.tired);
   const lv=R.friends?R.names.map((n,i)=>(R.stats[i].caught?'💀':(i===R.cur?'🔦':'🙂'))+' '+n).join('   '):'🎈'.repeat(Math.max(0,R.lives))+'<s>'+'🎈'.repeat(Math.max(0,R.maxLives-R.lives))+'</s>';if(hrHud.lv!==lv){hrHud.lv=lv;$('#hrLives').innerHTML='';$('#hrLives').append(...(R.friends?[document.createTextNode(lv)]:[(()=>{const s=document.createElement('span');s.innerHTML=lv;return s;})()]));}
+  if(a.bots){const tt=hrTeamText(a);if(hrHud.tt!==tt){hrHud.tt=tt;$('#hrTeam').textContent=tt;}}
   const st=a.M.state==='chase'?'chase':(a.M.state==='investigate'||a.M.state==='search'||a.M.state==='check')?'sus':'calm';const eye=$('#hrEye');if(eye.dataset.s!==st){eye.dataset.s=st;eye.textContent=st==='chase'?'👁️ HE SEES YOU':st==='sus'?'👂 He heard something…':'';eye.className=st;}
   const v=$('#hrVig');v.style.opacity=.55+(a.threat||0)*.45;$('#hrPulse').style.opacity=(a.threat||0)>.35?((a.threat-.35)*(.6+.4*Math.sin(a.t*(4+a.threat*6)))):0;}
+
+/* ---------- Grinny's tricks + AI survivors ---------- */
+const HR_ABIL={1:['slash','crawl'],2:['slash','crawl','ghost'],3:['slash','crawl','ghost','grab'],4:['slash','crawl','ghost','grab','mimic'],5:['slash','crawl','ghost','grab','mimic','rage'],6:['slash','crawl','ghost','grab','mimic','rage']};
+const HR_ABINFO={slash:['🔪','Slash','He winds up, then LUNGES. Dodge sideways! One hit wounds you, two and he has you.'],crawl:['🕷️','Crawl','He drops low and crawls: silent, and faster than he walks.'],ghost:['👻','Ghost','He turns invisible. Your flashlight shows him!'],
+  grab:['✊','Grab','He picks you up and runs for his cage. Mash SPACE to wriggle free!'],mimic:['🎭','Mimic','He disguises himself as someone he caught. Check the team list… and real survivors carry a little light.'],rage:['😡','Rage','He turns red, gets faster and ignores your flashlight.']};
+const HR_BOTS=[['Bo',0x3ab0ff],['Pip',0x6ee05a],['Rex',0xff9a2a]];
+const HR_BOTSAY={start:['Stay close, okay?',"Let's find those tickets.","I don't like this place…",'Okay. Okay. We can do this.'],
+  ticket:['I found a ticket! 🎟️','Got one! 🎟️','Ticket! Ha!'],see:["HE'S HERE!",'RUN!!','I see him!!','Oh no oh no oh no','GRINNY!!'],
+  hide:["I'm hiding… 🤫","Shh… I'm in here.","Hiding! Don't tell him."],grab:['HELP! HE GRABBED ME!','LET ME GO!!','AAAH! HELP!'],
+  cage:["I'm locked in a cage in the BIG TOP! Help!",'Get me out of this cage!! Big Top!','Please… the Big Top… hurry…'],
+  free:['You saved me!! Thank you!',"Free! Let's get out of here!"],gate:['THE GATE IS OPEN! GO GO GO!','Run to the gate!'],escape:['I MADE IT OUT!',"I'm out! Hurry!!"],
+  mimic:['h-help… over here…','is that you? come here…','i found a ticket… come see…',"i'm hurt… please…",'why did you leave me…']};
+const hrPick=l=>l[Math.floor(Math.random()*l.length)];
+Object.assign(HAS,{
+  roar(x,z){const v=Math.max(.3,haVol(x,z,90)),pan=haPan(x,z);haTone(90,1.4,{type:'sawtooth',to:45,vol:.35*v,pan,vib:30,wet:.5});haTone(140,1.2,{type:'square',to:60,vol:.12*v,pan,vib:40});haNoiseHit(1.2,{brown:1,ft:'lowpass',f:700,fto:200,vol:.5*v,pan});},
+  slashWind(x,z){const v=Math.max(.2,haVol(x,z,40)),pan=haPan(x,z);haNoiseHit(.5,{f:600,fto:2400,q:3,vol:.25*v,pan});haTone(400,.5,{type:'sawtooth',to:900,vol:.06*v,pan});},
+  slash(x,z){const v=Math.max(.25,haVol(x,z,40)),pan=haPan(x,z);haNoiseHit(.22,{f:5000,fto:1200,q:1.5,vol:.55*v,pan,att:.005});},
+  hit(){haNoiseHit(.3,{f:900,q:1,vol:.6,att:.005});haTone(180,.4,{type:'square',to:60,vol:.25});},
+  botScream(x,z){const v=Math.max(.15,haVol(x,z,90)),pan=haPan(x,z);haTone(900,.9,{type:'sawtooth',to:300,vol:.12*v,pan,vib:18,wet:.6});haNoiseHit(.7,{f:2200,fto:700,q:3,vol:.18*v,pan,wet:.5});},
+  vanish(){haTone(1200,1.2,{to:200,vol:.06,wet:.9,vib:8});haNoiseHit(1,{f:3000,fto:600,q:8,vol:.08,wet:.9});}});
+BADGES.push({id:'hr_rescue',icon:'🔓',name:'Jailbreak',desc:"Free an AI survivor from Grinny's cage"},{id:'hr_wiggle',icon:'🪱',name:'Wriggle Free',desc:"Escape Grinny's grab"},
+  {id:'hr_dodge',icon:'💨',name:'Sidestep',desc:"Dodge Grinny's slash"},{id:'hr_squad',icon:'🤖',name:'No One Left Behind',desc:'Escape with every AI survivor'});
+/* ---------- models ---------- */
+function hrBotFace(col){return hrCanvas(256,128,c=>{c.fillStyle='#'+new THREE.Color(col).getHexString();c.fillRect(0,0,256,128);c.fillStyle='rgba(255,255,255,.22)';c.fillRect(0,0,256,22);
+  c.fillStyle='#14213d';[54,74].forEach(x=>{c.beginPath();c.arc(x,56,6,0,7);c.fill();});c.lineWidth=4;c.strokeStyle='#14213d';c.beginPath();c.arc(64,64,11,.25,Math.PI-.25);c.stroke();});}
+function hrBotModel(col,name){const g=new THREE.Group();const body=new THREE.Mesh(new THREE.SphereGeometry(1,28,20),new THREE.MeshStandardMaterial({map:hrBotFace(col),roughness:.5,emissive:col,emissiveIntensity:.1}));body.position.y=1;g.add(body);
+  const lab=makeLabel(name,{scale:.7});lab.position.y=2.7;g.add(lab);const gl=hrGlow(0xfff0c0,3.2,.32);gl.position.set(0,1.2,1.4);g.add(gl);g.userData={body,lab,gl};return g;}
+function hrRoll(body,vx,vz,dt){const s=Math.hypot(vx,vz);if(s>.2)body.rotateOnWorldAxis(new V3(vz/s,0,-vx/s),s*dt);}
+function hrPlayerCol(){let c=null;try{player.mesh.traverse(o=>{if(c==null&&o.isMesh&&o.material&&o.material.color)c=o.material.color.getHex();});}catch(e){}return c==null?0xff5050:c;}
+/* ---------- setting it up ---------- */
+{const _b=AREA_BUILD.horror;AREA_BUILD.horror=a=>{_b(a);hrAbBuild(a);};}
+function hrAbBuild(a){const R=HRUN,cfg=R.cfg,M=a.M,G=a.group;
+  M.ab={list:HR_ABIL[cfg.n]||[],cd:{slash:4,crawl:12,ghost:18,grab:0,mimic:10,rage:25},ghost:0,crawl:0,rage:0,slash:null,carry:null,mimic:null,stun:0,cdk:cfg.n===6?.65:1};M.prey=null;
+  M.mats=[];M.g.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];ms.forEach(m=>{if(!M.mats.includes(m)){M.mats.push(m);m.userData.op0=m.opacity;m.transparent=true;}});});M.op=1;
+  const rl=new THREE.PointLight(0xff1010,0,18,2);rl.position.y=3;M.g.add(rl);M.rageL=rl;
+  const arc=new THREE.Mesh(new THREE.RingGeometry(1.4,3.6,28,1,-Math.PI/2-Math.PI*.42,Math.PI*.84),new THREE.MeshBasicMaterial({color:0xff2030,transparent:true,opacity:0,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false}));
+  arc.rotation.x=-Math.PI/2;arc.position.y=2.2;M.g.add(arc);M.arc=arc;
+  /* the cage in the Big Top */
+  const C={x:hrX(28.5),z:hrZ(19)};a.cage={x:C.x,z:C.z,in:[]};const cg=new THREE.Group();const bm=HRM(0x2a2a30,{metalness:.8,roughness:.4});
+  for(let k=0;k<14;k++){const an=k/14*Math.PI*2;const bar=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,4.4,6),bm);bar.position.set(Math.cos(an)*1.85,2.2,Math.sin(an)*1.85);cg.add(bar);}
+  [.05,4.4].forEach(y=>{const r=new THREE.Mesh(new THREE.TorusGeometry(1.85,.12,6,28),bm);r.rotation.x=Math.PI/2;r.position.y=y;cg.add(r);});
+  const dome=new THREE.Mesh(new THREE.ConeGeometry(2.05,1.3,14,1,true),bm);dome.position.y=5.05;cg.add(dome);cg.position.set(C.x,0,C.z);G.add(cg);
+  const ob=a.obs.find(o=>Math.abs(o.x-C.x)<.1&&Math.abs(o.z-C.z)<.1);if(ob){ob.r=2;ob.top=4.6;}
+  a.inter.push({pos:new V3(C.x,1,C.z),r:4.8,on:()=>a.cage.in.length>0&&!a.scare&&!a.carried,label:()=>'🔓 Free '+a.cage.in.map(b=>b.name).join(' & '),act:()=>hrFreeCage(a)});
+  /* AI survivors */
+  a.bots=[];a.dead=[];a.decoys={};const nb=Math.min(3,HRO.bots|0);
+  for(let k=0;k<nb;k++){const[nm,col]=HR_BOTS[k];const g=hrBotModel(col,nm);G.add(g);
+    const b={name:nm,col,g,pos:new V3(a.spawn.x+(k-1)*3.2,1,a.spawn.z-4-k),vel:new V3(),r:1,state:'roam',path:null,pi:0,repath:0,goal:null,goalKind:null,tk:null,hideH:null,hideT:0,fearT:0,talkT:3+k*2,alive:true,caged:false,carried:false,escaped:false,tickets:0,cageT:0,stuckT:0,stuckP:new V3(),seenHide:false,wait:7.5+k*1.2};
+    g.position.set(b.pos.x,0,b.pos.z);a.bots.push(b);}
+  if(nb)setTimeout(()=>{if(area===a)hrSay(a,a.bots[0],hrPick(HR_BOTSAY.start));},6000);
+  const c=$('#hrCard');if(c&&M.ab.list.length){const p=document.createElement('p');p.style.cssText='color:#ff8a9a;font-size:16px;animation-delay:1.4s';p.textContent="Grinny's tricks: "+M.ab.list.map(k=>HR_ABINFO[k][0]+' '+HR_ABINFO[k][1]).join(' · ');c.appendChild(p);}
+  $('#hrChat').innerHTML='';$('#hrHurt').className='';}
+/* ---------- little UI helpers ---------- */
+function hrSay(a,b,txt,creepy){const box=$('#hrChat');if(!box||area!==a)return;const d=document.createElement('div');d.className='hrMsg'+(creepy?' creepy':'');const n=document.createElement('b');n.textContent=b.name+': ';n.style.color='#'+new THREE.Color(b.col).getHexString();
+  d.append(n,document.createTextNode(txt));box.appendChild(d);while(box.children.length>4)box.firstChild.remove();setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),700);},6500);}
+function hrAbShow(a,k,txt){const e=$('#hrAb');e.textContent=HR_ABINFO[k][0]+' '+txt;e.hidden=false;e.classList.remove('go');void e.offsetWidth;e.classList.add('go');clearTimeout(hrAbShow.t);hrAbShow.t=setTimeout(()=>e.hidden=true,2400);
+  hrTip(a,'ab_'+k,HR_ABINFO[k][0]+' '+HR_ABINFO[k][1].toUpperCase()+': '+HR_ABINFO[k][2]);}
+/* ---------- the abilities ---------- */
+function hrChaseStart(a,b){const M=a.M;const was=M.state==='chase';M.state='chase';M.chaseT=0;M.prey=b;M.path=null;if(M.ab.crawl>0){M.ab.crawl=0;}
+  if(!b){if(!was||M.prey){HAS.sting();setTimeout(()=>{if(area===a)HAS.laugh(M.pos.x,M.pos.z);},300);camShake=Math.max(camShake,.25);}if(a.firstSee){a.firstSee=false;hrTip(a,'run','He sees you! RUN and break his line of sight, then HIDE.');}}
+  else HAS.laugh(M.pos.x,M.pos.z);}
+function hrGhost(a){const M=a.M,AB=M.ab;AB.ghost=7;AB.cd.ghost=7+20*AB.cdk;HAS.vanish();HAS.giggle(M.pos.x,M.pos.z);hrAbShow(a,'ghost','Grinny vanished…');}
+function hrCrawl(a){const M=a.M,AB=M.ab;AB.crawl=7;AB.cd.crawl=7+14*AB.cdk;hrAbShow(a,'crawl','…it went very quiet');}
+function hrRage(a,dur){const M=a.M,AB=M.ab;AB.rage=dur;AB.cd.rage=dur+30*AB.cdk;AB.crawl=0;AB.ghost=0;HAS.roar(M.pos.x,M.pos.z);camShake=Math.max(camShake,.6);hrAbShow(a,'rage','RAGE!');}
+function hrSlashStart(a,prey){const M=a.M,AB=M.ab;AB.slash={ph:'wind',t:.55,prey,hit:false,dx:0,dz:1};AB.cd.slash=7.5*AB.cdk;HAS.slashWind(M.pos.x,M.pos.z);if(!prey)hrAbShow(a,'slash','SLASH!');}
+function hrSlashHit(a){const M=a.M,P=player.pos;HAS.hit();if(a.wounded>0){hrCaught(a,'grinny');return;}
+  a.wounded=6;a.stam=0;a.tired=true;const dx=P.x-M.pos.x,dz=P.z-M.pos.z,d=Math.hypot(dx,dz)||1;player.vel.set(dx/d*9,7,dz/d*9);camShake=Math.max(camShake,.9);
+  const h=$('#hrHurt');h.className='';void h.offsetWidth;h.className='flash';setTimeout(()=>{if(area===a&&a.wounded>0)h.className='wound';},500);
+  hrTip(a,'wound','You got SLASHED! You are slow while wounded. One more hit and he has you!');}
+function hrGrabStart(a,who){const M=a.M,AB=M.ab;AB.carry={who,t:0,str:0,beam:0};AB.cd.grab=28*AB.cdk;M.state='carry';M.path=null;M.prey=null;AB.crawl=0;AB.ghost=0;HAS.laugh(M.pos.x,M.pos.z);camShake=Math.max(camShake,.5);
+  if(who==='player'){a.carried=true;a.light=false;$('#hrStruggle').hidden=false;$('#hrStrKey').textContent=isTouch?'TAP TAP TAP!':'MASH SPACE!';$('#hrStrBar').style.width='0%';HAS.hit();hrAbShow(a,'grab','HE GRABBED YOU!');}
+  else{who.carried=true;hrSay(a,who,hrPick(HR_BOTSAY.grab));HAS.botScream(who.pos.x,who.pos.z);hrAbShow(a,'grab','Grinny grabbed '+who.name+'!');setTimeout(()=>{if(area===a&&a.M.ab.carry&&a.M.ab.carry.who===who)hrTip(a,'grabbot','Shine your flashlight on Grinny to make him drop '+who.name+'!');},2600);}}
+function hrGrabDrop(a){const M=a.M,AB=M.ab,C=AB.carry;if(!C)return;AB.carry=null;AB.stun=1.8;M.grace=Math.max(M.grace,2.4);M.state='search';M.searchT=0;M.path=null;M.target=null;M.twitch=1;
+  const fx=Math.sin(M.yaw),fz=Math.cos(M.yaw);
+  if(C.who==='player'){a.carried=false;$('#hrStruggle').hidden=true;const P=player.pos;P.set(M.pos.x-fx*3.2,2.5,M.pos.z-fz*3.2);if(hrSolidAt(P.x,P.z,HR_BLOCK))P.set(M.pos.x+fx*3.2,2.5,M.pos.z+fz*3.2);player.vel.set(-fx*8,7,-fz*8);M.target=P.clone();
+    award('hr_wiggle');toast('🪱 You wriggled free! RUN!','badge','🪱');HAS.breath();}
+  else{const b=C.who;b.carried=false;b.pos.set(M.pos.x-fx*2.6,1,M.pos.z-fz*2.6);if(hrSolidAt(b.pos.x,b.pos.z,HR_BLOCK))b.pos.set(M.pos.x,1,M.pos.z);b.state='flee';b.fearT=5;b.goal=null;b.path=null;hrSay(a,b,'Thank you!! RUN!');toast('🔦 Grinny dropped '+b.name+'!','badge','🔦');}}
+function hrMimicStart(a){const M=a.M,AB=M.ab;const v=hrPick(a.dead);let D=a.decoys[v.name];if(!D){D=hrBotModel(v.col,v.name);D.userData.gl.visible=false;a.group.add(D);a.decoys[v.name]=D;}
+  hrTeleportFar(a,M,26,46);D.visible=true;AB.mimic={v,dec:D,t:0,callT:2,beam:0};M.state='mimic';M.path=null;M.prey=null;AB.cd.mimic=40*AB.cdk;}
+function hrMimicEnd(a,reveal){const M=a.M,AB=M.ab,m=AB.mimic;if(!m)return;m.dec.visible=false;AB.mimic=null;M.g.visible=true;
+  if(reveal&&!a.hide&&!a.carried){hrChaseStart(a,null);AB.stun=.8;HAS.roar(M.pos.x,M.pos.z);M.lastSeen=player.pos.clone();M.lostT=0;M.grace=Math.min(M.grace,.6);camShake=Math.max(camShake,.6);hrAbShow(a,'mimic','IT WAS GRINNY!');}else{M.state='patrol';M.target=null;}}
+function hrAbClear(a){const M=a.M,AB=M.ab;if(!AB)return;if(AB.carry){const C=AB.carry;if(C.who!=='player'){C.who.carried=false;C.who.pos.set(M.pos.x,1,M.pos.z);C.who.state='flee';C.who.fearT=4;}AB.carry=null;}
+  a.carried=false;$('#hrStruggle').hidden=true;if(AB.mimic){AB.mimic.dec.visible=false;AB.mimic=null;}AB.slash=null;AB.ghost=0;AB.crawl=0;AB.rage=0;M.prey=null;
+  M.g.visible=true;M.op=1;M.mats.forEach(m=>m.opacity=m.userData.op0);M.arc.material.opacity=0;M.rageL.intensity=0;M.g.scale.setScalar(1);}
+/* ---------- Grinny's brain (with tricks and more than one victim) ---------- */
+function hrMonster(a,dt){const R=HRUN,cfg=R.cfg,M=a.M,P=player.pos,AB=M.ab;M.grace=Math.max(0,M.grace-dt);
+  for(const k in AB.cd)AB.cd[k]-=dt;AB.stun=Math.max(0,AB.stun-dt);
+  if(M.state==='wait'){if(a.introT>7){M.state='patrol';M.patrolT=0;}hrGrinnyAnim(a,dt,0);hrAbVisual(a,dt);return;}
+  if(a.open&&!AB.gateRage){AB.gateRage=1;if(AB.mimic)hrMimicEnd(a,false);if(AB.carry&&AB.carry.who!=='player')hrGrabDrop(a);hrRage(a,12);}
+  const has=k=>AB.list.includes(k);
+  const seeAt=(x,z,base)=>{const dx=x-M.pos.x,dz=z-M.pos.z,d=Math.hypot(dx,dz);let s=base;if(a.open)s*=1.4;const ang=Math.abs(wrapA(Math.atan2(dx,dz)-M.yaw));return M.grace<=0&&d<s&&(ang<1.3||d<8)&&hrLOS(M.pos.x,M.pos.z,x,z);};
+  const d=Math.hypot(P.x-M.pos.x,P.z-M.pos.z),pFree=!a.hide&&!a.carried;
+  const seesP=pFree&&seeAt(P.x,P.z,cfg.sight*(a.light&&a.outage<=0?1.2:(hrLit(a,P.x,P.z)?1:.62)));
+  const freeBot=b=>b.alive&&!b.caged&&!b.carried&&!b.hideH&&!b.escaped;
+  let seenBot=null;if(!seesP&&!AB.mimic){let bd=1e9;a.bots.forEach(b=>{if(!freeBot(b)||b.wait>0)return;const db=Math.hypot(b.pos.x-M.pos.x,b.pos.z-M.pos.z);if(db<bd&&seeAt(b.pos.x,b.pos.z,cfg.sight*(hrLit(a,b.pos.x,b.pos.z)?1:.75))){bd=db;seenBot=b;}});}
+  if(M.prey&&!freeBot(M.prey)&&!M.prey.hideH){M.prey=null;if(M.state==='chase'){M.state='patrol';M.target=null;}}
+  const busy=M.state==='carry'||!!AB.slash||!!AB.mimic;
+  if(!busy){
+    if(seesP){if(M.state!=='chase'||M.prey)hrChaseStart(a,null);M.lastSeen=P.clone();M.lostT=0;a.lastSeenT=a.t;}
+    else if(seenBot&&!(M.state==='chase'&&!M.prey&&M.lostT<1.5)){if(M.state!=='chase'||M.prey!==seenBot)hrChaseStart(a,seenBot);M.lastSeen=seenBot.pos.clone();M.lostT=0;}
+    if(a.open&&M.state!=='chase'&&pFree){hrChaseStart(a,null);M.lastSeen=P.clone();}}
+  const prey=M.prey,PP=prey?prey.pos:P,seesPrey=prey?seenBot===prey:seesP,dp=Math.hypot(PP.x-M.pos.x,PP.z-M.pos.z);M.seesPrey=seesPrey;
+  /* tricks */
+  if(!busy&&AB.stun<=0&&a.introT>12){
+    if(!(AB.ghost>0||AB.crawl>0||AB.rage>0)){
+      if(M.state==='chase'){if(has('rage')&&AB.cd.rage<=0&&M.chaseT>3&&Math.random()<dt*.5)hrRage(a,8);
+        else if(has('ghost')&&AB.cd.ghost<=0&&M.chaseT>2&&dp>9&&Math.random()<dt*.35)hrGhost(a);}
+      else{if(has('mimic')&&AB.cd.mimic<=0&&a.dead.length&&d>22&&d<75&&pFree&&!a.open&&Math.random()<dt*.3)hrMimicStart(a);
+        else if(has('crawl')&&AB.cd.crawl<=0&&d<42&&Math.random()<dt*.22)hrCrawl(a);
+        else if(has('ghost')&&AB.cd.ghost<=0&&d<40&&Math.random()<dt*.1)hrGhost(a);}}
+    if(M.state==='chase'&&has('slash')&&AB.cd.slash<=0&&seesPrey&&dp>3.2&&dp<9.5)hrSlashStart(a,prey);}
+  /* the slash: wind up, lunge, recover */
+  if(AB.slash){const S2=AB.slash,tp=S2.prey?S2.prey.pos:P;S2.t-=dt;
+    if(S2.ph==='wind'){M.yaw+=wrapA(Math.atan2(tp.x-M.pos.x,tp.z-M.pos.z)-M.yaw)*Math.min(1,dt*10);if(S2.t<=0){const dx=tp.x-M.pos.x,dz=tp.z-M.pos.z,dd=Math.hypot(dx,dz)||1;S2.dx=dx/dd;S2.dz=dz/dd;S2.ph='lunge';S2.t=.3;HAS.slash(M.pos.x,M.pos.z);}}
+    else if(S2.ph==='lunge'){M.pos.x+=S2.dx*34*dt;M.pos.z+=S2.dz*34*dt;M.pos.y=M.r;collideBoxes(M,a.boxes);M.pos.y=1.75;M.yaw=Math.atan2(S2.dx,S2.dz);
+      if(!S2.hit&&pFree&&M.grace<=0&&Math.hypot(P.x-M.pos.x,P.z-M.pos.z)<M.r+1.5&&P.y<4.5){S2.hit=true;hrSlashHit(a);if(a.scare)return;}
+      a.bots.forEach(b=>{if(freeBot(b)&&Math.hypot(b.pos.x-M.pos.x,b.pos.z-M.pos.z)<M.r+1.4){S2.hit=true;hrBotDie(a,b,'slash');}});
+      if(S2.t<=0){S2.ph='rec';S2.t=.6;}}
+    else if(S2.t<=0){if(!S2.hit&&!S2.prey&&pFree&&d<7)award('hr_dodge');AB.slash=null;}
+    M.vel.set(0,0,0);hrGrinnyAnim(a,dt,0);hrAbVisual(a,dt);return;}
+  /* where is he going? */
+  let speed=6.5,goal=null;
+  if(M.state==='carry'){const C=AB.carry;C.t+=dt;goal=new V3(a.cage.x-3.6,0,a.cage.z);speed=cfg.gSpeed*(C.who==='player'?.72:.8);
+    if(C.who==='player'){C.str=Math.max(0,C.str-dt*.14);$('#hrStrBar').style.width=Math.min(100,C.str*100)+'%';}
+    else if(hrBeamOn(a,M.pos.x,M.pos.z,20)){C.beam+=dt;M.twitch=.3;if(C.beam>1.1){hrGrabDrop(a);goal=null;}}}
+  else if(M.state==='mimic'){const m=AB.mimic;m.t+=dt;speed=7.5;goal=P;m.callT-=dt;if(m.callT<=0&&d<48){m.callT=4.5+Math.random()*2.5;hrSay(a,m.v,hrPick(HR_BOTSAY.mimic),true);HAS.whisper();}
+    if(hrBeamOn(a,M.pos.x,M.pos.z,16))m.beam+=dt;if((d<9&&pFree)||m.t>28||m.beam>.9)hrMimicEnd(a,true);else if(!pFree&&m.t>10)hrMimicEnd(a,false);}
+  else if(M.state==='chase'){M.chaseT+=dt;if(!seesPrey){M.lostT+=dt;if(a.open&&!prey&&pFree)M.lastSeen=P.clone();if(prey&&prey.hideH){M.lastSeen=new V3(prey.hideH.x,0,prey.hideH.z);}
+      if(M.lostT>3.4&&!(a.open&&!prey)){M.state='search';M.searchT=0;M.target=M.lastSeen;M.path=null;M.prey=null;}}
+    speed=cfg.gSpeed+Math.min(4,M.chaseT*.22)+(a.open?2.6:0)-(prey?1.2:0);goal=seesPrey?PP:M.lastSeen;}
+  else if(M.state==='investigate'){speed=9.5;goal=M.target;if(goal&&Math.hypot(goal.x-M.pos.x,goal.z-M.pos.z)<2.5){M.state='search';M.searchT=0;}}
+  else if(M.state==='search'){speed=7.5;goal=M.target;if(!goal||Math.hypot(goal.x-M.pos.x,goal.z-M.pos.z)<2.5){M.searchT+=dt;goal=null;M.yaw+=dt*1.6;if(M.searchT>5){M.state='patrol';M.patrolT=0;M.target=null;}}}
+  else if(M.state==='check'){speed=cfg.gSpeed;goal=a.hide?new V3(a.hide.x,0,a.hide.z):null;if(!a.hide){M.state='search';M.target=P.clone();}
+    else if(Math.hypot(a.hide.x-M.pos.x,a.hide.z-M.pos.z)<a.hide.r+2.2){hrCaught(a,'drag');return;}}
+  else{M.patrolT+=dt;if(!M.target||Math.hypot(M.target.x-M.pos.x,M.target.z-M.pos.z)<2.5){M.idle-=dt;if(M.idle<=0){M.idle=.8+Math.random()*1.5;const near=Math.random()<.65;const[i,j]=hrRandCell((i,j)=>{const dd=Math.hypot(hrX(i)-P.x,hrZ(j)-P.z);return near?dd>10&&dd<34:true;});M.target=new V3(hrX(i),0,hrZ(j));M.path=null;}}
+    goal=M.target;if(d>62&&M.patrolT>14){if(hrTeleportFar(a,M,32,48)){M.patrolT=0;M.target=null;M.path=null;}}
+    if(a.hide&&a.hideT>28&&Math.random()<dt*.1){M.state='investigate';M.target=new V3(a.hide.x,0,a.hide.z);M.path=null;}}
+  if(AB.crawl>0&&M.state!=='chase')speed*=1.7;if(AB.rage>0)speed+=4.5;if(AB.stun>0)goal=null;
+  let slow=1;if(AB.rage<=0&&M.state!=='mimic'&&hrBeamOn(a,M.pos.x,M.pos.z,18)){slow=.6;M.twitch=.3;if(!a.lightHint){a.lightHint=true;hrTip(a,'light','Grinny hates your flashlight! It slows him down.');}}
+  if(goal){const direct=M.state==='chase'&&seesPrey&&dp<16;let wx,wz;
+    if(direct){wx=goal.x;wz=goal.z;}else{M.repath-=dt;if(!M.path||M.repath<=0){M.repath=M.state==='chase'||M.state==='carry'?.45:2.5;hrSetPath(M,goal.x,goal.z,false);}
+      if(M.path&&M.pi<M.path.length){const w=M.path[M.pi];wx=w.x;wz=w.z;if(Math.hypot(wx-M.pos.x,wz-M.pos.z)<1.3)M.pi++;}else{wx=goal.x;wz=goal.z;}}
+    const vx=wx-M.pos.x,vz=wz-M.pos.z,vd=Math.hypot(vx,vz)||1;M.vel.set(vx/vd*speed*slow,0,vz/vd*speed*slow);M.pos.x+=M.vel.x*dt;M.pos.z+=M.vel.z*dt;M.yaw+=wrapA(Math.atan2(vx,vz)-M.yaw)*Math.min(1,dt*8);
+    M.pos.y=M.r;collideBoxes(M,a.boxes);M.pos.y=1.75;
+    M.stuckT+=dt;if(M.stuckT>2){if(M.pos.distanceTo(M.stuckP)<1.2){M.path=null;M.repath=0;if(M.state==='patrol')M.target=null;}M.stuckT=0;M.stuckP.copy(M.pos);}}
+  else M.vel.set(0,0,0);
+  hrGrinnyAnim(a,dt,Math.hypot(M.vel.x,M.vel.z));hrAbVisual(a,dt);
+  /* arriving with someone in his arms */
+  if(M.state==='carry'&&AB.carry){const C=AB.carry,arrived=Math.hypot(a.cage.x-3.6-M.pos.x,a.cage.z-M.pos.z)<2.4;
+    if(C.who==='player'){if(C.str>=1)hrGrabDrop(a);else if(arrived||C.t>7.5){AB.carry=null;a.carried=false;$('#hrStruggle').hidden=true;hrCaught(a,'grinny');}}
+    else if(arrived){const b=C.who;AB.carry=null;b.carried=false;b.caged=true;b.cageT=55;b.talkT=0;a.cage.in.push(b);M.state='patrol';M.target=null;M.path=null;M.grace=Math.max(M.grace,1.5);HAS.laugh(M.pos.x,M.pos.z);}
+    return;}
+  if(M.state==='mimic'||M.grace>0)return;
+  /* caught? */
+  if(pFree&&d<M.r+1.15&&P.y<4.5){if(has('grab')&&AB.cd.grab<=0&&!a.open)hrGrabStart(a,'player');else hrCaught(a,'grinny');return;}
+  for(const b of a.bots)if(freeBot(b)&&Math.hypot(b.pos.x-M.pos.x,b.pos.z-M.pos.z)<M.r+1.1){if(has('grab')&&AB.cd.grab<=0&&!a.open)hrGrabStart(a,b);else hrBotDie(a,b,'grinny');break;}}
+/* how the tricks look */
+function hrAbVisual(a,dt){const M=a.M,AB=M.ab,U=M.g.userData;
+  AB.crawl=Math.max(0,AB.crawl-dt);AB.rage=Math.max(0,AB.rage-dt);AB.ghost=Math.max(0,AB.ghost-dt);
+  if(AB.ghostWas&&AB.ghost<=0&&M.pos.distanceTo(player.pos)<22)HAS.sting();AB.ghostWas=AB.ghost>0;
+  let op=1;if(AB.ghost>0){op=hrBeamOn(a,M.pos.x,M.pos.z,24)?.45+Math.random()*.12:(Math.random()<.03?.3:.04);if(AB.ghost<.6)op=Math.max(op,1-AB.ghost/.6);}
+  M.op+=(op-M.op)*Math.min(1,dt*(op<M.op?5:12));if(Math.abs((M.opA==null?1:M.opA)-M.op)>.004){M.opA=M.op;M.mats.forEach(m=>m.opacity=m.userData.op0*M.op);}
+  const base=AB.rage>0?1.15:1;if(AB.crawl>0){M.g.scale.set(base*1.3,base*.42,base*1.3);M.g.position.y=.05;U.eyeGlow.scale.setScalar(1.2);if(M.pos.distanceTo(player.pos)<16&&Math.random()<dt*1.2)HAS.scrape(M.pos.x,M.pos.z);}else M.g.scale.setScalar(base);
+  if(AB.rage>0){const k=.6+.4*Math.sin(a.t*12);U.mat.emissive.setHex(0xff0000);U.mat.emissiveIntensity=1.8+k;U.eyeGlow.material.color.setHex(0xff0000);U.eyeGlow.scale.setScalar(4.5+k);M.rageL.intensity=2.6*k;if(M.pos.distanceTo(player.pos)<14)camShake=Math.max(camShake,.12);}else M.rageL.intensity=0;
+  const S2=AB.slash,arc=M.arc;if(S2){const A=U.arms[0];if(S2.ph==='wind'){A.sh.rotation.x=-2.9;A.sh.rotation.z=-.6;arc.material.opacity=.1+.1*Math.sin(a.t*40);arc.rotation.z=-.9;U.mat.emissive.setHex(0xff3020);U.mat.emissiveIntensity=2.2;}
+    else if(S2.ph==='lunge'){A.sh.rotation.x=-.3;arc.material.opacity=.95;arc.rotation.z=(1-S2.t/.3-.5)*1.8;}else{A.sh.rotation.x=.4;arc.material.opacity*=Math.pow(.004,dt);}}else arc.material.opacity=0;
+  const m=AB.mimic;if(m){M.g.visible=false;m.dec.position.set(M.pos.x,0,M.pos.z);hrRoll(m.dec.userData.body,M.vel.x,M.vel.z,dt);}else if(!M.g.visible)M.g.visible=true;
+  const C=AB.carry;if(C){if(C.who==='player'){player.pos.set(M.pos.x,4.9,M.pos.z);player.vel.set(0,0,0);}else{C.who.pos.set(M.pos.x,4.9,M.pos.z);C.who.g.position.set(M.pos.x,3.9,M.pos.z);C.who.g.userData.body.rotation.z+=dt*3;}
+    U.arms.forEach(A=>{A.sh.rotation.x=-2.8;});}}
+/* ---------- AI survivors ---------- */
+function hrBotDie(a,b,how){if(!b.alive)return;const M=a.M;b.alive=false;b.carried=false;if(b.hideH){b.hideH.bot=null;b.hideH=null;}const ci=a.cage.in.indexOf(b);if(ci>=0)a.cage.in.splice(ci,1);
+  const U=b.g.userData;b.g.visible=true;U.body.scale.set(1.3,.22,1.3);U.body.rotation.set(0,0,0);U.body.position.y=.22;U.body.material.color.setHex(0x666666);U.body.material.emissiveIntensity=0;U.lab.visible=false;U.gl.visible=false;
+  if(how!=='cage')b.g.position.set(b.pos.x,0,b.pos.z);a.dead.push({name:b.name,col:b.col});HAS.botScream(b.pos.x,b.pos.z);if(b.pos.distanceTo(player.pos)<25)camShake=Math.max(camShake,.3);
+  hrSay(a,{name:'💀',col:0xff4050},how==='cage'?b.name+' was left in the cage too long…':'Grinny got '+b.name+'…');if(M.prey===b)M.prey=null;if(M.state==='chase'&&!M.prey){M.state='patrol';M.target=null;}M.grace=Math.max(M.grace,1.2);
+  setTimeout(()=>{if(area===a)HAS.laugh(M.pos.x,M.pos.z);},600);}
+function hrBotOut(a,b){const H=b.hideH;if(!H)return;H.bot=null;b.hideH=null;b.g.visible=true;const an=Math.random()*Math.PI*2;b.pos.set(H.x+Math.sin(an)*(H.r+1.3),1,H.z+Math.cos(an)*(H.r+1.3));if(hrSolidAt(b.pos.x,b.pos.z,HR_BLOCK))b.pos.set(H.x,1,H.z+H.r+1.3);b.seenHide=false;b.goal=null;b.path=null;b.state='roam';}
+function hrFreeCage(a){if(!a.cage.in.length)return;a.cage.in.forEach((b,k)=>{b.caged=false;b.pos.set(a.cage.x-3.4,1,a.cage.z+(k-.5)*2.4);b.g.position.set(b.pos.x,0,b.pos.z);b.state='roam';b.wait=.6;b.goal=null;b.path=null;hrSay(a,b,hrPick(HR_BOTSAY.free));});
+  a.cage.in=[];HAS.gate();award('hr_rescue');toast('🔓 You opened the cage!','badge','🔓');hrNoise(a,a.cage.x,a.cage.z,30);}
+function hrBots(a,dt){if(!a.bots.length)return;const R=HRUN,cfg=R.cfg,M=a.M,P=player.pos;
+  a.bots.forEach(b=>{const U=b.g.userData;if(!b.alive||b.escaped||b.carried)return;
+    if(b.caged){b.cageT-=dt;b.pos.set(a.cage.x,2.2,a.cage.z);b.g.position.set(b.pos.x,1.2+Math.abs(Math.sin(a.t*5))*.25,b.pos.z);b.talkT-=dt;if(b.talkT<=0){b.talkT=10;hrSay(a,b,hrPick(HR_BOTSAY.cage)+' ('+Math.ceil(b.cageT)+'s)');}if(b.cageT<=0)hrBotDie(a,b,'cage');return;}
+    if(b.wait>0){b.wait-=dt;b.g.position.set(b.pos.x,0,b.pos.z);return;}
+    b.talkT-=dt;const dM=Math.hypot(M.pos.x-b.pos.x,M.pos.z-b.pos.z),stealth=AB_(M,'crawl')||AB_(M,'ghost');
+    if(b.hideH){b.hideT-=dt;if(b.seenHide&&dM<M.r+b.hideH.r+1.6&&M.state!=='carry'&&!M.ab.slash){hrBotOut(a,b);if(M.ab.list.includes('grab')&&M.ab.cd.grab<=0&&!a.open)hrGrabStart(a,b);else hrBotDie(a,b,'grinny');}else if(b.hideT<=0&&dM>16)hrBotOut(a,b);return;}
+    const notice=!M.ab.mimic&&M.state!=='wait'&&dM<(stealth?7:17)&&hrLOS(b.pos.x,b.pos.z,M.pos.x,M.pos.z);
+    if(notice){if(b.state!=='flee'){b.goal=null;b.path=null;if(b.talkT<=0){b.talkT=5;hrSay(a,b,hrPick(HR_BOTSAY.see));}}b.state='flee';b.fearT=4.5;}
+    let goal=null,speed=10.5;
+    if(b.state==='flee'){b.fearT-=dt;speed=12.8;if(b.fearT<=0){b.state='roam';b.goal=null;b.path=null;}
+      else{if(!b.goal||(b.goalKind==='run'&&Math.hypot(b.goal.x-b.pos.x,b.goal.z-b.pos.z)<3)){const H=a.hides.filter(H=>!H.bot&&a.hide!==H&&Math.hypot(H.x-b.pos.x,H.z-b.pos.z)<15&&Math.hypot(H.x-M.pos.x,H.z-M.pos.z)>dM+2).sort((p,q)=>Math.hypot(p.x-b.pos.x,p.z-b.pos.z)-Math.hypot(q.x-b.pos.x,q.z-b.pos.z))[0];
+          if(H&&Math.random()<.6){b.goal=new V3(H.x,0,H.z);b.goalKind='hide';b.goalH=H;}else{const[i,j]=hrRandCell((i,j)=>{const x=hrX(i),z=hrZ(j);return Math.hypot(x-M.pos.x,z-M.pos.z)>dM+10&&Math.hypot(x-b.pos.x,z-b.pos.z)<36;});b.goal=new V3(hrX(i),0,hrZ(j));b.goalKind='run';}b.path=null;}
+        goal=b.goal;if(b.goalKind==='hide'){const H=b.goalH;if(H.bot||a.hide===H){b.goal=null;}else if(Math.hypot(H.x-b.pos.x,H.z-b.pos.z)<H.r+1.7){b.hideH=H;H.bot=b;b.g.visible=false;b.hideT=7+Math.random()*7;b.seenHide=M.state==='chase'&&M.prey===b&&M.seesPrey;b.state='roam';b.goal=null;b.vel.set(0,0,0);if(b.talkT<=0||Math.random()<.5){b.talkT=4;hrSay(a,b,hrPick(HR_BOTSAY.hide));}return;}}}}
+    if(b.state==='roam'){
+      if(a.open){speed=13.5;if(!b.saidGate){b.saidGate=1;setTimeout(()=>{if(area===a&&b.alive&&!b.escaped)hrSay(a,b,hrPick(HR_BOTSAY.gate));},Math.random()*1500);}goal=b.pos.z>64?new V3(b.pos.x*.9,0,130):new V3(hrX(17.5),0,hrZ(35));}
+      else{if(!b.tk||b.tk.got){const taken=a.bots.filter(o=>o!==b&&o.tk).map(o=>o.tk);b.tk=a.tix.filter(k=>!k.got&&!taken.includes(k)).sort((p,q)=>Math.hypot(p.x-b.pos.x,p.z-b.pos.z)-Math.hypot(q.x-b.pos.x,q.z-b.pos.z))[0]||null;b.path=null;}
+        if(b.tk)goal=new V3(b.tk.x,0,b.tk.z);else if(Math.hypot(P.x-b.pos.x,P.z-b.pos.z)>7)goal=P;}}
+    if(goal){b.repath-=dt;if(!b.path||b.repath<=0){b.repath=b.state==='flee'?.6:1.6;b.path=hrPath(hrI(b.pos.x),hrJ(b.pos.z),hrI(goal.x),hrJ(goal.z),a.open);b.pi=0;}
+      let wx=goal.x,wz=goal.z;if(b.path&&b.pi<b.path.length){wx=b.path[b.pi].x;wz=b.path[b.pi].z;if(Math.hypot(wx-b.pos.x,wz-b.pos.z)<1.4)b.pi++;}
+      const vx=wx-b.pos.x,vz=wz-b.pos.z,vd=Math.hypot(vx,vz)||1,k=Math.min(1,dt*5);b.vel.x+=(vx/vd*speed-b.vel.x)*k;b.vel.z+=(vz/vd*speed-b.vel.z)*k;}
+    else{const k=Math.pow(.02,dt);b.vel.x*=k;b.vel.z*=k;}
+    b.pos.x+=b.vel.x*dt;b.pos.z+=b.vel.z*dt;b.pos.y=1;collideBoxes(b,a.boxes);collideCircles(b,a.obs);
+    b.stuckT+=dt;if(b.stuckT>2.2){if(b.pos.distanceTo(b.stuckP)<1.5&&goal){b.path=null;b.repath=0;if(b.goalKind==='run'||b.state==='roam'){b.goal=null;b.tk=null;}}b.stuckT=0;b.stuckP.copy(b.pos);}
+    b.g.position.set(b.pos.x,0,b.pos.z);hrRoll(U.body,b.vel.x,b.vel.z,dt);const s=Math.hypot(b.vel.x,b.vel.z);if(s>.5)U.gl.position.set(b.vel.x/s*1.4,1.2,b.vel.z/s*1.4);U.gl.material.opacity=a.outage>0?.12:.32;
+    /* tickets */
+    a.tix.forEach(k=>{if(k.got||Math.hypot(b.pos.x-k.x,b.pos.z-k.z)>2.3)return;k.got=true;a.group.remove(k.g);R.tickets++;b.tickets++;HAS.pick();hrNoise(a,b.pos.x,b.pos.z,26);hrSay(a,b,hrPick(HR_BOTSAY.ticket)+' ('+R.tickets+'/'+cfg.tickets+')');
+      if(R.tickets>=cfg.tickets)hrOpenGate(a);});
+    if(a.open&&b.pos.z>112){b.escaped=true;b.g.visible=false;hrSay(a,b,hrPick(HR_BOTSAY.escape));}});}
+function AB_(M,k){return M.ab&&M.ab[k]>0;}
+/* ---------- team readout ---------- */
+function hrTeamText(a){return a.bots.map(b=>(!b.alive?'💀':b.escaped?'✅':b.caged?'🪤':b.carried?'✊':b.hideH?'🫣':b.state==='flee'?'😱':'🙂')+' '+b.name+(b.caged?' '+Math.ceil(b.cageT)+'s':'')).join('   ');}
+function hrBotResult(a){if(!a||!a.bots||!a.bots.length)return{rows:[],line:'',bonus:0};const esc=a.bots.filter(b=>b.escaped);
+  const rows=a.bots.map(b=>({a:(b.escaped?'✅ ':b.alive?'😨 ':'💀 ')+b.name+' (AI)',b:'🎟️ '+b.tickets+' · '+(b.escaped?'escaped':b.alive?(b.caged?'still in the cage':'left behind'):'caught')}));
+  return{rows,bonus:esc.length*120*HRUN.cfg.n,line:esc.length===a.bots.length?' Every survivor got out!':esc.length?' '+esc.map(b=>b.name).join(' & ')+' got out too.':' None of your survivors made it…',all:esc.length===a.bots.length};}
+/* struggle! */
+addEventListener('keydown',e=>{const a=area;if(!(mode==='area'&&a&&a.horror&&a.carried)||sheetOpen||e.repeat)return;if(e.code==='Space'||e.code==='KeyE'){const C=a.M.ab.carry;if(C)C.str+=.085;HAS.click();}});
+$('#hrStruggle').addEventListener('pointerdown',e=>{e.preventDefault();const a=area;if(a&&a.horror&&a.carried&&a.M.ab.carry){a.M.ab.carry.str+=.09;HAS.click();}});
 
 /* ---------- the horror menu ---------- */
 function hrOpenMenu(){openSheet('hrSheet');hrRenderMenu();if(!hrOpenMenu.played){hrOpenMenu.played=1;try{if(audioReady()&&!muted){const c=actx,t=c.currentTime;[220,233,311].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.18);g.gain.linearRampToValueAtTime(.06,t+i*.18+.05);g.gain.exponentialRampToValueAtTime(.0005,t+i*.18+1.4);o.connect(g);g.connect(c.destination);o.start(t+i*.18);o.stop(t+i*.18+1.5);});}}catch(e){}}}
 function hrRenderMenu(){const h=hrS(),b=$('#hrBody');b.innerHTML='';
   const nights=el('div','hrNights');for(let n=1;n<=6;n++){const N=HR_NIGHTS[n];if(n===6&&h.unlocked<6)continue;const lock=n>h.unlocked;const best=h.best[n];const c=document.createElement('button');c.className='hrNight'+(lock?' lock':'')+(HRO.night===n?' sel':'')+(n===6?' nm':'');
-    const th=[N.mann?'🗿×'+N.mann:'',N.lil?'👶×'+N.lil:'',N.outage?'⚡':''].filter(Boolean).join(' ');
+    const th=[N.mann?'🗿×'+N.mann:'',N.lil?'👶×'+N.lil:'',N.outage?'⚡':''].filter(Boolean).join(' ')+'<br>'+(HR_ABIL[n]||[]).map(k=>HR_ABINFO[k][0]).join('');
     c.innerHTML='<b>'+(n===6?'☠️':n)+'</b><span>'+(lock?'🔒 Locked':N.name)+'</span><small>'+(lock?'Beat night '+(n-1):'🎟️×'+N.tickets+' '+th)+'</small>'+(best?'<i>'+(best.alone?'🕯️ ':'👥 ')+'✓ '+Math.round(best.time)+'s</i>':'');
     if(!lock)c.addEventListener('click',()=>{HRO.night=n;sfx('blip');hrRenderMenu();});nights.appendChild(c);}b.appendChild(nights);
   const row=(label,opts,cur,fn)=>{const r=el('div','hrRow');const l=el('span','hrLab',label);r.appendChild(l);opts.forEach(([v,t,sub])=>{const x=document.createElement('button');x.className='hrOpt'+(cur===v?' on':'');x.innerHTML=t+(sub?'<small>'+sub+'</small>':'');x.addEventListener('click',()=>{fn(v);sfx('blip');hrRenderMenu();});r.appendChild(x);});b.appendChild(r);};
@@ -9671,10 +9868,11 @@ function hrRenderMenu(){const h=hrS(),b=$('#hrBody');b.innerHTML='';
     HRO.players.forEach((p,i)=>{const w=el('div','hrPl');const inp=document.createElement('input');inp.maxLength=14;inp.placeholder='Player '+(i+1);inp.value=p;inp.addEventListener('input',()=>HRO.players[i]=inp.value);w.appendChild(el('span','',['🔦','🕯️','🎈','🗝️'][i]));w.appendChild(inp);
       if(HRO.players.length>2){const x=document.createElement('button');x.className='hrX';x.textContent='✕';x.addEventListener('click',()=>{HRO.players.splice(i,1);hrRenderMenu();});w.appendChild(x);}f.appendChild(w);});
     if(HRO.players.length<4){const add=document.createElement('button');add.className='hrOpt';add.textContent='+ Add a friend';add.addEventListener('click',()=>{HRO.players.push('');hrRenderMenu();});f.appendChild(add);}b.appendChild(f);}
+  row('AI survivors',[[0,'🚫 None','Just you'],[1,'🤖 1','Bo'],[2,'🤖 2','Bo & Pip'],[3,'🤖 3','Bo, Pip & Rex']],HRO.bots|0,v=>HRO.bots=v);
   row('Camera',[[false,'🎥 Behind the ball',''],[true,'👀 First person','Even scarier']],HRO.fp,v=>HRO.fp=v);
   row('Scares',[[false,'😱 Full jumpscares',''],[true,'🙈 Less scary','No jumpscare faces']],HRO.gentle,v=>HRO.gentle=v);
   const go=document.createElement('button');go.className='btn hrGo';go.textContent=HRO.night===6?'☠️ ENTER THE NIGHTMARE':'🎪 ENTER THE PARK · NIGHT '+HRO.night;go.addEventListener('click',()=>hrBegin(HRO.night));b.appendChild(go);
-  const how=el('div','hrHow');how.innerHTML='<b>How to survive</b><span>🎟️ Find the golden tickets, then escape through the gate</span><span>⇧ Shift to sprint (it makes noise!) · Space to jump over low fences</span><span>🔦 F for your flashlight. Light slows Grinny… but helps him see you</span><span>🫣 E to hide in barrels, crates and wardrobes. Hold your breath when he is close</span><span>🗿 Smilers only move when you are not looking at them</span>';b.appendChild(how);
+  const how=el('div','hrHow');how.innerHTML='<b>How to survive</b><span>🎟️ Find the golden tickets, then escape through the gate</span><span>⇧ Shift to sprint (it makes noise!) · Space to jump over low fences</span><span>🔦 F for your flashlight. Light slows Grinny… but helps him see you</span><span>🫣 E to hide in barrels, crates and wardrobes. Hold your breath when he is close</span><span>🗿 Smilers only move when you are not looking at them</span><span>🤖 AI survivors hunt for tickets too. If Grinny cages one in the Big Top, go free them!</span><b style="margin-top:6px">Grinny\'s tricks</b>'+Object.keys(HR_ABINFO).map(k=>'<span>'+HR_ABINFO[k][0]+' <b style="color:#ff8a9a">'+HR_ABINFO[k][1]+'</b> · '+HR_ABINFO[k][2]+' <i style="opacity:.6">(from night '+[1,2,3,4,5,6].find(n=>HR_ABIL[n].includes(k))+')</i></span>').join('');b.appendChild(how);
   const rw=el('div','hrRew');rw.innerHTML='<b>Rewards</b>'+[['1','🎉 Grinny Hat'],['2','🧵 Stitched pattern'],['3','👻 Ectoplasm trail'],['4','🌫️ Haunted aura'],['5',"🎈 Lil' Grinny pet"],['6','🌑 Midnight color']].map(([n,t])=>'<span class="'+(h.best[n]?'got':'')+'">'+(n==='6'?'☠️':'N'+n)+' · '+t+'</span>').join('');b.appendChild(rw);}
 /* ---------- ending a night ---------- */
 const HR_REW={1:['hat_grinny','🎉 the Grinny Hat'],2:['pat_stitched','🧵 the Stitched pattern'],3:['trail_ecto','👻 the Ectoplasm trail'],4:['aura_haunted','🌫️ the Haunted aura'],5:['pet_lilgrinny',"🎈 a Lil' Grinny pet"],6:['col_midnight','🌑 the Midnight color']};
@@ -9682,15 +9880,15 @@ function hrFinish(result){const R=HRUN,a=area;if(!R)return;const cfg=R.cfg,h=hrS
   const back=()=>{closeSheets();HRUN=null;fadeTo(()=>exitToWorld(new V3(SPAWN.x,0,SPAWN.z)));};
   const again=n=>{closeSheets();HRUN=null;HRO.night=n;hrBegin(n);};
   if(result==='quit'){back();return;}
-  const list=R.stats.map(s=>({a:(s.caught?'💀 ':'✅ ')+s.name,b:'🎟️ '+s.tickets+' · '+Math.round(s.time)+'s'}));
-  if(result==='win'){const first=!h.best[cfg.n];const coins=addCoins(first?600*cfg.n:150*cfg.n);
+  const BR=hrBotResult(a);const list=R.stats.map(s=>({a:(s.caught?'💀 ':'✅ ')+s.name,b:'🎟️ '+s.tickets+' · '+Math.round(s.time)+'s'})).concat(BR.rows);const showList=R.friends||BR.rows.length>0;
+  if(result==='win'){const first=!h.best[cfg.n];const coins=addCoins((first?600*cfg.n:150*cfg.n)+BR.bonus);if(BR.all)award('hr_squad');
     h.best[cfg.n]={time:Math.min(time,(h.best[cfg.n]||{}).time||1e9),alone:!R.friends||(h.best[cfg.n]||{}).alone};h.unlocked=Math.max(h.unlocked,cfg.n+1);
     const rw=HR_REW[cfg.n];let got='';if(rw&&!S.owned[rw[0]]){S.owned[rw[0]]=1;got=' You unlocked '+rw[1]+'!';}
     award(cfg.n===6?'hr_nm':'hr_n'+cfg.n);if(!R.friends&&R.caughtCount===0)award('hr_alone');if(R.friends)award('hr_team');if(R.closest<3.2)award('hr_close');if(!R.usedLight)award('hr_dark');save();updateCoinsUI(true);
     const mvp=R.friends?R.stats.slice().sort((p,q)=>q.tickets-p.tickets||q.time-p.time)[0]:null;
-    showResult({title:cfg.n===5?'YOU SURVIVED CLOSING TIME':(cfg.n===6?'YOU SURVIVED THE NIGHTMARE':'NIGHT '+cfg.n+' SURVIVED'),big:'🎪',line:'You escaped in '+Math.round(time)+' seconds'+(R.caughtCount?' (caught '+R.caughtCount+'×)':' without getting caught!')+'.'+got+(mvp?' MVP: '+mvp.name+'!':'')+(cfg.n===5?' But Grinny is still in there… waiting. ☠️ NIGHTMARE unlocked.':''),coins,list:R.friends?list:null,
+    showResult({title:cfg.n===5?'YOU SURVIVED CLOSING TIME':(cfg.n===6?'YOU SURVIVED THE NIGHTMARE':'NIGHT '+cfg.n+' SURVIVED'),big:'🎪',line:'You escaped in '+Math.round(time)+' seconds'+(R.caughtCount?' (caught '+R.caughtCount+'×)':' without getting caught!')+'.'+got+(mvp?' MVP: '+mvp.name+'!':'')+BR.line+(cfg.n===5?' But Grinny is still in there… waiting. ☠️ NIGHTMARE unlocked.':''),coins,list:showList?list:null,
       buttons:[cfg.n<6&&HR_NIGHTS[cfg.n+1]&&h.unlocked>cfg.n?{label:'Next night ▸',cls:'gold',fn:()=>again(cfg.n+1)}:null,{label:'Play again',fn:()=>again(cfg.n)},{label:'Leave the park',fn:back}].filter(Boolean)});}
-  else{showResult({title:'GRINNY GOT YOU',big:'🎈',line:R.friends?'The whole team was caught! You found '+R.tickets+' of '+cfg.tickets+' tickets.':'You found '+R.tickets+' of '+cfg.tickets+' tickets before Grinny caught you.',coins:null,list:R.friends?list:null,
+  else{showResult({title:'GRINNY GOT YOU',big:'🎈',line:R.friends?'The whole team was caught! You found '+R.tickets+' of '+cfg.tickets+' tickets.':'You found '+R.tickets+' of '+cfg.tickets+' tickets before Grinny caught you.',coins:null,list:showList?list:null,
       buttons:[{label:'Try again',cls:'gold',fn:()=>again(cfg.n)},{label:'Leave the park',fn:back}]});}}
 $('#hrPassGo').addEventListener('click',()=>{const a=area;$('#hrPass').hidden=true;if(a&&a.horror){a.paused=false;hrCard('YOUR TURN',[HRUN.names[HRUN.cur]+', the park is all yours.','Grinny is waiting.'],'',2600);}});
 $('#hrHideOut').addEventListener('click',()=>{if(area&&area.horror)hrUnhide(area);});
@@ -9702,7 +9900,7 @@ $('#hrTLight').addEventListener('pointerdown',e=>{e.preventDefault();if(area&&ar
 {const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const body=$('#bagBody');body.appendChild(el('div','sec-h','🎪 Horror Mode'));const l=el('div','list');const h=hrS();
   l.appendChild(rowItem('🎪',"Grinny's Fun Fair",'Night '+Math.min(5,h.unlocked)+(h.unlocked>5?' · ☠️ Nightmare unlocked':'')+' · a Rollabout horror story','Play',()=>{closeSheets();setTimeout(hrOpenMenu,60);},mode!=='world'));body.appendChild(l);};}
 /* ---------- the rest of Rollabout behaves in the dark ---------- */
-{const _cj=canJump;canJump=function(){if(mode==='area'&&area&&area.horror)return !area.hide&&(player.grounded||player.coyote>0);return _cj.apply(this,arguments);};}
+{const _cj=canJump;canJump=function(){if(mode==='area'&&area&&area.horror)return !area.hide&&!area.carried&&(player.grounded||player.coyote>0);return _cj.apply(this,arguments);};}
 {const _dt=dashTick;dashTick=function(dt){if(mode==='area'&&area&&area.horror){const b=$('#dashBtn');if(b&&!b.hidden)b.hidden=true;DASH.prev=!!(keys.KeyQ||keys.ShiftLeft||keys.ShiftRight);DASH.tap=false;return;}return _dt.apply(this,arguments);};}
 {const _up=updatePet;updatePet=function(dt,g){_up.apply(this,arguments);if(mode==='area'&&area&&area.horror&&pet)pet.g.visible=false;};}
 {const _xp=xPetTick;xPetTick=function(dt){_xp.apply(this,arguments);if(mode==='area'&&area&&area.horror)XPETS.forEach(X=>{if(X)X.g.visible=false;});};}
