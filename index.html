@@ -470,6 +470,20 @@ body.mpSplit.mpSide::after{content:'';position:fixed;top:50%;left:0;right:0;heig
 .ktTracks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin:4px 0 8px}.ktTr{padding:8px;border-radius:12px;border:2.5px solid #14213d;background:#fff;font-family:inherit;font-weight:800;cursor:pointer;text-align:left;color:#14213d}.ktTr b{font-size:20px;margin-right:6px}.ktTr.on{background:#fff3c4;border-color:#ff7a3d}
 body.party #hint,body.party #clockChip,body.party #biomeChip{display:none!important}
 body.mpSplit #ktMap{left:50%;right:auto;transform:translateX(-50%)}
+.qsTitle{margin:0;font-size:28px;color:#14213d}.qsTitle span{color:#9a5cff}
+.qsSeason{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-radius:18px;border:3px solid #14213d;background:linear-gradient(135deg,#3a1a8a,#9a5cff 60%,#ff6ad5);color:#fff;box-shadow:0 4px 0 #14213d}
+.qsSeason small{font-weight:900;letter-spacing:2px;opacity:.85}.qsSeason h3{margin:0;font-size:26px}.qsSeason span{font-weight:700;font-size:13px;opacity:.9}
+.qsTierBig b{font-size:48px;line-height:1}.qsTierBig small{font-size:16px}
+.qsBar{position:relative;flex-basis:100%;height:20px;border-radius:10px;background:rgba(0,0,0,.3);overflow:hidden}.qsBar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#ffd23d,#7dff9a)}.qsBar span{position:relative;display:block;text-align:center;font-weight:900;font-size:12px;line-height:20px;color:#14213d;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.qsH{font-weight:900;font-size:17px;color:#14213d;margin:16px 0 8px;display:flex;align-items:center}
+.qsList{display:flex;flex-direction:column;gap:8px}.qsQ{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:10px 12px;border:2.5px solid #14213d;border-radius:14px;background:#fff}
+.qsQ .qsT{font-weight:800;color:#14213d}.qsQ .qsP{grid-column:1;position:relative;height:14px;border-radius:7px;background:#e8e4d4;overflow:hidden}.qsQ .qsP i{position:absolute;inset:0 auto 0 0;background:#7dd8ff}.qsQ .qsP span{position:relative;display:block;text-align:center;font-size:10px;font-weight:900;line-height:14px}
+.qsQ .qsR{grid-column:1;font-size:12px;font-weight:700;color:#5a6a84}.qsQ .btn{grid-row:1/4;grid-column:2}.qsQ.done{background:#eaffef;border-color:#2bb673}.qsQ.done .qsP i{background:#2bb673}.qsQ.claimed{opacity:.6}
+.qsTrack{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scroll-behavior:smooth}
+.qsTierC{position:relative;flex:0 0 104px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px;border:2.5px solid #14213d;border-radius:14px;background:#fff;text-align:center;font-size:11px;font-weight:700;color:#14213d}
+.qsTierC small{font-weight:900;color:#9a5cff}.qsTierC b{font-size:28px}.qsTierC.big{background:#fff6d8}.qsTierC.lock{opacity:.5}.qsTierC.can{cursor:pointer;border-color:#2bb673;box-shadow:0 0 0 3px #7dff9a;animation:hrPop .6s infinite alternate}.qsTierC.got{background:#eaffef}.qsTierC i{position:absolute;top:4px;right:6px;font-style:normal;color:#2bb673;font-weight:900}
+.qsTitles{display:flex;flex-wrap:wrap;gap:8px}.qsTi{padding:7px 12px;border-radius:12px;border:2.5px solid #14213d;font-family:inherit;font-weight:900;cursor:pointer;background:#fff}.qsTi.on{outline:3px solid #ff7a3d;outline-offset:2px}.qsNone{color:#5a6a84;font-weight:700}
+#tQuest{position:relative}#tQuest[data-n]:not([data-n=""])::after{content:attr(data-n);position:absolute;top:-6px;right:-6px;background:#ff3b52;color:#fff;border:2px solid #14213d;border-radius:12px;padding:0 7px;font-size:13px;font-weight:900}
 #c3hold{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:14;background:#1a0a3a;color:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:240px;box-shadow:0 6px 0 var(--ink)}
 #c3hold b{font-size:20px;font-variant-numeric:tabular-nums}.c3bar{width:100%;height:10px;background:#3a2a5c;border-radius:99px;overflow:hidden}.c3bar i{display:block;height:100%;background:linear-gradient(90deg,#9a5cff,#ffd23d)}
 #c3holdBtn{touch-action:none;user-select:none;-webkit-user-select:none}
@@ -800,6 +814,10 @@ body.mpSplit #ktMap{left:50%;right:auto;transform:translateX(-50%)}
   <section class="sheet" id="mpSheet" hidden aria-label="Party Modes" style="max-width:780px">
     <header><h2 class="mpTitle">🎉 PARTY <span>MODES</span></h2><button class="btn x" data-close aria-label="Close">✕</button></header>
     <div id="mpBody"></div>
+  </section>
+  <section class="sheet" id="qsSheet" hidden aria-label="Quests and Season" style="max-width:820px">
+    <header><h2 class="qsTitle">🏆 QUESTS <span>&amp; SEASON</span></h2><button class="btn x" data-close aria-label="Close">✕</button></header>
+    <div id="qsBody"></div>
   </section>
   <section class="sheet" id="gardenSheet" hidden aria-label="Your garden" style="max-width:720px">
     <header><h2>🌻 <span id="gTitle">Your Garden</span></h2><button class="btn x" data-close aria-label="Close">✕</button></header>
@@ -9239,8 +9257,8 @@ AURAS.push({id:'aura_truesphere',name:'True Sphere',price:0,rar:'mythic',icon:'�
   const inSer=mode==='area'&&area&&area.id==='serence';l.appendChild(rowItem(inSer?'🌍':'🏝️',inSer?'The first island':'Serence Island',inSer?'Go back to where it all started':'The new island','Travel',()=>{closeSheets();fadeTo(()=>{if(inSer)exitToWorld(new V3(SPAWN.x,0,SPAWN.z));else enterArea('serence');});},!(mode==='world'&&!(area&&area.busy))&&!inSer));body.appendChild(l);};}
 /* ---------- the Owner title ---------- */
 BADGES.push({id:'owner',icon:'👑',name:'Owner',desc:'The owner of Rollabout. You can only get this one with a special code.',secret:1});
-{const _sl=setPlayerLabel;setPlayerLabel=function(){_sl.apply(this,arguments);if(S.title!=='owner')return;if(playerLabel)scene.remove(playerLabel);
-  const nm=S.name||'Rollie';playerLabel=makeLabel('👑 OWNER · '+nm,{scale:.9,bg:'rgba(255,214,60,.98)',color:'#7a1200'});scene.add(playerLabel);$('#nameTxt').textContent='👑 OWNER · '+nm;};}
+{const _sl=setPlayerLabel;setPlayerLabel=function(){_sl.apply(this,arguments);const T=typeof TITLES!=='undefined'&&S.title?TITLES[S.title]:null;if(!T)return;if(playerLabel)scene.remove(playerLabel);
+  const nm=S.name||'Rollie';playerLabel=makeLabel(T[0]+' · '+nm,{scale:.9,bg:T[1],color:T[2]});scene.add(playerLabel);$('#nameTxt').textContent=T[0]+' · '+nm;};}
 try{setPlayerLabel();}catch(e){}
 
 /* ================= HORROR MODE: GRINNY'S FUN FAIR ================= */
@@ -9636,7 +9654,7 @@ function hrTick(a,dt){const R=HRUN;if(!R)return;const cfg=R.cfg,M=a.M,P=player.p
     else if(r<.86){const l=a.lamps.slice().sort((p,q)=>Math.hypot(p.x-P.x,p.z-P.z)-Math.hypot(q.x-P.x,q.z-P.z))[0];if(l)l.fl=1.5;}
     else{const bx=P.x+Math.sin(camYaw)*6,bz=P.z+Math.cos(camYaw)*6;HAS.step(bx,bz);setTimeout(()=>{if(area===a)HAS.step(bx,bz);},420);}}
   /* --- pickups --- */
-  a.tix.forEach(k=>{if(k.got)return;k.g.rotation.y+=dt*1.6;k.g.position.y=1.4+Math.sin(t*2+k.x)*.2;if(Math.hypot(P.x-k.x,P.z-k.z)<2.3&&P.y<4){k.got=true;a.group.remove(k.g);R.tickets++;R.stats[R.cur].tickets++;HAS.chime();hrNoise(a,P.x,P.z,26);
+  a.tix.forEach(k=>{if(k.got)return;k.g.rotation.y+=dt*1.6;k.g.position.y=1.4+Math.sin(t*2+k.x)*.2;if(Math.hypot(P.x-k.x,P.z-k.z)<2.3&&P.y<4){k.got=true;a.group.remove(k.g);R.tickets++;R.stats[R.cur].tickets++;if(typeof qsEvent==='function')qsEvent('ticket');HAS.chime();hrNoise(a,P.x,P.z,26);
       if(R.tickets>=cfg.tickets)hrOpenGate(a);else{toast('🎟️ Golden ticket! '+R.tickets+' / '+cfg.tickets,'badge','🎟️');if(R.tickets===1)setTimeout(()=>{if(area===a)HAS.laugh(M.pos.x,M.pos.z);},900);}}});
   a.batts.forEach(b=>{if(b.got)return;b.g.rotation.y+=dt*2;if(Math.hypot(P.x-b.x,P.z-b.z)<2&&P.y<4){b.got=true;a.group.remove(b.g);a.batt=Math.min(100,a.batt+50);HAS.pick();toast('🔋 Battery! Flashlight +50%','badge','🔋');}});
   if(a.note)a.note.g.children[1].material.opacity=.25+Math.sin(t*3)*.12;
@@ -10314,7 +10332,7 @@ function ryEnd(a){const R=a.mp;if(R.over)return;R.over=true;const tag=R.mode==='
   const list=order.slice(0,10).map((b,i)=>({a:(i===0?'👑 ':'#'+(i+1)+' ')+b.name+(b.ctrl!=='ai'?' ⭐':''),b:tag?b.itT.toFixed(1)+'s as IT':(b.kos?'💥 '+b.kos+' KO · ':'')+Math.round(b.dmg)+'%'}));
   const me=R.humans[0],myPlace=order.indexOf(me)+1;const pay=tag?[250,150,100]:[400,250,150];const coins=addCoins(R.humans.reduce((s,h)=>{const pl=order.indexOf(h)+1;return s+(pay[pl-1]||(pl<=8?60:25));},0));
   if(myPlace===1||(R.players>1&&order.indexOf(R.humans[1])===0)){if(tag)award('tag_win');else{award('ry_win');const p=mpS();p.wins.royale=(p.wins.royale||0)+1;if(p.wins.royale>=5)award('ry_win5');if(order[0].dmg>=300)award('ry_300');}}
-  if(!tag&&me.alive&&me.dmg>=300)award('ry_300');mpS();save();updateCoinsUI(true);if(typeof qsEvent==='function')qsEvent(tag?'tag':'royale',{place:myPlace});
+  if(!tag&&me.alive&&me.dmg>=300)award('ry_300');mpS();save();updateCoinsUI(true);if(typeof qsEvent==='function')qsEvent(tag?'tag':'royale',{place:myPlace});if(!tag&&myPlace===1&&typeof qsS==='function')qsS().titles.royale_king=1;
   const winner=order[0];setTimeout(()=>{if(!MP)return;showResult({title:tag?'BALL TAG':'BALL ROYALE',big:winner.ctrl!=='ai'?'👑':'🏝️',line:(winner.ctrl!=='ai'?winner.name+' WINS!':winner.name+' won.')+' '+(R.players>1?'':'You placed #'+myPlace+'.'),coins,list,
     buttons:[{label:'Play again',cls:'gold',fn:()=>{closeSheets();ryStart(R.mode);}},{label:'Party menu',fn:()=>{closeSheets();fadeTo(()=>{exitToWorld(new V3(SPAWN.x,0,SPAWN.z));setTimeout(mpOpenMenu,300);});}},{label:'Leave',fn:()=>mpQuit()}]});},900);}
 
@@ -10506,9 +10524,96 @@ function ktEnd(a){const R=a.mp;if(R.over)return;R.over=true;const T=R.T;
   save();updateCoinsUI(true);
   const list=(C?Object.entries(C.pts).sort((x,y)=>y[1]-x[1]).map(([n,v],i)=>({a:(i===0?'👑 ':'#'+(i+1)+' ')+n,b:v+' pts'})):order.map((b,i)=>({a:'#'+(i+1)+' '+b.name+(b.ctrl!=='ai'?' ⭐':''),b:b.fin.time?b.fin.time.toFixed(1)+'s':'—'})));
   const btns=[];if(C&&C.i<C.tracks.length)btns.push({label:'Next race ▸ '+KT_TRACKS[C.tracks[C.i]].icon,cls:'gold',fn:()=>{closeSheets();MPO.players=R.players;ktStart(C);}});
-  else if(C){const top=Object.entries(C.pts).sort((x,y)=>y[1]-x[1])[0];const won=R.humans.some(h=>h.name===top[0]);cupLine=won?' 🏆 YOU WON THE '+C.name.toUpperCase()+'!':' '+top[0]+' won the cup.';if(won){award('kt_cup');p.kart['cup_'+C.id]=1;if(KT_CUPS.every(c=>p.kart['cup_'+c.id]))award('kt_cups');addCoins(500);}save();}
+  else if(C){const top=Object.entries(C.pts).sort((x,y)=>y[1]-x[1])[0];const won=R.humans.some(h=>h.name===top[0]);cupLine=won?' 🏆 YOU WON THE '+C.name.toUpperCase()+'!':' '+top[0]+' won the cup.';if(won){award('kt_cup');if(typeof qsS==='function')qsS().titles.kart_king=1;p.kart['cup_'+C.id]=1;if(KT_CUPS.every(c=>p.kart['cup_'+c.id]))award('kt_cups');addCoins(500);}save();}
   if(!C||C.i>=C.tracks.length)btns.push({label:'Race again',cls:C?'gold':'gold',fn:()=>{closeSheets();ktStart();}});btns.push({label:'Party menu',fn:()=>{closeSheets();fadeTo(()=>{exitToWorld(new V3(SPAWN.x,0,SPAWN.z));setTimeout(mpOpenMenu,300);});}},{label:'Leave',fn:()=>mpQuit()});
   setTimeout(()=>{if(!a.mp)return;showResult({title:C?C.name+(C.i>=C.tracks.length?' · FINAL':' · Race '+C.i+'/4'):T.name,big:order[0].ctrl!=='ai'?'🏆':T.icon,line:(R.players>1?(order[0].ctrl!=='ai'?order[0].name+' wins!':order[0].name+' won.'):'You finished '+ktOrd(pl)+'!')+cupLine,coins,list,buttons:btns});},400);}
+
+/* ================= DAILY QUESTS + SEASON PASS + TITLES ================= */
+const TITLES={owner:['👑 OWNER','rgba(255,214,60,.98)','#7a1200'],s_rookie:['🌱 ROOKIE','rgba(214,255,220,.97)','#14532d'],s_quest:['🎯 QUESTER','rgba(214,232,255,.97)','#14213d'],
+  s_speed:['🏎️ SPEED DEMON','rgba(255,220,200,.97)','#7a2a00'],s_island:['🏝️ ISLAND KING','rgba(200,245,255,.97)','#0a4a6a'],s_word:['🧪 WORD WIZARD','rgba(232,214,255,.97)','#3a1a6a'],
+  s_fear:['🎪 FEARLESS','rgba(40,20,40,.95)','#ffd8d8'],s_star:['⭐ ALL-STAR','rgba(255,246,190,.98)','#6a4a00'],s_legend:['💎 LEGEND','rgba(190,245,255,.98)','#0a3a5a'],
+  s_verse:['🌌 ROLLAVERSE','rgba(30,20,70,.95)','#d8c8ff'],s_champ:['🏆 SEASON CHAMP','rgba(255,214,60,.98)','#5a2a00'],kart_king:['🏁 KART KING','rgba(255,255,255,.97)','#14213d'],royale_king:['🏝️ LAST BALL','rgba(214,255,230,.97)','#0a4a2a']};
+const QS_TIERS=50,QS_XP=200;
+const QS_REW=[];for(let t=1;t<=QS_TIERS;t++){QS_REW[t]={coins:t%5===0?0:100+Math.floor(t/5)*50};}
+[[5,'s_rookie'],[10,'s_quest'],[15,'s_speed'],[20,'s_island'],[25,'s_word'],[30,'s_fear'],[35,'s_star'],[40,'s_legend'],[45,'s_verse'],[50,'s_champ']].forEach(([t,id])=>QS_REW[t]={title:id,coins:t*20});
+[[12,'trail_season'],[28,'trail_comet'],[50,'trail_galaxy']].forEach(([t,id])=>QS_REW[t].item=id);[[8,1000],[18,1500],[38,2500]].forEach(([t,c])=>QS_REW[t].coins=c);
+[{id:'trail_season',name:'Season Sparkle',price:0,special:1,cols:['#ffd23d','#ff7a3d','#ffffff'],shape:'star',sz:.3,life:1,grav:-1,glow:1},
+ {id:'trail_comet',name:'Comet Tail',price:0,special:1,cols:['#9fe8ff','#ffffff','#5ab0ff'],shape:'sph',sz:.45,life:.8,grav:0,glow:1.4,grow:-1},
+ {id:'trail_galaxy',name:'Rollaverse Galaxy',price:0,special:1,cols:['#9a5cff','#ff6ad5','#6ad5ff','#ffffff'],shape:'star',sz:.34,life:1.4,grav:-.5,glow:1.2,seq:1}].forEach(t=>{TRAILS.push(t);ALL_ITEMS.push(t);});
+const QS_POOL=[
+ {id:'coins',t:'Earn {g} coins',g:[600,1000,1500],ev:'coins'},
+ {id:'jumps',t:'Jump {g} times',g:[40,80],stat:()=>S.stats.jumps||0},
+ {id:'dist',t:'Roll {g} meters',g:[1500,3000],stat:()=>Math.floor(S.stats.dist||0)},
+ {id:'hoops',t:'Roll through {g} hoops',g:[5,10],stat:()=>S.stats.hoops||0},
+ {id:'race',t:'Win a race in the world',g:[1],stat:()=>S.stats.raceWins||0},
+ {id:'boss',t:'Win a boss fight',g:[1],stat:()=>Object.values(S.bossWins||{}).reduce((a,b)=>a+b,0)},
+ {id:'royale',t:'Play {g} rounds of Ball Royale',g:[2,3],ev:'royale'},
+ {id:'royale3',t:'Finish top 3 in Ball Royale',g:[1],ev:'royale',ok:d=>d.place<=3},
+ {id:'kart',t:'Finish {g} Kart races',g:[2,3],ev:'kart'},
+ {id:'kart3',t:'Finish on the Kart podium',g:[1],ev:'kart',ok:d=>d.place<=3},
+ {id:'tag',t:'Play {g} games of Ball Tag',g:[1,2],ev:'tag'},
+ {id:'craft',t:'Discover {g} new Rollcraft words',g:[8,15],ev:'craft'},
+ {id:'mix',t:'Mix {g} times in Rollcraft',g:[25,50],stat:()=>(S.craft&&S.craft.tries)||0},
+ {id:'ticket',t:'Collect {g} golden tickets in Horror Mode',g:[4,8],ev:'ticket'},
+ {id:'horror',t:'Escape a night in Horror Mode',g:[1],ev:'horror'},
+ {id:'badge',t:'Unlock {g} badges',g:[2,3],ev:'badge'}];
+BADGES.push({id:'qs_first',icon:'📜',name:'Quest Taker',desc:'Finish a daily quest'},{id:'qs_all3',icon:'✅',name:'Daily Grind',desc:'Finish all 3 daily quests in one day'},
+  {id:'qs_10',icon:'🗓️',name:'Regular',desc:'Finish 10 daily quests'},{id:'qs_50',icon:'🏅',name:'Quest Legend',desc:'Finish 50 daily quests'},
+  {id:'ss_10',icon:'🎟️',name:'Season Pass',desc:'Reach tier 10 of a season'},{id:'ss_25',icon:'🎫',name:'Halfway There',desc:'Reach tier 25 of a season'},{id:'ss_50',icon:'🏆',name:'Season Champion',desc:'Reach tier 50 of a season',secret:1});
+const QS_SEASONS=['Rollaverse','Frosty Fun','Spring Roll','Sunburst','Spooky Season','Neon Nights'];
+function qsDay(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function qsSeasonNo(){return Math.max(1,Math.floor((Date.now()-Date.UTC(2026,10,1))/864e5/42)+1);}
+function qsSeasonEnd(){return Date.UTC(2026,10,1)+qsSeasonNo()*42*864e5;}
+function qsRng(seed){let h=2166136261;for(const c of seed)h=Math.imul(h^c.charCodeAt(0),16777619);return()=>{h=Math.imul(h^(h>>>15),2246822507);h=Math.imul(h^(h>>>13),3266489909);return((h^=h>>>16)>>>0)/4294967296;};}
+function qsS(){S.qs=S.qs||{};const q=S.qs;q.total=q.total||0;q.titles=q.titles||{};if(S.title==='owner')q.titles.owner=1;
+  const sn=qsSeasonNo();if(q.season!==sn){q.season=sn;q.xp=0;q.claimed={};}
+  if(q.day!==qsDay()){q.day=qsDay();q.reroll=1;const r=qsRng(q.day+(S.name||''));const pool=QS_POOL.slice();q.list=[];while(q.list.length<3&&pool.length){const d=pool.splice(Math.floor(r()*pool.length),1)[0];q.list.push(qsMake(d,r));}}return q;}
+function qsMake(d,r){r=r||Math.random;const g=d.g[Math.floor(r()*d.g.length)];return{id:d.id,goal:g,prog:0,base:d.stat?d.stat():0,done:false,claimed:false,xp:150+(d.g.length>1&&g===d.g[d.g.length-1]?50:0),coins:150+Math.floor(r()*4)*50};}
+function qsDef(q){return QS_POOL.find(d=>d.id===q.id);}
+function qsText(q){return qsDef(q).t.replace('{g}',q.goal.toLocaleString());}
+function qsAdd(q,n){if(q.done)return;q.prog=Math.min(q.goal,q.prog+n);if(q.prog>=q.goal){q.done=true;toast('📜 Quest done: '+qsText(q)+' · claim it!','badge','📜');sfx('badge');qsDot();}}
+function qsEvent(ev,data){const Q=qsS();data=data||{};Q.list.forEach(q=>{const d=qsDef(q);if(d&&d.ev===ev&&(!d.ok||d.ok(data)))qsAdd(q,data.n||1);});
+  const xp={royale:40,kart:40,tag:30,horror:60,craft:3,badge:20}[ev];if(xp)qsXP(xp+((ev==='royale'||ev==='kart'||ev==='tag')&&data.place===1?40:0));save();}
+function qsXP(n){const Q=qsS();const before=Math.floor(Q.xp/QS_XP);Q.xp+=n;const after=Math.min(QS_TIERS,Math.floor(Q.xp/QS_XP));if(after>before&&before<QS_TIERS){toast('🎟️ Season tier '+after+' reached! Claim your reward.','badge','🎟️');qsDot();
+  if(after>=10)award('ss_10');if(after>=25)award('ss_25');if(after>=50)award('ss_50');}}
+function qsTier(){return Math.min(QS_TIERS,Math.floor(qsS().xp/QS_XP));}
+function qsClaimable(){const Q=qsS();let n=Q.list.filter(q=>q.done&&!q.claimed).length;for(let t=1;t<=qsTier();t++)if(!Q.claimed[t])n++;return n;}
+function qsDot(){const b=$('#tQuest');if(b){const n=qsClaimable();b.dataset.n=n?n:'';}}
+/* stat-based quests are checked every couple of seconds */
+setInterval(()=>{try{if(!S)return;const Q=qsS();Q.list.forEach(q=>{const d=qsDef(q);if(d&&d.stat&&!q.done){const v=d.stat()-q.base;if(v>q.prog){q.prog=Math.min(q.goal,v);if(q.prog>=q.goal)qsAdd(q,0);}}});qsDot();}catch(e){}},2000);
+/* hooks into the rest of the game */
+let QS_NOCOUNT=false;
+{const _ac=addCoins;addCoins=function(n){const r=_ac.apply(this,arguments);try{if(!QS_NOCOUNT&&r>0)qsEvent('coins',{n:r});}catch(e){}return r;};}
+{const _aw=award;award=function(id){const had=S.badges[id];_aw.apply(this,arguments);try{if(!had&&S.badges[id]&&!id.startsWith('qs_')&&!id.startsWith('ss_'))qsEvent('badge');}catch(e){}};}
+{const _rd=rcDiscover;rcDiscover=function(n,how){const r=_rd.apply(this,arguments);if(r)try{qsEvent('craft');}catch(e){}return r;};}
+{const _hf=hrFinish;hrFinish=function(result){if(result==='win')try{qsEvent('horror');}catch(e){}return _hf.apply(this,arguments);};}
+/* ---------- the quest & season screen ---------- */
+function qsOpen(){qsS();openSheet('qsSheet');qsRender();}
+function qsRender(){const Q=qsS(),b=$('#qsBody');b.innerHTML='';const tier=qsTier(),into=Q.xp-tier*QS_XP;
+  const hd=el('div','qsSeason');const left=Math.max(0,qsSeasonEnd()-Date.now());hd.innerHTML='<div><small>SEASON '+Q.season+'</small><h3>'+QS_SEASONS[(Q.season-1)%QS_SEASONS.length]+'</h3><span>Ends in '+Math.ceil(left/864e5)+' days</span></div><div class="qsTierBig"><b>'+tier+'</b><small>/ '+QS_TIERS+'</small></div>';
+  const bar=el('div','qsBar');bar.innerHTML='<i style="width:'+(tier>=QS_TIERS?100:into/QS_XP*100)+'%"></i><span>'+(tier>=QS_TIERS?'MAX TIER!':into+' / '+QS_XP+' XP to tier '+(tier+1))+'</span>';hd.appendChild(bar);b.appendChild(hd);
+  /* daily quests */
+  const now=new Date(),mid=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);const hrs=Math.floor((mid-now)/36e5),mins=Math.floor((mid-now)/6e4)%60;
+  b.appendChild(el('div','qsH','📜 Daily quests · new ones in '+hrs+'h '+mins+'m'));const ql=el('div','qsList');
+  Q.list.forEach((q,i)=>{const c=el('div','qsQ'+(q.done?' done':'')+(q.claimed?' claimed':''));c.innerHTML='<div class="qsT">'+qsText(q)+'</div><div class="qsP"><i style="width:'+(q.prog/q.goal*100)+'%"></i><span>'+q.prog.toLocaleString()+' / '+q.goal.toLocaleString()+'</span></div><div class="qsR">+'+q.xp+' XP · +'+q.coins+' 🪙</div>';
+    const btn=document.createElement('button');btn.className='btn small'+(q.done&&!q.claimed?' gold':'');btn.textContent=q.claimed?'✓ Claimed':q.done?'Claim!':'Reroll ('+Q.reroll+')';btn.disabled=q.claimed||(!q.done&&Q.reroll<=0);
+    btn.addEventListener('click',()=>{if(q.done&&!q.claimed){q.claimed=true;QS_NOCOUNT=true;addCoins(q.coins);QS_NOCOUNT=false;qsXP(q.xp);Q.total++;award('qs_first');if(Q.total>=10)award('qs_10');if(Q.total>=50)award('qs_50');if(Q.list.every(x=>x.claimed))award('qs_all3');sfx('coin');}
+      else if(!q.done&&Q.reroll>0){Q.reroll--;const others=QS_POOL.filter(d=>!Q.list.some(x=>x.id===d.id));Q.list[i]=qsMake(others[Math.floor(Math.random()*others.length)]);sfx('blip');}save();updateCoinsUI(true);qsRender();qsDot();});c.appendChild(btn);ql.appendChild(c);});b.appendChild(ql);
+  /* the pass */
+  const th=el('div','qsH','🎟️ Season pass');const all=document.createElement('button');all.className='btn small gold';all.textContent='Claim all';all.style.marginLeft='10px';all.addEventListener('click',()=>{for(let t=1;t<=tier;t++)qsClaimTier(t);qsRender();});th.appendChild(all);b.appendChild(th);
+  const tr=el('div','qsTrack');for(let t=1;t<=QS_TIERS;t++){const r=QS_REW[t],got=Q.claimed[t],can=t<=tier&&!got;const c=el('div','qsTierC'+(got?' got':'')+(can?' can':'')+(t>tier?' lock':'')+(r.title||r.item?' big':''));
+    c.innerHTML='<small>TIER '+t+'</small><b>'+(r.title?TITLES[r.title][0].split(' ')[0]:r.item?'✨':'🪙')+'</b><span>'+(r.title?'Title: '+TITLES[r.title][0].replace(/^\S+ /,''):r.item?TRAILS.find(x=>x.id===r.item).name+' trail':'')+(r.coins?(r.title||r.item?' + ':'')+r.coins+' coins':'')+'</span>'+(got?'<i>✓</i>':'');
+    if(can)c.addEventListener('click',()=>{qsClaimTier(t);qsRender();});tr.appendChild(c);}b.appendChild(tr);setTimeout(()=>{const cur=tr.children[Math.max(0,tier-2)];if(cur)tr.scrollLeft=cur.offsetLeft-20;},30);
+  /* titles */
+  b.appendChild(el('div','qsH','🏷️ Titles'));const tl=el('div','qsTitles');const own=Object.keys(TITLES).filter(k=>Q.titles[k]);
+  if(!own.length)tl.appendChild(el('p','qsNone','Reach season tiers to unlock titles that show above your ball!'));
+  [null,...own].forEach(k=>{if(k===null&&!own.length)return;const x=document.createElement('button');x.className='qsTi'+((S.title||null)===k?' on':'');x.textContent=k?TITLES[k][0]:'No title';if(k){x.style.background=TITLES[k][1];x.style.color=TITLES[k][2];}
+    x.addEventListener('click',()=>{S.title=k;save();setPlayerLabel();sfx('blip');qsRender();});tl.appendChild(x);});b.appendChild(tl);}
+function qsClaimTier(t){const Q=qsS();if(Q.claimed[t]||t>qsTier())return;Q.claimed[t]=1;const r=QS_REW[t];QS_NOCOUNT=true;if(r.coins)addCoins(r.coins);QS_NOCOUNT=false;if(r.title){Q.titles[r.title]=1;toast('🏷️ New title: '+TITLES[r.title][0],'badge','🏷️');}if(r.item){S.owned[r.item]=1;toast('✨ New trail: '+TRAILS.find(x=>x.id===r.item).name,'badge','✨');}sfx('coin');save();updateCoinsUI(true);qsDot();}
+{const b=document.createElement('button');b.className='btn';b.id='tQuest';b.style.cssText='background:linear-gradient(135deg,#7dd8ff,#9a5cff);color:#fff';b.innerHTML='🏆 Quests & Season <small>Daily quests · 50 tiers</small>';($('#tParty')||$('#tPlay')).after(b);b.addEventListener('click',qsOpen);}
+{const _rb=renderBag;renderBag=function(){_rb();if(feedTarget)return;const body=$('#bagBody');body.appendChild(el('div','sec-h','🏆 Quests & Season'));const l=el('div','list');const n=qsClaimable();
+  l.appendChild(rowItem('🏆','Quests & Season','Tier '+qsTier()+' / '+QS_TIERS+(n?' · '+n+' to claim!':''),'Open',()=>{closeSheets();setTimeout(qsOpen,60);},false));body.appendChild(l);};}
+setTimeout(()=>{try{qsS();qsDot();}catch(e){}},1500);
 
 /* ================= MINIMAP ================= */
 const MAPR=600;let mapImg=null,mapTick=0;
